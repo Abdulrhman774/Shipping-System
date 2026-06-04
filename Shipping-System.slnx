@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path=".gitignore" />
+  </Folder>
+  <Project Path="BL/BL.csproj" Id="44226c7e-0695-48fd-92d2-38ce3b5ab309" />
+  <Project Path="DAL/DAL.csproj" />
+  <Project Path="Domain/Domain.csproj" />
+  <Project Path="WebApi/WebApi.csproj" Id="8233f2b8-fdc5-4633-bbb7-91120fa592dd" />
+</Solution>

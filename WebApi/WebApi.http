@@ -1,0 +1,48 @@
+﻿@WebApiHostAddress = http://localhost:5112
+@PaymentMethodId = 809E74EE-4E5A-41A7-AE4B-9C2FF5AD5A55
+
+### Get All Payment Methods
+GET {{WebApiHostAddress}}/Api/PaymentMethod
+Accept: application/json
+
+###
+
+### Get Payment Method By Id
+GET {{WebApiHostAddress}}/Api/PaymentMethod/{{PaymentMethodId}}
+Accept: application/json
+
+###
+
+### Create Payment Method
+POST {{WebApiHostAddress}}/Api/PaymentMethod
+Content-Type: application/json
+
+{
+    "MethdAname": "الدفع نقداً عند الاستلام",
+    "MethodEname": "Cash on Delivery",
+    "Commission": 5.0
+}
+
+###
+
+### Update Payment Method
+PUT {{WebApiHostAddress}}/Api/PaymentMethod/{{PaymentMethodId}}
+Content-Type: application/json
+
+{
+    "MethdAname": "الدفع نقداً (معدل)",
+    "MethodEname": "Cash on Delivery (Updated)",
+    "Commission": 7.5
+}
+
+###
+
+### Delete Payment Method (Soft Delete)
+DELETE {{WebApiHostAddress}}/Api/PaymentMethod/{{PaymentMethodId}}
+Accept: application/json
+
+###
+
+### Change Status Payment Method ( 1 = Active , 2 = Inactive , 3 = Deleted )
+PATCH {{WebApiHostAddress}}/Api/PaymentMethod/{{PaymentMethodId}}/status/2
+Accept: application/json
