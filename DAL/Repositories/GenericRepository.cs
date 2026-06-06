@@ -155,4 +155,4 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
             throw new DataAccessException($"Error while changing status of {typeof(T).Name}", ex);
         }
     }
-}
+} 

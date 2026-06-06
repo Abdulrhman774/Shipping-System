@@ -1,6 +1,7 @@
 ﻿using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using System.ComponentModel;
 
 namespace DAL.Configurations;
 
@@ -13,7 +14,11 @@ public class ApplicationUserConfigurations : IEntityTypeConfiguration<Applicatio
         builder.Property(u => u.FullName)
                .IsRequired()
                .HasMaxLength(150);
-        
+
+        builder.Property(u => u.DateOfBirth)
+               .IsRequired()
+               .HasColumnType("date");
+
 
         builder.Property(u => u.Gender)
                .IsRequired()

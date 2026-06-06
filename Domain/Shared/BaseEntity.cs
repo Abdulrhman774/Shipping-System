@@ -12,7 +12,7 @@ namespace Domain.Shared
 
         public enEntityState CurrentState { get; set; }
 
-        public DateTime CreatedDate { get; set; }
+        public DateTime CreatedDate { get; set; } 
 
         public Guid CreatedBy { get; set; }
 

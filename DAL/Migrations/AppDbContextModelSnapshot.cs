@@ -34,7 +34,7 @@ namespace DAL.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateOnly?>("DateOfBirth")
+                    b.Property<DateOnly>("DateOfBirth")
                         .HasColumnType("date");
 
                     b.Property<string>("Email")
@@ -115,7 +115,8 @@ namespace DAL.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Level")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(16)
+                        .HasColumnType("nvarchar(16)");
 
                     b.Property<string>("Message")
                         .HasColumnType("nvarchar(max)");
@@ -131,7 +132,7 @@ namespace DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Log", (string)null);
+                    b.ToTable("Logs", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.TbCarrier", b =>
@@ -152,8 +153,8 @@ namespace DAL.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime");
 
-                    b.Property<int>("CurrentState")
-                        .HasColumnType("int");
+                    b.Property<byte>("CurrentState")
+                        .HasColumnType("tinyint");
 
                     b.Property<Guid?>("UpdatedBy")
                         .HasColumnType("uniqueidentifier");
@@ -194,8 +195,8 @@ namespace DAL.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime");
 
-                    b.Property<int>("CurrentState")
-                        .HasColumnType("int");
+                    b.Property<byte>("CurrentState")
+                        .HasColumnType("tinyint");
 
                     b.Property<Guid?>("UpdatedBy")
                         .HasColumnType("uniqueidentifier");
@@ -233,8 +234,8 @@ namespace DAL.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime");
 
-                    b.Property<int>("CurrentState")
-                        .HasColumnType("int");
+                    b.Property<byte>("CurrentState")
+                        .HasColumnType("tinyint");
 
                     b.Property<Guid?>("UpdatedBy")
                         .HasColumnType("uniqueidentifier");
@@ -263,8 +264,8 @@ namespace DAL.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime");
 
-                    b.Property<int>("CurrentState")
-                        .HasColumnType("int");
+                    b.Property<byte>("CurrentState")
+                        .HasColumnType("tinyint");
 
                     b.Property<string>("MethdAname")
                         .HasMaxLength(200)
@@ -294,11 +295,26 @@ namespace DAL.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasDefaultValueSql("(newid())");
 
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime");
+
+                    b.Property<byte>("CurrentState")
+                        .HasColumnType("tinyint");
+
                     b.Property<double?>("KiloMeterRate")
                         .HasColumnType("float");
 
                     b.Property<double?>("KilooGramRate")
                         .HasColumnType("float");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime");
 
                     b.HasKey("Id");
 
@@ -318,8 +334,8 @@ namespace DAL.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime");
 
-                    b.Property<int>("CurrentState")
-                        .HasColumnType("int");
+                    b.Property<byte>("CurrentState")
+                        .HasColumnType("tinyint");
 
                     b.Property<double>("ShippingFactor")
                         .HasColumnType("float");
@@ -358,8 +374,8 @@ namespace DAL.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime");
 
-                    b.Property<int>("CurrentState")
-                        .HasColumnType("int");
+                    b.Property<byte>("CurrentState")
+                        .HasColumnType("tinyint");
 
                     b.Property<double>("Height")
                         .HasColumnType("float");
@@ -438,8 +454,8 @@ namespace DAL.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime");
 
-                    b.Property<int>("CurrentState")
-                        .HasColumnType("int");
+                    b.Property<byte>("CurrentState")
+                        .HasColumnType("tinyint");
 
                     b.Property<string>("Notes")
                         .HasColumnType("nvarchar(max)");
@@ -475,8 +491,8 @@ namespace DAL.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime");
 
-                    b.Property<int>("CurrentState")
-                        .HasColumnType("int");
+                    b.Property<byte>("CurrentState")
+                        .HasColumnType("tinyint");
 
                     b.Property<double>("NumberOfKiloMeters")
                         .HasColumnType("float");
@@ -524,8 +540,8 @@ namespace DAL.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime");
 
-                    b.Property<int>("CurrentState")
-                        .HasColumnType("int");
+                    b.Property<byte>("CurrentState")
+                        .HasColumnType("tinyint");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -558,7 +574,7 @@ namespace DAL.Migrations
                     b.ToTable("TbUserReceivers");
                 });
 
-            modelBuilder.Entity("Domain.Entities.TbUserSebder", b =>
+            modelBuilder.Entity("Domain.Entities.TbUserSender", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -579,8 +595,8 @@ namespace DAL.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime");
 
-                    b.Property<int>("CurrentState")
-                        .HasColumnType("int");
+                    b.Property<byte>("CurrentState")
+                        .HasColumnType("tinyint");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -610,7 +626,7 @@ namespace DAL.Migrations
 
                     b.HasIndex("CityId");
 
-                    b.ToTable("TbUserSebders");
+                    b.ToTable("TbUserSenders");
                 });
 
             modelBuilder.Entity("Domain.Entities.TbUserSubscription", b =>
@@ -626,8 +642,8 @@ namespace DAL.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime");
 
-                    b.Property<int>("CurrentState")
-                        .HasColumnType("int");
+                    b.Property<byte>("CurrentState")
+                        .HasColumnType("tinyint");
 
                     b.Property<Guid>("PackageId")
                         .HasColumnType("uniqueidentifier");
@@ -808,11 +824,11 @@ namespace DAL.Migrations
                         .IsRequired()
                         .HasConstraintName("FK_TbShippments_TbUserReceivers");
 
-                    b.HasOne("Domain.Entities.TbUserSebder", "Sender")
+                    b.HasOne("Domain.Entities.TbUserSender", "Sender")
                         .WithMany("TbShippments")
                         .HasForeignKey("SenderId")
                         .IsRequired()
-                        .HasConstraintName("FK_TbShippments_TbUserSebders");
+                        .HasConstraintName("FK_TbShippments_TbUserSenders");
 
                     b.HasOne("Domain.Entities.TbShippingType", "ShippingType")
                         .WithMany("TbShippments")
@@ -858,13 +874,13 @@ namespace DAL.Migrations
                     b.Navigation("City");
                 });
 
-            modelBuilder.Entity("Domain.Entities.TbUserSebder", b =>
+            modelBuilder.Entity("Domain.Entities.TbUserSender", b =>
                 {
                     b.HasOne("Domain.Entities.TbCity", "City")
-                        .WithMany("TbUserSebders")
+                        .WithMany("TbUserSenders")
                         .HasForeignKey("CityId")
                         .IsRequired()
-                        .HasConstraintName("FK_TbUserSebders_TbCities");
+                        .HasConstraintName("FK_TbUserSenders_TbCities");
 
                     b.Navigation("City");
                 });
@@ -940,7 +956,7 @@ namespace DAL.Migrations
                 {
                     b.Navigation("TbUserReceivers");
 
-                    b.Navigation("TbUserSebders");
+                    b.Navigation("TbUserSenders");
                 });
 
             modelBuilder.Entity("Domain.Entities.TbCountry", b =>
@@ -973,7 +989,7 @@ namespace DAL.Migrations
                     b.Navigation("TbShippments");
                 });
 
-            modelBuilder.Entity("Domain.Entities.TbUserSebder", b =>
+            modelBuilder.Entity("Domain.Entities.TbUserSender", b =>
                 {
                     b.Navigation("TbShippments");
                 });

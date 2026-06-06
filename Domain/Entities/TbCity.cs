@@ -16,5 +16,5 @@ public partial class TbCity : BaseEntity
 
     public virtual ICollection<TbUserReceiver> TbUserReceivers { get; set; } = new List<TbUserReceiver>();
 
-    public virtual ICollection<TbUserSender> TbUserSebders { get; set; } = new List<TbUserSender>();
+    public virtual ICollection<TbUserSender> TbUserSenders { get; set; } = new List<TbUserSender>();
 }

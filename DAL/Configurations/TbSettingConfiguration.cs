@@ -4,13 +4,16 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace DAL.Configurations
 {
-    public class TbSettingConfiguration : IEntityTypeConfiguration<TbSetting>
+    public class TbSettingConfiguration : BaseEntityConfiguration<TbSetting>
     {
-        public void Configure(EntityTypeBuilder<TbSetting> builder)
+        public override void Configure(EntityTypeBuilder<TbSetting> builder)
         {
+            base.Configure(builder);
+
             builder.ToTable("TbSetting");
 
-            builder.Property(e => e.Id).HasDefaultValueSql("(newid())");
+            builder.Property(e => e.KiloMeterRate).HasColumnType("float");
+            builder.Property(e => e.KilooGramRate).HasColumnType("float");
         }
     }
 }

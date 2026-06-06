@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Domain.Shared;
 
 namespace Domain.Entities;
 
-public partial class TbSetting
+public partial class TbSetting : BaseEntity
 {
-    public Guid Id { get; set; }
-
     public double? KiloMeterRate { get; set; }
 
     public double? KilooGramRate { get; set; }

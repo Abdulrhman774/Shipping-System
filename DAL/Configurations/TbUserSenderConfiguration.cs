@@ -4,22 +4,23 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace DAL.Configurations
 {
-    public class TbUserSenderConfiguration : IEntityTypeConfiguration<TbUserSender>
+    public class TbUserSenderConfiguration : BaseEntityConfiguration<TbUserSender>
     {
-        public void Configure(EntityTypeBuilder<TbUserSender> builder)
+        public override void Configure(EntityTypeBuilder<TbUserSender> builder)
         {
-            builder.Property(e => e.Id).HasDefaultValueSql("(newid())");
-            builder.Property(e => e.Address).HasMaxLength(500);
-            builder.Property(e => e.CreatedDate).HasColumnType("datetime");
-            builder.Property(e => e.Email).HasMaxLength(200);
-            builder.Property(e => e.Phone).HasMaxLength(200);
-            builder.Property(e => e.SenderName).HasMaxLength(200);
-            builder.Property(e => e.UpdatedDate).HasColumnType("datetime");
+            base.Configure(builder);
 
-            builder.HasOne(d => d.City).WithMany(p => p.TbUserSebders)
+            builder.Property(e => e.SenderName).HasMaxLength(200).IsRequired();
+            builder.Property(e => e.Email).HasMaxLength(200).IsRequired();
+            builder.Property(e => e.Phone).HasMaxLength(200).IsRequired();
+            builder.Property(e => e.Address).HasMaxLength(500).IsRequired();
+            builder.Property(e => e.UserId).IsRequired();
+            builder.Property(e => e.CityId).IsRequired();
+
+            builder.HasOne(d => d.City).WithMany(p => p.TbUserSenders)
                 .HasForeignKey(d => d.CityId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_TbUserSebders_TbCities");
+                .HasConstraintName("FK_TbUserSenders_TbCities");
         }
     }
 }

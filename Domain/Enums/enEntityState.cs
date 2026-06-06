@@ -1,4 +1,4 @@
-﻿public enum enEntityState
+﻿public enum enEntityState : byte
 {
     Active = 1,
     Inactive = 2,

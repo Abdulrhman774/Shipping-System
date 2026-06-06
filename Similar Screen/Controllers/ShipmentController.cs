@@ -1,0 +1,48 @@
+﻿using BL.Contract;
+using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
+
+namespace Ui.Controllers
+{
+    public class ShipmentController : Controller
+    {
+        private readonly ILogger<HomeController> _logger;
+        private readonly IShipmentQuery _IShipment;
+        public ShipmentController(ILogger<HomeController> logger, IShipmentQuery iGenericRepository)
+        {
+            _logger = logger;
+            _IShipment = iGenericRepository;
+        }
+        public IActionResult Index()
+        {
+            return View();
+        }
+
+        public IActionResult Create()
+        {
+            return View();
+        }
+
+        public async Task<IActionResult> List(int page=1)
+        {
+            var shipments = await _IShipment.GetShipments(page,10,true,null);
+            return View(shipments);
+        }
+
+        public IActionResult Show(Guid id)
+        {
+            return View();
+        }
+
+        public IActionResult Edit(Guid id)
+        {
+            return View();
+        }
+
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            await _IShipment.ChangeStatus(id,0);
+            return RedirectToAction("List");
+        }
+    }
+} 

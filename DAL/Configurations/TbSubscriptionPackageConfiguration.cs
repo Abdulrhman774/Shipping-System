@@ -4,14 +4,17 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace DAL.Configurations
 {
-    public class TbSubscriptionPackageConfiguration : IEntityTypeConfiguration<TbSubscriptionPackage>
+    public class TbSubscriptionPackageConfiguration : BaseEntityConfiguration<TbSubscriptionPackage>
     {
-        public void Configure(EntityTypeBuilder<TbSubscriptionPackage> builder)
+        public override void Configure(EntityTypeBuilder<TbSubscriptionPackage> builder)
         {
-            builder.Property(e => e.Id).HasDefaultValueSql("(newid())");
-            builder.Property(e => e.CreatedDate).HasColumnType("datetime");
-            builder.Property(e => e.PackageName).HasMaxLength(200);
-            builder.Property(e => e.UpdatedDate).HasColumnType("datetime");
+            base.Configure(builder);
+
+            builder.Property(e => e.PackageName).HasMaxLength(200).IsRequired();
+            builder.Property(e => e.ShippimentCount).HasColumnType("int").IsRequired();
+            builder.Property(e => e.NumberOfKiloMeters).HasColumnType("float").IsRequired();
+            builder.Property(e => e.TotalWeight).HasColumnType("float").IsRequired();
+
         }
     }
 }

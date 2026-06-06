@@ -4,19 +4,21 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace DAL.Configurations
 {
-    public class TbUserSubscriptionConfiguration : IEntityTypeConfiguration<TbUserSubscription>
+    public class TbUserSubscriptionConfiguration : BaseEntityConfiguration<TbUserSubscription>
     {
-        public void Configure(EntityTypeBuilder<TbUserSubscription> builder)
+        public override void Configure(EntityTypeBuilder<TbUserSubscription> builder)
         {
-            builder.Property(e => e.Id).HasDefaultValueSql("(newid())");
-            builder.Property(e => e.CreatedDate).HasColumnType("datetime");
-            builder.Property(e => e.SubscriptionDate).HasColumnType("datetime");
-            builder.Property(e => e.UpdatedDate).HasColumnType("datetime");
+            base.Configure(builder);
 
-            builder.HasOne(d => d.Package).WithMany(p => p.TbUserSubscriptions)
-                .HasForeignKey(d => d.PackageId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_TbUserSubscriptions_TbSubscriptionPackages");
+            builder.Property(e => e.UserId).IsRequired();
+            builder.Property(e => e.PackageId).IsRequired();
+            builder.Property(e => e.SubscriptionDate).HasColumnType("datetime").IsRequired();
+
+            builder.HasOne(d => d.Package)
+                   .WithMany(p => p.TbUserSubscriptions)
+                   .HasForeignKey(d => d.PackageId)
+                   .OnDelete(DeleteBehavior.ClientSetNull)
+                   .HasConstraintName("FK_TbUserSubscriptions_TbSubscriptionPackages");
         }
     }
 }

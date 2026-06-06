@@ -33,7 +33,7 @@ namespace DAL.Context
 
         public virtual DbSet<TbUserReceiver> TbUserReceivers { get; set; }
 
-        public virtual DbSet<TbUserSender> TbUserSebders { get; set; }
+        public virtual DbSet<TbUserSender> TbUserSenders { get; set; }
 
         public virtual DbSet<TbUserSubscription> TbUserSubscriptions { get; set; }
 

@@ -4,15 +4,17 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace DAL.Configurations
 {
-    public class TbShippmentStatusConfiguration : IEntityTypeConfiguration<TbShippmentStatus>
+    public class TbShippmentStatusConfiguration : BaseEntityConfiguration<TbShippmentStatus>
     {
-        public void Configure(EntityTypeBuilder<TbShippmentStatus> builder)
+        public override void Configure(EntityTypeBuilder<TbShippmentStatus> builder)
         {
+            base.Configure(builder);
             builder.ToTable("TbShippmentStatus");
 
-            builder.Property(e => e.Id).HasDefaultValueSql("(newid())");
-            builder.Property(e => e.CreatedDate).HasColumnType("datetime");
-            builder.Property(e => e.UpdatedDate).HasColumnType("datetime");
+            builder.Property(e => e.CarrierId).IsRequired();
+            builder.Property(e => e.ShippmentId);
+            builder.Property(e => e.Notes).HasColumnType("nvarchar(max)");
+
 
             builder.HasOne(d => d.Carrier).WithMany(p => p.TbShippmentStatuses)
                 .HasForeignKey(d => d.CarrierId)

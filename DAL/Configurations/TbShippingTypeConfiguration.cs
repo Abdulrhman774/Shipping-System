@@ -4,19 +4,23 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace DAL.Configurations
 {
-    public class TbShippingTypeConfiguration : IEntityTypeConfiguration<TbShippingType>
+    public class TbShippingTypeConfiguration : BaseEntityConfiguration<TbShippingType>
     {
-        public void Configure(EntityTypeBuilder<TbShippingType> builder)
+        public override void Configure(EntityTypeBuilder<TbShippingType> builder)
         {
-            builder.Property(e => e.Id).HasDefaultValueSql("(newid())");
-            builder.Property(e => e.CreatedDate).HasColumnType("datetime");
+            base.Configure(builder);
+
+
             builder.Property(e => e.ShippingTypeAname)
                 .HasMaxLength(200)
                 .HasColumnName("ShippingTypeAName");
+
             builder.Property(e => e.ShippingTypeEname)
                 .HasMaxLength(200)
                 .HasColumnName("ShippingTypeEName");
-            builder.Property(e => e.UpdatedDate).HasColumnType("datetime");
+
+            builder.Property(e => e.ShippingFactor).HasColumnType("float").IsRequired();
+
         }
     }
 }

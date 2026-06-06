@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Purple Admin</title>
+    <link rel="stylesheet" href="../../assets/vendors/mdi/css/materialdesignicons.min.css">
+    <link rel="stylesheet" href="../../assets/vendors/flag-icon-css/css/flag-icon.min.css">
+    <link rel="stylesheet" href="../../assets/vendors/css/vendor.bundle.base.css">
+    <!-- Plugin css for this page -->
+    <link rel="stylesheet" href="../../assets/vendors/font-awesome/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="../../assets/vendors/bootstrap-datepicker/bootstrap-datepicker.min.css">
+    <!-- End plugin css for this page -->
+    <link rel="stylesheet" href="../../assets/css/demo_1/style.css">
+    <link rel="shortcut icon" href="../../assets/images/favicon.png" />
+  </head>
+  <body>
+    <div class="container-scroller">
+      <nav class="navbar default-layout-navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
+        <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-center">
+          <a class="navbar-brand brand-logo" href="index.html"><img src="../../assets/images/logo.svg" alt="logo" /></a>
+          <a class="navbar-brand brand-logo-mini" href="index.html"><img src="../../assets/images/logo-mini.svg" alt="logo" /></a>
+        </div>
+        <div class="navbar-menu-wrapper d-flex align-items-stretch">
+          <button class="navbar-toggler navbar-toggler align-self-center" type="button" data-toggle="minimize">
+            <span class="mdi mdi-menu"></span>
+          </button>
+          <div class="search-field d-none d-lg-block">
+            <form class="d-flex align-items-center h-100" action="#">
+              <div class="input-group">
+                <div class="input-group-prepend bg-transparent">
+                  <i class="input-group-text border-0 mdi mdi-magnify"></i>
+                </div>
+                <input type="text" class="form-control bg-transparent border-0" placeholder="Search projects">
+              </div>
+            </form>
+          </div>
+          <ul class="navbar-nav navbar-nav-right">
+            <li class="nav-item nav-profile dropdown">
+              <a class="nav-link dropdown-toggle" id="profileDropdown" href="#" data-bs-toggle="dropdown" aria-expanded="false">
+                <div class="nav-profile-img">
+                  <img src="../../assets/images/faces/face6.jpg" alt="image">
+                  <span class="availability-status online"></span>
+                </div>
+                <div class="nav-profile-text">
+                  <p class="mb-1 text-black">Sara Reley</p>
+                </div>
+              </a>
+              <div class="dropdown-menu navbar-dropdown" aria-labelledby="profileDropdown">
+                <a class="dropdown-item" href="#">
+                  <i class="mdi mdi-cached me-2 text-success"></i> Activity Log </a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="#">
+                  <i class="mdi mdi-logout me-2 text-primary"></i> Signout </a>
+              </div>
+            </li>
+            <li class="nav-item d-none d-lg-block full-screen-link">
+              <a class="nav-link">
+                <i class="mdi mdi-fullscreen" id="fullscreen-button"></i>
+              </a>
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link count-indicator dropdown-toggle" id="messageDropdown" href="#" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="mdi mdi-email-outline"></i>
+                <span class="count-symbol bg-warning"></span>
+              </a>
+              <div class="dropdown-menu dropdown-menu-right navbar-dropdown preview-list" aria-labelledby="messageDropdown">
+                <h6 class="p-3 mb-0">Messages</h6>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item preview-item">
+                  <div class="preview-thumbnail">
+                    <img src="../../assets/images/faces/face4.jpg" alt="image" class="profile-pic">
+                  </div>
+                  <div class="preview-item-content d-flex align-items-start flex-column justify-content-center">
+                    <h6 class="preview-subject ellipsis mb-1 font-weight-normal">Mark send you a message</h6>
+                    <p class="text-gray mb-0"> 1 Minutes ago </p>
+                  </div>
+                </a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item preview-item">
+                  <div class="preview-thumbnail">
+                    <img src="../../assets/images/faces/face2.jpg" alt="image" class="profile-pic">
+                  </div>
+                  <div class="preview-item-content d-flex align-items-start flex-column justify-content-center">
+                    <h6 class="preview-subject ellipsis mb-1 font-weight-normal">Cregh send you a message</h6>
+                    <p class="text-gray mb-0"> 15 Minutes ago </p>
+                  </div>
+                </a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item preview-item">
+                  <div class="preview-thumbnail">
+                    <img src="../../assets/images/faces/face3.jpg" alt="image" class="profile-pic">
+                  </div>
+                  <div class="preview-item-content d-flex align-items-start flex-column justify-content-center">
+                    <h6 class="preview-subject ellipsis mb-1 font-weight-normal">Profile picture updated</h6>
+                    <p class="text-gray mb-0"> 18 Minutes ago </p>
+                  </div>
+                </a>
+                <div class="dropdown-divider"></div>
+                <h6 class="p-3 mb-0 text-center">4 new messages</h6>
+              </div>
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link count-indicator dropdown-toggle" id="notificationDropdown" href="#" data-bs-toggle="dropdown">
+                <i class="mdi mdi-bell-outline"></i>
+                <span class="count-symbol bg-danger"></span>
+              </a>
+              <div class="dropdown-menu dropdown-menu-right navbar-dropdown preview-list" aria-labelledby="notificationDropdown">
+                <h6 class="p-3 mb-0">Notifications</h6>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item preview-item">
+                  <div class="preview-thumbnail">
+                    <div class="preview-icon bg-success">
+                      <i class="mdi mdi-calendar"></i>
+                    </div>
+                  </div>
+                  <div class="preview-item-content d-flex align-items-start flex-column justify-content-center">
+                    <h6 class="preview-subject font-weight-normal mb-1">Event today</h6>
+                    <p class="text-gray ellipsis mb-0"> Just a reminder that you have an event today </p>
+                  </div>
+                </a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item preview-item">
+                  <div class="preview-thumbnail">
+                    <div class="preview-icon bg-warning">
+                      <i class="mdi mdi-cog"></i>
+                    </div>
+                  </div>
+                  <div class="preview-item-content d-flex align-items-start flex-column justify-content-center">
+                    <h6 class="preview-subject font-weight-normal mb-1">Settings</h6>
+                    <p class="text-gray ellipsis mb-0"> Update dashboard </p>
+                  </div>
+                </a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item preview-item">
+                  <div class="preview-thumbnail">
+                    <div class="preview-icon bg-info">
+                      <i class="mdi mdi-link-variant"></i>
+                    </div>
+                  </div>
+                  <div class="preview-item-content d-flex align-items-start flex-column justify-content-center">
+                    <h6 class="preview-subject font-weight-normal mb-1">Launch Admin</h6>
+                    <p class="text-gray ellipsis mb-0"> New admin wow! </p>
+                  </div>
+                </a>
+                <div class="dropdown-divider"></div>
+                <h6 class="p-3 mb-0 text-center">See all notifications</h6>
+              </div>
+            </li>
+            <li class="nav-item nav-logout d-none d-lg-block">
+              <a class="nav-link" href="#">
+                <i class="mdi mdi-power"></i>
+              </a>
+            </li>
+            <li class="nav-item nav-settings d-none d-lg-block">
+              <a class="nav-link" href="#">
+                <i class="mdi mdi-format-line-spacing"></i>
+              </a>
+            </li>
+          </ul>
+          <button class="navbar-toggler navbar-toggler-right d-lg-none align-self-center" type="button" data-toggle="offcanvas">
+            <span class="mdi mdi-menu"></span>
+          </button>
+        </div>
+      </nav>
+      <div class="container-fluid page-body-wrapper">
+        <div id="settings-trigger"><i class="mdi mdi-cog"></i></div>
+        <div id="right-sidebar" class="settings-panel">
+          <i class="settings-close mdi mdi-close"></i>
+          <ul class="nav nav-tabs bg-gradient-primary" id="setting-panel" role="tablist">
+            <li class="nav-item">
+              <a class="nav-link active" id="todo-tab" data-bs-toggle="tab" href="#todo-section" role="tab" aria-controls="todo-section" aria-expanded="true">TO DO LIST</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" id="chats-tab" data-bs-toggle="tab" href="#chats-section" role="tab" aria-controls="chats-section">CHATS</a>
+            </li>
+          </ul>
+          <div class="tab-content" id="setting-content">
+            <div class="tab-pane fade show active scroll-wrapper" id="todo-section" role="tabpanel" aria-labelledby="todo-section">
+              <div class="add-items d-flex px-3 mb-0">
+                <form class="form w-100">
+                  <div class="form-group d-flex">
+                    <input type="text" class="form-control todo-list-input" placeholder="Add To-do">
+                    <button type="submit" class="add btn btn-primary todo-list-add-btn" id="add-task">Add</button>
+                  </div>
+                </form>
+              </div>
+              <div class="list-wrapper px-3">
+                <ul class="d-flex flex-column-reverse todo-list">
+                  <li>
+                    <div class="form-check">
+                      <label class="form-check-label">
+                        <input class="checkbox" type="checkbox"> Team review meeting at 3.00 PM </label>
+                    </div>
+                    <i class="remove mdi mdi-close-circle-outline"></i>
+                  </li>
+                  <li>
+                    <div class="form-check">
+                      <label class="form-check-label">
+                        <input class="checkbox" type="checkbox"> Prepare for presentation </label>
+                    </div>
+                    <i class="remove mdi mdi-close-circle-outline"></i>
+                  </li>
+                  <li>
+                    <div class="form-check">
+                      <label class="form-check-label">
+                        <input class="checkbox" type="checkbox"> Resolve all the low priority tickets due today </label>
+                    </div>
+                    <i class="remove mdi mdi-close-circle-outline"></i>
+                  </li>
+                  <li class="completed">
+                    <div class="form-check">
+                      <label class="form-check-label">
+                        <input class="checkbox" type="checkbox" checked> Schedule meeting for next week </label>
+                    </div>
+                    <i class="remove mdi mdi-close-circle-outline"></i>
+                  </li>
+                  <li class="completed">
+                    <div class="form-check">
+                      <label class="form-check-label">
+                        <input class="checkbox" type="checkbox" checked> Project review </label>
+                    </div>
+                    <i class="remove mdi mdi-close-circle-outline"></i>
+                  </li>
+                </ul>
+              </div>
+              <div class="events py-4 border-bottom px-3">
+                <div class="wrapper d-flex mb-2">
+                  <i class="mdi mdi-circle-outline text-primary me-2"></i>
+                  <span>Feb 11 2018</span>
+                </div>
+                <p class="mb-0 font-weight-thin text-gray">Creating component page</p>
+                <p class="text-gray mb-0">build a js based app</p>
+              </div>
+              <div class="events pt-4 px-3">
+                <div class="wrapper d-flex mb-2">
+                  <i class="mdi mdi-circle-outline text-primary me-2"></i>
+                  <span>Feb 7 2018</span>
+                </div>
+                <p class="mb-0 font-weight-thin text-gray">Meeting with Alisa</p>
+                <p class="text-gray mb-0 ">Call Sarah Graves</p>
+              </div>
+            </div>
+            <!-- To do section tab ends -->
+            <div class="tab-pane fade" id="chats-section" role="tabpanel" aria-labelledby="chats-section">
+              <div class="d-flex align-items-center justify-content-between border-bottom">
+                <p class="settings-heading border-top-0 mb-3 ps-3 pt-0 border-bottom-0 pb-0">FRIENDS</p>
+                <small class="settings-heading border-top-0 mb-3 pt-0 border-bottom-0 pb-0 pe-3 font-weight-normal">See All</small>
+              </div>
+              <ul class="chat-list">
+                <li class="list active">
+                  <div class="profile"><img src="../../assets/images/faces/face1.jpg" alt="image"><span class="online"></span></div>
+                  <div class="info">
+                    <p>Thomas Douglas</p>
+                    <p>Available</p>
+                  </div>
+                  <small class="text-muted my-auto">19 min</small>
+                </li>
+                <li class="list">
+                  <div class="profile"><img src="../../assets/images/faces/face2.jpg" alt="image"><span class="offline"></span></div>
+                  <div class="info">
+                    <div class="wrapper d-flex">
+                      <p>Catherine</p>
+                    </div>
+                    <p>Away</p>
+                  </div>
+                  <div class="badge badge-success badge-pill my-auto mx-2">4</div>
+                  <small class="text-muted my-auto">23 min</small>
+                </li>
+                <li class="list">
+                  <div class="profile"><img src="../../assets/images/faces/face3.jpg" alt="image"><span class="online"></span></div>
+                  <div class="info">
+                    <p>Daniel Russell</p>
+                    <p>Available</p>
+                  </div>
+                  <small class="text-muted my-auto">14 min</small>
+                </li>
+                <li class="list">
+                  <div class="profile"><img src="../../assets/images/faces/face4.jpg" alt="image"><span class="offline"></span></div>
+                  <div class="info">
+                    <p>James Richardson</p>
+                    <p>Away</p>
+                  </div>
+                  <small class="text-muted my-auto">2 min</small>
+                </li>
+                <li class="list">
+                  <div class="profile"><img src="../../assets/images/faces/face5.jpg" alt="image"><span class="online"></span></div>
+                  <div class="info">
+                    <p>Madeline Kennedy</p>
+                    <p>Available</p>
+                  </div>
+                  <small class="text-muted my-auto">5 min</small>
+                </li>
+                <li class="list">
+                  <div class="profile"><img src="../../assets/images/faces/face6.jpg" alt="image"><span class="online"></span></div>
+                  <div class="info">
+                    <p>Sarah Graves</p>
+                    <p>Available</p>
+                  </div>
+                  <small class="text-muted my-auto">47 min</small>
+                </li>
+              </ul>
+            </div>
+            <!-- chat tab ends -->
+          </div>
+        </div>
+        <div id="theme-settings" class="settings-panel">
+          <i class="settings-close mdi mdi-close"></i>
+          <p class="settings-heading">SIDEBAR SKINS</p>
+          <div class="sidebar-bg-options selected" id="sidebar-default-theme">
+            <div class="img-ss rounded-circle bg-light border me-3"></div>Default
+          </div>
+          <div class="sidebar-bg-options" id="sidebar-dark-theme">
+            <div class="img-ss rounded-circle bg-dark border me-3"></div>Dark
+          </div>
+          <p class="settings-heading mt-2">HEADER SKINS</p>
+          <div class="color-tiles mx-0 px-4">
+            <div class="tiles primary"></div>
+            <div class="tiles success"></div>
+            <div class="tiles warning"></div>
+            <div class="tiles danger"></div>
+            <div class="tiles info"></div>
+            <div class="tiles dark"></div>
+            <div class="tiles default light"></div>
+          </div>
+        </div>
+        <nav class="sidebar sidebar-offcanvas" id="sidebar">
+          <ul class="nav">
+            <li class="nav-item nav-profile">
+              <a href="#" class="nav-link">
+                <div class="nav-profile-image">
+                  <img src="../../assets/images/faces/face6.jpg" alt="profile">
+                  <span class="login-status online"></span>
+                  <!--change to offline or busy as needed-->
+                </div>
+                <div class="nav-profile-text d-flex flex-column">
+                  <span class="font-weight-bold mb-2">Sara Reley</span>
+                  <span class="text-secondary text-small">Project Manager</span>
+                </div>
+                <i class="mdi mdi-bookmark-check text-success nav-profile-badge"></i>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="index.html">
+                <span class="menu-title">Home</span>
+                <i class="mdi mdi-compass-outline menu-icon"></i>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" data-bs-toggle="collapse" href="#apps" aria-expanded="false" aria-controls="apps">
+                <span class="menu-title">Products</span> <span class="badge badge-gradient-danger badge-pill">New</span>
+                <i class="menu-arrow"></i>
+                <i class="mdi mdi-monitor-dashboard menu-icon"></i>
+              </a>
+              <div class="collapse" id="apps">
+                <ul class="nav flex-column sub-menu">
+                  <li class="nav-item"> <a class="nav-link" href="#">Electronics</a></li>
+                  <li class="nav-item"> <a class="nav-link" href="#">Men</a></li>
+                  <li class="nav-item"> <a class="nav-link" href="#">Women</a></li>
+                  <li class="nav-item"> <a class="nav-link" href="#">Baby & Kids</a></li>
+                </ul>
+              </div>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">
+                <span class="menu-title">Customers</span>
+                <i class="mdi mdi-forum menu-icon"></i>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" data-bs-toggle="collapse" href="#sidebar-layouts" aria-expanded="false" aria-controls="sidebar-layouts">
+                <span class="menu-title">Subscriptions</span>
+                <i class="menu-arrow"></i>
+                <i class="mdi mdi-playlist-play menu-icon"></i>
+              </a>
+              <div class="collapse" id="sidebar-layouts">
+                <ul class="nav flex-column sub-menu">
+                  <li class="nav-item"> <a class="nav-link" href="#">Monthly</a></li>
+                  <li class="nav-item"> <a class="nav-link" href="#">Yearly</a></li>
+                </ul>
+              </div>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">
+                <span class="menu-title">Payments</span>
+                <i class="mdi mdi-bell-ring menu-icon"></i>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" data-bs-toggle="collapse" href="#page-layouts" aria-expanded="false" aria-controls="page-layouts">
+                <span class="menu-title">Orders</span>
+                <i class="menu-arrow"></i>
+                <i class="mdi mdi-inbox menu-icon"></i>
+              </a>
+              <div class="collapse" id="page-layouts">
+                <ul class="nav flex-column sub-menu">
+                  <li class="nav-item"> <a class="nav-link" href="#">My Orders</a></li>
+                  <li class="nav-item"> <a class="nav-link" href="#">Order Status</a></li>
+                  <li class="nav-item"> <a class="nav-link" href="#">Cancel</a></li>
+                </ul>
+              </div>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">
+                <span class="menu-title">Trasfers</span>
+                <i class="mdi mdi-forum menu-icon"></i>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">
+                <span class="menu-title">Returns</span>
+                <i class="mdi mdi-keyboard-return menu-icon"></i>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">
+                <span class="menu-title">Reports</span>
+                <i class="mdi mdi-library-books menu-icon"></i>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">
+                <span class="menu-title">Settings</span>
+                <i class="mdi mdi-cog menu-icon"></i>
+              </a>
+            </li>
+          </ul>
+        </nav>
+        <div class="main-panel">
+          <div class="content-wrapper">
+            <div class="row">
+              <div class="col-xl-9 col-sm-12">
+                <div class="row">
+                  <div class="col-sm-12">
+                    <div class="d-flex align-items-center mb-3">
+                      <h3 class="m-0 pe-2">Analytic overview</h3>
+                      <i class="mdi mdi-information-outline mdi-18px text-danger"></i>
+                    </div>
+                    <div class="card card-blue grid-margin">
+                      <div class="card-body">
+                        <div class="d-lg-flex justify-content-between align-items-center mb-2">
+                          <div>
+                            <h4>Get premium account to optimize your selling product!</h4>
+                            <h5 class="m-0">Enjoy the advantages of premium features <a href="#" class="text-medium font-weight-normal">readmore..</a></h5>
+                          </div>
+                          <img src="../../assets/images/dashboard/ecommerce/img_2.png" alt="profile" class="ecommerce-banner-image-position">
+                        </div>
+                      </div>
+                    </div>
+                    <div class="card grid-margin">
+                      <div class="card-body py-4">
+                        <div class="d-lg-flex justify-content-between align-items-center">
+                          <div class="d-flex">
+                            <i class="mdi mdi-file-document-box text-success mdi-18px pe-2"></i>
+                            <p class="m-0"><span class="pe-2">Bill completed: </span><span class="font-weight-medium pe-1">202</span><span class="font-weight-medium text-muted"> 0f 250</span class="font-weight-medium"></p>
+                          </div>
+                          <div>
+                            <p class="m-0">
+                              <a href="#" class="text-muted px-2">Product</a>
+                              <a href="#" class="text-muted px-2">Customer</a>
+                              <a href="#" class="text-muted px-2">Settings</a>
+                              <a href="#" class="text-dark px-2">Manage</a>
+                            </p>
+                          </div>
+                          <div>
+                            <p class="m-0"> <i class="mdi mdi-plus-circle-outline text-muted mdi-18px"></i> New Income</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-sm-4 grid-margin">
+                    <div class="card bg-gradient-danger text-white">
+                      <div class="card-body">
+                        <div class="grey-circle-profile-icon">
+                          <i class="mdi mdi-account-outline"></i>
+                        </div>
+                        <h2 class="mb-0 mt-3">183,954</h2>
+                        <h5 class="font-weight-normal mb-3">Customers</h5>
+                        <p class="text-medium m-0">Decreased by 10%</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-sm-4 grid-margin">
+                    <div class="card bg-gradient-success text-white">
+                      <div class="card-body">
+                        <div class="grey-circle-profile-icon">
+                          <i class="mdi mdi-tshirt-crew-outline"></i>
+                        </div>
+                        <h2 class="mb-0 mt-3">$4,986</h2>
+                        <h5 class="font-weight-normal mb-3">Total orders</h5>
+                        <p class="text-medium m-0">Decreased by 10%</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-sm-4 grid-margin">
+                    <div class="card bg-gradient-primary text-white">
+                      <div class="card-body">
+                        <div class="grey-circle-profile-icon">
+                          <i class="mdi mdi-flask"></i>
+                        </div>
+                        <h2 class="mb-0 mt-3">$35,465</h2>
+                        <h5 class="font-weight-normal mb-3">Total sales</h5>
+                        <p class="text-medium m-0">Increased by 5%</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-sm-8 grid-margin  stretch-card">
+                    <div class="card">
+                      <div class="card-body">
+                        <div class="d-flex align-items-top justify-content-between mb-4">
+                          <div class="d-flex align-items-center mb-4">
+                            <h5 class="m-0 pe-2">Revenue</h5>
+                            <i class="mdi mdi-information-outline mdi-18px text-muted"></i>
+                          </div>
+                          <div>
+                            <p class="mb-0">
+                              <a href="#" class="text-dark px-2">Yearly</a>
+                              <a href="#" class="text-muted">Monthly</a>
+                            </p>
+                          </div>
+                        </div>
+                        <canvas id="barChart" style="height:230px"></canvas>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-sm-4 grid-margin stretch-card">
+                    <div class="card">
+                      <div class="card-body px-4">
+                        <div class="d-flex align-items-center mb-3">
+                          <h5 class="m-0 pe-2">Tracking</h5>
+                          <i class="mdi mdi-information-outline mdi-18px text-muted"></i>
+                        </div>
+                        <div class="table-responsive">
+                          <table class="table">
+                            <tbody>
+                              <tr>
+                                <td class="ps-0 border-top-0">
+                                  <div class="d-flex align-items-center">
+                                    <div class="flag-icon-wrap">
+                                      <i class="flag-icon flag-icon-nz rouded-flag" title="NZ" id="NZ"></i>
+                                    </div> New Zealand
+                                  </div>
+                                </td class="ps-0">
+                                <td class="border-top-0"> $3,485 </td>
+                              </tr>
+                              <tr>
+                                <td class="ps-0">
+                                  <div class="d-flex align-items-center">
+                                    <div class="flag-icon-wrap">
+                                      <i class="flag-icon flag-icon-us rouded-flag" title="us" id="us"></i>
+                                    </div> United states
+                                  </div>
+                                </td>
+                                <td> $4,876 </td>
+                              </tr>
+                              <tr>
+                                <td class="ps-0">
+                                  <div class="d-flex align-items-center">
+                                    <div class="flag-icon-wrap">
+                                      <i class="flag-icon flag-icon-br rouded-flag" title="br" id="br"></i>
+                                    </div> Brazil
+                                  </div>
+                                </td>
+                                <td> $1,671.10 </td>
+                              </tr>
+                              <tr>
+                                <td class="ps-0">
+                                  <div class="d-flex align-items-center">
+                                    <div class="flag-icon-wrap">
+                                      <i class="flag-icon flag-icon-dk rouded-flag" title="dk" id="dk"></i>
+                                    </div> Denmark
+                                  </div>
+                                  </tdcla>
+                                <td> $2,869 </td>
+                              </tr>
+                              <tr>
+                                <td class="ps-0">
+                                  <div class="d-flex align-items-center">
+                                    <div class="flag-icon-wrap">
+                                      <i class="flag-icon flag-icon-au rouded-flag" title="au" id="au"></i>
+                                    </div> Australia
+                                  </div>
+                                </td>
+                                <td> $2,869 </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-12 grid-margin grid-margin-xl-0">
+                    <div class="card">
+                      <div class="card-body">
+                        <h4 class="card-title mb-4">Recently sold items</h4>
+                        <div class="table-responsive">
+                          <table class="table">
+                            <thead>
+                              <tr>
+                                <th>
+                                  <div class="form-check m-0">
+                                    <label class="form-check-label">
+                                      <input class="checkbox" type="checkbox"> <i class="input-helper"></i></label>
+                                  </div>
+                                </th>
+                                <th> Item </th>
+                                <th> Description </th>
+                                <th> Size </th>
+                                <th> Date </th>
+                                <th> Price </th>
+                                <th> Reports </th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr>
+                                <td>
+                                  <div class="form-check m-0">
+                                    <label class="form-check-label">
+                                      <input class="checkbox" type="checkbox"> <i class="input-helper"></i></label>
+                                  </div>
+                                </td>
+                                <td> <img src="../../assets/images/dashboard/ecommerce/Shoe_1.jpg" alt="profile" class="img-45-30"> </td>
+                                <td>Under Armour Shoes</td>
+                                <td>US 10</td>
+                                <td> 29 Oct 2020 </td>
+                                <td>$4,899.00</td>
+                                <td> <button class="btn btn-sm btn-gradient-success">View details</button> </td>
+                              </tr>
+                              <tr>
+                                <td>
+                                  <div class="form-check m-0">
+                                    <label class="form-check-label">
+                                      <input class="checkbox" type="checkbox"> <i class="input-helper"></i></label>
+                                  </div>
+                                </td>
+                                <td> <img src="../../assets/images/dashboard/ecommerce/Shoe_2.jpg" alt="profile" class="img-45-30"> </td>
+                                <td>Micro G Running Shoes</td>
+                                <td>US 08</td>
+                                <td> 17 Feb 2020 </td>
+                                <td>$2,899.00</td>
+                                <td> <button class="btn btn-sm btn-gradient-success">View details</button> </td>
+                              </tr>
+                              <tr>
+                                <td>
+                                  <div class="form-check m-0">
+                                    <label class="form-check-label">
+                                      <input class="checkbox" type="checkbox"> <i class="input-helper"></i></label>
+                                  </div>
+                                </td>
+                                <td> <img src="../../assets/images/dashboard/ecommerce/Shoe_3.jpg" alt="profile" class="img-45-30"> </td>
+                                <td>AR Running shoes</td>
+                                <td>US 12</td>
+                                <td> 09 Apr 2020 </td>
+                                <td>$1,899.00</td>
+                                <td> <button class="btn btn-sm btn-gradient-success">View details</button> </td>
+                              </tr>
+                              <tr>
+                                <td>
+                                  <div class="form-check m-0">
+                                    <label class="form-check-label">
+                                      <input class="checkbox" type="checkbox"> <i class="input-helper"></i></label>
+                                  </div>
+                                </td>
+                                <td> <img src="../../assets/images/dashboard/ecommerce/Shoe_4.jpg" alt="profile" class="img-45-30"> </td>
+                                <td>Sneakers Shoes</td>
+                                <td>US 15</td>
+                                <td> 4 sep 2020 </td>
+                                <td>$3,499.00</td>
+                                <td> <button class="btn btn-sm btn-gradient-success">View details</button> </td>
+                              </tr>
+                              <tr>
+                                <td>
+                                  <div class="form-check m-0">
+                                    <label class="form-check-label">
+                                      <input class="checkbox" type="checkbox"> <i class="input-helper"></i></label>
+                                  </div>
+                                </td>
+                                <td> <img src="../../assets/images/dashboard/ecommerce/Shoe_2.jpg" alt="profile" class="img-45-30"> </td>
+                                <td>Loafers</td>
+                                <td>US 13</td>
+                                <td> 29 nov 2020 </td>
+                                <td>$4,499.00</td>
+                                <td> <button class="btn btn-sm btn-gradient-success">View details</button> </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-xl-3 col-sm-12">
+                <div class="row">
+                  <div class="col-sm-12">
+                    <div class="page-header">
+                      <div class="d-lg-flex w-100 justify-content-between align-items-center">
+                        <h4 class="mb-0 font-weight-medium me-3">Recent Task</h4>
+                        <a href="#" class="mb-0 text-medium text-muted">View all</a>
+                      </div>
+                    </div>
+                    <div class="card grid-margin-sm">
+                      <div class="card-body px-3 py-4">
+                        <h5 class="mb-3">New order invoice creation.</h5>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                          <div class="badge badge-gradient-success badge-pill">Somun Ae-Ri</div>
+                          <img src="../../assets/images/faces/face1.jpg" alt="profile" class="img-es rounded-circle">
+                        </div>
+                        <div class="progress progress-sm">
+                          <div class="progress-bar bg-success" role="progressbar" aria-valuenow="5" style="width: 50%" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <div class="text-muted mt-1">
+                          <p class="m-0">1 day 05 mins</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="card grid-margin-sm">
+                      <div class="card-body px-3 py-4">
+                        <h5 class="mb-3">New business meeting</h5>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                          <div class="badge badge-gradient-primary badge-pill">Anthony Gibson</div>
+                          <img src="../../assets/images/faces/face2.jpg" alt="profile" class="img-es rounded-circle">
+                        </div>
+                        <div class="progress progress-sm">
+                          <div class="progress-bar bg-success" role="progressbar" aria-valuenow="5" style="width: 50%" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <div class="text-muted mt-1">
+                          <p class="m-0">3 day 12 mins</p class="m-0">
+                        </div>
+                      </div>
+                    </div>
+                    <div class="card grid-margin-sm">
+                      <div class="card-body px-3 py-4">
+                        <h5 class="mb-3">Media Outreach</h5>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                          <div class="badge badge-gradient-warning badge-pill">Marcus Waters</div>
+                          <img src="../../assets/images/faces/face3.jpg" alt="profile" class="img-es rounded-circle">
+                        </div>
+                        <div class="progress progress-sm">
+                          <div class="progress-bar bg-success" role="progressbar" aria-valuenow="5" style="width: 50%" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <div class="text-muted mt-1">
+                          <p class="m-0">2 day 12mins</p class="m-0">
+                        </div>
+                      </div>
+                    </div>
+                    <div class="card grid-margin-sm">
+                      <div class="card-body px-3 py-4">
+                        <h5 class="mb-3">Website Maintenance</h5>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                          <div class="badge badge-gradient-info badge-pill">Rachel Gross</div>
+                          <img src="../../assets/images/faces/face4.jpg" alt="profile" class="img-es rounded-circle">
+                        </div>
+                        <div class="progress progress-sm">
+                          <div class="progress-bar bg-success" role="progressbar" aria-valuenow="5" style="width: 50%" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <div class="text-muted mt-1">
+                          <p class="m-0">1 day 20mins</p class="m-0">
+                        </div>
+                      </div>
+                    </div>
+                    <div class="card grid-margin-sm">
+                      <div class="card-body px-3 py-4">
+                        <h5 class="mb-3">Content Development</h5>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                          <div class="badge badge-gradient-danger badge-pill">Derrick Chapman</div>
+                          <img src="../../assets/images/faces/face5.jpg" alt="profile" class="img-es rounded-circle">
+                        </div>
+                        <div class="progress progress-sm">
+                          <div class="progress-bar bg-success" role="progressbar" aria-valuenow="5" style="width: 50%" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <div class="text-muted mt-1">
+                          <p class="m-0">2 day 30mins</p class="m-0">
+                        </div>
+                      </div>
+                    </div>
+                    <div class="card grid-margin-sm">
+                      <div class="card-body px-3 py-4">
+                        <h5 class="mb-3">Customer Service</h5>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                          <div class="badge badge-gradient-success badge-pill">Caroline Ingram</div>
+                          <img src="../../assets/images/faces/face6.jpg" alt="profile" class="img-es rounded-circle">
+                        </div>
+                        <div class="progress progress-sm">
+                          <div class="progress-bar bg-success" role="progressbar" aria-valuenow="5" style="width: 50%" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <div class="text-muted mt-1">
+                          <p class="m-0">3 day 40mins</p class="m-0">
+                        </div>
+                      </div>
+                    </div>
+                    <div class="card grid-margin-sm">
+                      <div class="card-body px-3 py-4">
+                        <h5 class="mb-3">Social Media Management</h5>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                          <div class="badge badge-gradient-dark badge-pill">Derrick Chapman</div>
+                          <img src="../../assets/images/faces/face7.jpg" alt="profile" class="img-es rounded-circle">
+                        </div>
+                        <div class="progress progress-sm">
+                          <div class="progress-bar bg-success" role="progressbar" aria-valuenow="5" style="width: 50%" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <div class="text-muted mt-1">
+                          <p class="m-0">3 day 37 mins</p class="m-0">
+                        </div>
+                      </div>
+                    </div>
+                    <div class="card grid-margin-sm">
+                      <div class="card-body px-3 py-4">
+                        <h5 class="mb-3">Logistics.</h5>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                          <div class="badge badge-gradient-warning badge-pill">Gene Clayton</div>
+                          <img src="../../assets/images/faces/face7.jpg" alt="profile" class="img-es rounded-circle">
+                        </div>
+                        <div class="progress progress-sm">
+                          <div class="progress-bar bg-success" role="progressbar" aria-valuenow="5" style="width: 50%" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <div class="text-muted mt-1">
+                          <p class="m-0">2 day 50 mins</p class="m-0">
+                        </div>
+                      </div>
+                    </div>
+                    <div class="card">
+                      <div class="card-body px-3 py-4">
+                        <h5 class="mb-3">Market Research</h5>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                          <div class="badge badge-gradient-danger badge-pill">Myrtle Floyd</div>
+                          <img src="../../assets/images/faces/face7.jpg" alt="profile" class="img-es rounded-circle">
+                        </div>
+                        <div class="progress progress-sm">
+                          <div class="progress-bar bg-success" role="progressbar" aria-valuenow="5" style="width: 50%" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <div class="text-muted mt-1">
+                          <p class="m-0">1 day 42 mins</p class="m-0">
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- content-wrapper ends -->
+          <!-- partial:partials/_footer.html -->
+          <footer class="footer">
+            <div class="d-sm-flex justify-content-center justify-content-sm-between">
+              <span class="text-muted text-center text-sm-left d-block d-sm-inline-block">Copyright © 2021 <a href="https://www.bootstrapdash.com/" target="_blank">BootstrapDash</a>. All rights reserved.</span>
+              <span class="float-none float-sm-right d-block mt-1 mt-sm-0 text-center">Hand-crafted & made with <i class="mdi mdi-heart text-danger"></i></span>
+            </div>
+          </footer>
+          <!-- partial -->
+        </div>
+        <!-- main-panel ends -->
+      </div>
+      <!-- page-body-wrapper ends -->
+    </div>
+    <!-- container-scroller -->
+    <script src="../../assets/vendors/js/vendor.bundle.base.js"></script>
+    <script src="../../assets/vendors/chart.js/Chart.min.js"></script>
+    <script src="../../assets/vendors/bootstrap-datepicker/bootstrap-datepicker.min.js"></script>
+    <script src="../../assets/js/off-canvas.js"></script>
+    <script src="../../assets/js/hoverable-collapse.js"></script>
+    <script src="../../assets/js/misc.js"></script>
+    <script src="../../assets/js/settings.js"></script>
+    <script src="../../assets/js/todolist.js"></script>
+    <!-- Custom js for this page -->
+    <script src="js/dashboard.js"></script>
+    <!-- End custom js for this page -->
+  </body>
+</html>
