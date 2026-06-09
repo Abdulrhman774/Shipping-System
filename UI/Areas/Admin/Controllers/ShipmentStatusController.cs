@@ -11,7 +11,7 @@ namespace UI.Areas.Admin.Controllers
 {
     [Area("Admin")]
     [Authorize]
-    public class ShipmentStatusController : Controller
+    public class ShipmentStatusController : BaseController
     {
         // Constructor inject IShippmentStatusService (commented out as per instructions)
         /*

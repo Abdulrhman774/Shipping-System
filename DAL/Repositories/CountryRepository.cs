@@ -1,5 +1,6 @@
 ﻿using DAL.Context;
-using DAL.Contracts;
+using DAL.Contracts.IRepositories;
+using DAL.Repositories.Generic;
 using Domain.Entities;
 using Microsoft.Extensions.Logging;
 using System;
@@ -10,7 +11,7 @@ namespace DAL.Repositories;
 
 public class CountryRepository : GenericRepository<TbCountry>, ICountryRepository
 {
-    public CountryRepository(AppDbContext context, ILogger<CountryRepository> logger) : base(context, logger)
+    public CountryRepository(ShippingDbContext context, ILogger<CountryRepository> logger) : base(context, logger)
     {
     }
 }

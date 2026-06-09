@@ -1,5 +1,6 @@
 ﻿using DAL.Context;
-using DAL.Contracts;
+using DAL.Contracts.IRepositories;
+using DAL.Repositories.Generic;
 using Domain.Entities;
 using Microsoft.Extensions.Logging;
 using System;
@@ -10,7 +11,7 @@ namespace DAL.Repositories;
 
 public class SubscriptionPackageRepository : GenericRepository<TbSubscriptionPackage>, ISubscriptionPackageRepository
 {
-    public SubscriptionPackageRepository(AppDbContext context, ILogger<SubscriptionPackageRepository> logger) : base(context, logger)
+    public SubscriptionPackageRepository(ShippingDbContext context, ILogger<SubscriptionPackageRepository> logger) : base(context, logger)
     {
     }
 }

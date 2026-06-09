@@ -5,7 +5,7 @@ namespace UI.Areas.Admin.Controllers
 {
     [Area("Admin")]
     [Authorize]
-    public class DashboardController : Controller
+    public class DashboardController : BaseController
     {
         public IActionResult Index()
         {

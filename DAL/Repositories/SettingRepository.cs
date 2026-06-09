@@ -1,5 +1,5 @@
 ﻿using DAL.Context;
-using DAL.Contracts;
+using DAL.Contracts.IRepositories;
 using Domain.Entities;
 using Microsoft.Extensions.Logging;
 using System;
@@ -10,7 +10,7 @@ namespace DAL.Repositories;
 
 public class SettingRepository :  ISettingRepository
 {
-    public SettingRepository(AppDbContext context, ILogger<SettingRepository> logger)
+    public SettingRepository(ShippingDbContext context, ILogger<SettingRepository> logger)
     {
     }
 }

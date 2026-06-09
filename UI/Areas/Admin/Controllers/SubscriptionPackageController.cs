@@ -10,7 +10,7 @@ namespace UI.Areas.Admin.Controllers
 {
     [Area("Admin")]
     [Authorize]
-    public class SubscriptionPackageController : Controller
+    public class SubscriptionPackageController : BaseController
     {
         // Constructor inject ISubscriptionPackageService (commented out as per instructions)
         /*

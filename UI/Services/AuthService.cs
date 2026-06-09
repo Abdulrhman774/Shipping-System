@@ -1,4 +1,4 @@
-﻿using BL.Contract.IServices;
+using BL.Contract.IServices;
 using BL.DTOs.Auth;
 using Domain.Entities;
 using Microsoft.AspNetCore.Identity;
@@ -57,8 +57,10 @@ public class AuthService : IAuthService
 
     public async Task<AuthResponseDto?> LoginAsync(LoginDto dto)
     {
-        var user = await _userManager.FindByEmailAsync(dto.Email);
-            
+        var user = await _userManager.Users.FirstOrDefaultAsync(u =>
+            u.Email == dto.UsernameOrEmail ||
+            u.UserName == dto.UsernameOrEmail);
+
 
         if (user == null)
             return new AuthResponseDto { Success = false };
@@ -68,6 +70,8 @@ public class AuthService : IAuthService
 
         if (!result.Succeeded)
             return new AuthResponseDto { Success = false };
+
+        await _signInManager.SignInAsync(user, isPersistent: false);
 
         return new AuthResponseDto
         {

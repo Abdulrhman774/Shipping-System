@@ -1,4 +1,4 @@
-﻿using DAL.Context;
+using DAL.Context;
 using Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 
@@ -9,7 +9,7 @@ namespace DAL.Seeding
         private static readonly string seedAdminEmail = "admin@gmail.com";
 
         public static async Task SeedAsync(
-            AppDbContext context,
+            ShippingDbContext context,
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole<Guid>> roleManager)
         {
@@ -20,10 +20,10 @@ namespace DAL.Seeding
         private static async Task SeedRolesAsync(RoleManager<IdentityRole<Guid>> roleManager)
         {
             if (!await roleManager.RoleExistsAsync("Admin"))
-                await roleManager.CreateAsync(new IdentityRole<Guid>("Admin"));
+                await roleManager.CreateAsync(new IdentityRole<Guid> { Name = "Admin", NormalizedName = "ADMIN" });
 
             if (!await roleManager.RoleExistsAsync("User"))
-                await roleManager.CreateAsync(new IdentityRole<Guid>("User"));
+                await roleManager.CreateAsync(new IdentityRole<Guid> { Name = "User", NormalizedName = "USER" });
         }
 
         private static async Task SeedAdminAsync(UserManager<ApplicationUser> userManager)

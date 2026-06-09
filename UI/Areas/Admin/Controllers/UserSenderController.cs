@@ -11,7 +11,7 @@ namespace UI.Areas.Admin.Controllers
 {
     [Area("Admin")]
     [Authorize]
-    public class UserSenderController : Controller
+    public class UserSenderController : BaseController
     {
         // Constructor inject IUserSenderService (commented out as per instructions)
         /*

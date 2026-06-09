@@ -1,5 +1,6 @@
 ﻿using DAL.Context;
-using DAL.Contracts;
+using DAL.Contracts.IRepositories;
+using DAL.Repositories.Generic;
 using Domain.Entities;
 using Microsoft.Extensions.Logging;
 using System;
@@ -10,7 +11,7 @@ namespace DAL.Repositories;
 
 public class CityRepository : GenericRepository<TbCity>, ICityRepository
 {
-    public CityRepository(AppDbContext context, ILogger<CityRepository> logger) : base(context, logger)
+    public CityRepository(ShippingDbContext context, ILogger<CityRepository> logger) : base(context, logger)
     {
     }
 }

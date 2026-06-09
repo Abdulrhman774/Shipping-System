@@ -1,9 +1,11 @@
-﻿using BL.Contract.IServices;
+using BL.Contract.IServices;
 using BL.Mapping;
 using BL.Services;
 using DAL.Context;
 using DAL.Contracts;
+using DAL.Contracts.IRepositories;
 using DAL.Repositories;
+using DAL.Repositories.Generic;
 using Domain.Entities;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
@@ -19,7 +21,7 @@ public static class ServiceExtensions
     public static IServiceCollection AddPersistence(this IServiceCollection services, IConfiguration configuration, IWebHostEnvironment env)
     {
         #region DbContext
-        services.AddDbContext<AppDbContext>(options =>
+        services.AddDbContext<ShippingDbContext>(options =>
         {
             var connectionString = configuration.GetConnectionString("DefaultConnection");
 
@@ -119,12 +121,12 @@ public static class ServiceExtensions
             options.Password.RequireUppercase = true;
             options.Password.RequireLowercase = true;
         })
-        .AddEntityFrameworkStores<AppDbContext>()
+        .AddEntityFrameworkStores<ShippingDbContext>()
         .AddDefaultTokenProviders();
 
         services.ConfigureApplicationCookie(options =>
         {
-            options.LoginPath = "/Account/Login";
+            options.LoginPath = "/Account/AccessDenied";
             options.LogoutPath = "/Account/Logout";
             options.AccessDeniedPath = "/Account/AccessDenied";
             options.Cookie.Name = "ShippingAuthCookie";

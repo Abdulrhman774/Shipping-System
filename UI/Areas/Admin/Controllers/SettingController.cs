@@ -9,7 +9,7 @@ namespace UI.Areas.Admin.Controllers
 {
     [Area("Admin")]
     [Authorize]
-    public class SettingController : Controller
+    public class SettingController : BaseController
     {
         // Constructor inject ISettingService (commented out as per instructions)
         /*

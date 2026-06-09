@@ -11,7 +11,7 @@ namespace UI.Areas.Admin.Controllers
 {
     [Area("Admin")]
     [Authorize]
-    public class UserSubscriptionController : Controller
+    public class UserSubscriptionController : BaseController
     {
         // Constructor inject IUserSubscriptionService (commented out as per instructions)
         /*

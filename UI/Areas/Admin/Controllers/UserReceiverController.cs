@@ -11,7 +11,7 @@ namespace UI.Areas.Admin.Controllers
 {
     [Area("Admin")]
     [Authorize]
-    public class UserReceiverController : Controller
+    public class UserReceiverController : BaseController
     {
         // Constructor inject IUserReceiverService (commented out as per instructions)
         /*

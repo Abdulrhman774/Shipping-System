@@ -2,9 +2,12 @@
 using BL.Contract.IServices;
 using BL.Mapping;
 using BL.Services;
+using BL.Services.vwServices;
 using DAL.Context;
 using DAL.Contracts;
+using DAL.Contracts.IRepositories;
 using DAL.Repositories;
+using DAL.Repositories.Generic;
 using Domain.Entities;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Hosting;
@@ -25,7 +28,7 @@ public static class ServiceExtensions
     public static IServiceCollection AddPersistence(this IServiceCollection services, IConfiguration configuration, IWebHostEnvironment env)
     {
         #region DbContext
-        services.AddDbContext<AppDbContext>(options =>
+        services.AddDbContext<ShippingDbContext>(options =>
         {
             var connectionString = configuration.GetConnectionString("DefaultConnection");
 
@@ -65,6 +68,7 @@ public static class ServiceExtensions
     {
         services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
+        #region Repositories
         services.AddScoped<ICarrierRepository, CarrierRepository>();
         services.AddScoped<ICityRepository, CityRepository>();
         services.AddScoped<ICountryRepository, CountryRepository>();
@@ -77,6 +81,8 @@ public static class ServiceExtensions
         services.AddScoped<IUserReceiverRepository, UserReceiverRepository>();
         services.AddScoped<IUserSenderRepository, UserSenderRepository>();
         services.AddScoped<IUserSubscriptionRepository, UserSubscriptionRepository>();
+        #endregion
+
 
         return services;
     }
@@ -89,6 +95,7 @@ public static class ServiceExtensions
         services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
         services.AddScoped<BL.Mapping.IMapper, BL.Mapping.AutoMapper>();
 
+        #region Services
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IUserService, UserService>();
 
@@ -104,6 +111,12 @@ public static class ServiceExtensions
         services.AddScoped<IUserReceiverService, UserReceiverService>();
         services.AddScoped<IUserSenderService, UserSenderService>();
         services.AddScoped<IUserSubscriptionService, UserSubscriptionService>();
+        #endregion
+
+
+        #region View Services
+        services.AddScoped<BL.Contract.IvwServices.IVwCitiesCountriesService, VwCitiesCountriesService>();
+        #endregion
 
         return services;
     }
@@ -123,7 +136,7 @@ public static class ServiceExtensions
             options.Password.RequireUppercase = true;
             options.Password.RequireLowercase = true;
         })
-        .AddEntityFrameworkStores<AppDbContext>()
+        .AddEntityFrameworkStores<ShippingDbContext>()
         .AddDefaultTokenProviders();
 
 

@@ -36,7 +36,7 @@ if (WantedToSeed)
     {
         var services = scope.ServiceProvider;
 
-        var context = services.GetRequiredService<AppDbContext>();
+        var context = services.GetRequiredService<ShippingDbContext>();
         var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
         var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
 

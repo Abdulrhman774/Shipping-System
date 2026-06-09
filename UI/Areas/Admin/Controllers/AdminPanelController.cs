@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace UI.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    public class AdminPanelController : Controller
+    [Authorize]
+    public class AdminPanelController : BaseController
     {
         public IActionResult Index()
         {

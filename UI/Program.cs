@@ -33,7 +33,7 @@ if (WantedToSeed)
     {
         var services = scope.ServiceProvider;
 
-        var context = services.GetRequiredService<AppDbContext>();
+        var context = services.GetRequiredService<ShippingDbContext>();
         var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
         var roleManager = services.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
 
@@ -62,7 +62,7 @@ app.MapStaticAssets();
 
 app.MapControllerRoute(
     name: "areas",
-    pattern: "{area:exists}/{controller=Dashboard}/{action=Index}/{id?}");
+    pattern: "{area:exists}/{controller=AdminPanel}/{action=Index}/{id?}");
 
 app.MapControllerRoute(
     name: "default",

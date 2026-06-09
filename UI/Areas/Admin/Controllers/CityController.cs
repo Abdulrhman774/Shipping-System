@@ -11,7 +11,7 @@ namespace UI.Areas.Admin.Controllers
 {
     [Area("Admin")]
     [Authorize]
-    public class CityController : Controller
+    public class CityController : BaseController
     {
         // Constructor inject ICityService (commented out as per instructions)
         /*

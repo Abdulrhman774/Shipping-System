@@ -1,10 +1,12 @@
 using BL.Contract.IServices;
 using BL.DTOs.Auth;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using UI.Models;
 
 namespace UI.Controllers
 {
+    [Authorize]
     public class AccountController : Controller
     {
         private readonly IAuthService _authService;
@@ -15,14 +17,18 @@ namespace UI.Controllers
         }
 
         // GET: /Account/Login
-        public IActionResult Login(string? returnUrl = null)
+        [AllowAnonymous]
+        public IActionResult Login()
         {
-            ViewData["ReturnUrl"] = returnUrl;
+            if (User.Identity?.IsAuthenticated == true)
+                return RedirectToAction("Index", "Dashboard", new { area = "Admin" });
+
             return View();
         }
 
         // POST: /Account/Login
         [HttpPost]
+        [AllowAnonymous]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
@@ -32,7 +38,7 @@ namespace UI.Controllers
             // Map ViewModel → DTO
             var loginDto = new LoginDto
             {
-                Email = model.UsernameOrEmail,
+                UsernameOrEmail = model.UsernameOrEmail,
                 Password = model.Password
             };
 
@@ -44,17 +50,11 @@ namespace UI.Controllers
                 return View(model);
             }
 
-            // Handle ReturnUrl
-            if (!string.IsNullOrEmpty(model.ReturnUrl)
-                && Url.IsLocalUrl(model.ReturnUrl))
-            {
-                return Redirect(model.ReturnUrl);
-            }
-
             return RedirectToAction("Index", "Dashboard", new { area = "Admin" });
         }
 
         // GET: /Account/Register
+        [AllowAnonymous]
         public IActionResult Register()
         {
             return View();
@@ -62,6 +62,7 @@ namespace UI.Controllers
 
         // POST: /Account/Register
         [HttpPost]
+        [AllowAnonymous]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
@@ -103,6 +104,7 @@ namespace UI.Controllers
         }
 
         // GET: /Account/AccessDenied
+        [AllowAnonymous]
         public IActionResult AccessDenied()
         {
             return View();

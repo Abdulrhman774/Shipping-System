@@ -10,7 +10,7 @@ namespace UI.Areas.Admin.Controllers
 {
     [Area("Admin")]
     [Authorize]
-    public class PaymentMethodController : Controller
+    public class PaymentMethodController : BaseController
     {
         // Constructor inject IPaymentMethodService (commented out as per instructions)
         /*

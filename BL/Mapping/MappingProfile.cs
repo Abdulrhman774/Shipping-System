@@ -14,6 +14,8 @@ using BL.DTOs.SubscriptionPackage;
 using BL.DTOs.UserReceiver;
 using BL.DTOs.UserSender;
 using BL.DTOs.UserSubscription;
+using Domain.Entities.Views;
+using BL.DTOs.Views;
 
 namespace BL.Mapping
 {
@@ -90,6 +92,11 @@ namespace BL.Mapping
             CreateMap<TbUserSubscription, UserSubscriptionDto>();
             CreateMap<CreateUserSubscriptionDto, TbUserSubscription>();
             CreateMap<UpdateUserSubscriptionDto, TbUserSubscription>();
+
+
+            // Views
+            CreateMap<VwCitiesCountries, VwCitiesCountriesDto>();
+            
         }
     }
 }

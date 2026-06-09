@@ -1,4 +1,4 @@
-﻿//using BL.Contract.IServices;
+//using BL.Contract.IServices;
 //using BL.DTOs.Auth;
 //using Domain.Entities;
 //using Microsoft.AspNetCore.Identity;
@@ -70,6 +70,8 @@
 
 //        if (!result.Succeeded)
 //            return new AuthResponseDto { Success = false };
+
+//        await _signInManager.SignInAsync(user, isPersistent: false);
 
 //        return new AuthResponseDto
 //        {

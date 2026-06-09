@@ -1,5 +1,6 @@
 ﻿using DAL.Context;
-using DAL.Contracts;
+using DAL.Contracts.IRepositories;
+using DAL.Repositories.Generic;
 using Domain.Entities;
 using Microsoft.Extensions.Logging;
 using System;
@@ -10,7 +11,7 @@ namespace DAL.Repositories;
 
 public class UserSenderRepository : GenericRepository<TbUserSender>, IUserSenderRepository
 {
-    public UserSenderRepository(AppDbContext context, ILogger<UserSenderRepository> logger) : base(context, logger)
+    public UserSenderRepository(ShippingDbContext context, ILogger<UserSenderRepository> logger) : base(context, logger)
     {
     }
 }

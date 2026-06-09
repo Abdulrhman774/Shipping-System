@@ -10,7 +10,7 @@ namespace UI.Areas.Admin.Controllers
 {
     [Area("Admin")]
     [Authorize]
-    public class CountryController : Controller
+    public class CountryController : BaseController
     {
         // Constructor inject ICountryService (commented out as per instructions)
         /*

@@ -10,7 +10,7 @@ namespace UI.Areas.Admin.Controllers
 {
     [Area("Admin")]
     [Authorize]
-    public class CarrierController : Controller
+    public class CarrierController : BaseController
     {
         // Constructor inject ICarrierService (commented out as per instructions)
         /*

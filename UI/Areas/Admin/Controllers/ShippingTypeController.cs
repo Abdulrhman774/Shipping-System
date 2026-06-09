@@ -13,7 +13,7 @@ namespace UI.Areas.Admin.Controllers
 {
     [Area("Admin")]
     [Authorize]
-    public class ShippingTypeController : Controller
+    public class ShippingTypeController : BaseController
     {
         private readonly IShippingTypeService _service;
         private readonly ILogger<ShippingTypeService> _logger;
