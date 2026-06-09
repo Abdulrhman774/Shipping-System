@@ -1,6 +1,6 @@
 using Domain.Entities;
 using BL.DTOs.Setting;
-using BL.Contracts.IServices;
+using BL.Contract.IServices;
 using DAL.Contracts;
 using BL.Mapping;
 

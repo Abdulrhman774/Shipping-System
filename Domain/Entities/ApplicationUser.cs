@@ -2,7 +2,7 @@
 
 namespace Domain.Entities
 {
-    public class ApplicationUser : IdentityUser
+    public class ApplicationUser : IdentityUser<Guid>
     {
         public string FullName { get; set; } = null!;
         public DateOnly DateOfBirth { get; set; }

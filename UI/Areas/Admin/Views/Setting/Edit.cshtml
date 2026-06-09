@@ -1,0 +1,52 @@
+@model BL.DTOs.Setting.UpdateSettingDto
+@{
+    ViewData["Title"] = "System Settings";
+}
+
+<div class="content-wrapper">
+    <div class="page-header">
+        <h3 class="page-title"> System Settings </h3>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a asp-controller="Dashboard" asp-action="Index">Dashboard</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Settings</li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="row">
+        <div class="col-12 grid-margin stretch-card">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title text-primary mb-4">
+                        <i class="mdi mdi-settings me-2"></i>Global Pricing Parameters
+                    </h4>
+                    
+                    <form class="forms-sample" asp-controller="Setting" asp-action="Edit" method="post">
+                        @Html.AntiForgeryToken()
+
+                        <div class="row">
+                            <div class="col-md-6 form-group mb-3">
+                                <label asp-for="KiloMeterRate">Rate per Kilometer ($)</label>
+                                <input asp-for="KiloMeterRate" type="number" step="0.01" class="form-control" placeholder="Enter Rate per KM" required />
+                                <span asp-validation-for="KiloMeterRate" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 form-group mb-3">
+                                <label asp-for="KilooGramRate">Rate per Kilogram ($)</label>
+                                <input asp-for="KilooGramRate" type="number" step="0.01" class="form-control" placeholder="Enter Rate per KG" required />
+                                <span asp-validation-for="KilooGramRate" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 border-top pt-3">
+                            <button type="submit" class="btn btn-gradient-primary me-2">
+                                <i class="mdi mdi-content-save me-1"></i> Save Settings
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

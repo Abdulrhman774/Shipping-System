@@ -1,3 +1,9 @@
+using BL.Services.Simulation;
+using DAL.Context;
+using DAL.Seeding;
+using Domain.Entities;
+using Microsoft.AspNetCore.Identity;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -10,10 +16,30 @@ builder.Services.AddRepositories();
 builder.Services.AddServices();
 builder.Services.AddValidators();
 builder.Services.AddIdentityConfig();
+
+// Simulate current user service for demonstration purposes
+//builder.Services.AddSingleton<ICurrentUserService, CurrentUserService>();
 #endregion
 
-
 var app = builder.Build();
+
+// Enabled seeding data 
+bool WantedToSeed = false;
+
+if (WantedToSeed)
+{
+    // Seed the database with initial data
+    using (var scope = app.Services.CreateScope())
+    {
+        var services = scope.ServiceProvider;
+
+        var context = services.GetRequiredService<AppDbContext>();
+        var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
+        var roleManager = services.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
+
+        await IdentitySeeder.SeedAsync(context, userManager, roleManager);
+    }
+}
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -23,9 +49,11 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+
 app.UseHttpsRedirection();
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapStaticAssets();
@@ -33,14 +61,12 @@ app.MapStaticAssets();
 
 
 app.MapControllerRoute(
-    name: "Areas",
-    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
-
+    name: "areas",
+    pattern: "{area:exists}/{controller=Dashboard}/{action=Index}/{id?}");
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}")
-    .WithStaticAssets();
+    pattern: "{controller=Account}/{action=Login}/{id?}");
 
 
 app.Run();

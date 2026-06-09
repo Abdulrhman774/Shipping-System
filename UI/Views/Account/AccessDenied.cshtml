@@ -1,0 +1,95 @@
+@{
+    Layout = null;
+    ViewData["Title"] = "Access Denied — Shipping System";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="~/Admin/vendors/mdi/css/materialdesignicons.min.css">
+    <link rel="stylesheet" href="~/Admin/vendors/css/vendor.bundle.base.css">
+    <link rel="stylesheet" href="~/Admin/css/demo_3/style.css">
+    <link rel="shortcut icon" href="~/Admin/images/favicon.png" />
+    <style>
+        body {
+            background: linear-gradient(135deg, #b66dff 0%, #6610f2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .auth-card {
+            width: 100%;
+            max-width: 480px;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+        }
+        .auth-header {
+            background: linear-gradient(135deg, #ff4c4c 0%, #d60000 100%);
+            padding: 2rem;
+            text-align: center;
+        }
+        .auth-header i {
+            font-size: 64px;
+            color: #fff;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+        .auth-header h4 {
+            color: #fff;
+            font-weight: 700;
+            margin-bottom: 0;
+            font-size: 1.5rem;
+        }
+        .auth-body {
+            background: #fff;
+            padding: 2.5rem 2rem;
+            text-align: center;
+        }
+        .error-message {
+            font-size: 1.1rem;
+            color: #555;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+        .btn-back {
+            background: linear-gradient(135deg, #b66dff 0%, #6610f2 100%);
+            border: none;
+            color: #fff;
+            font-weight: 600;
+            padding: 0.75rem 2rem;
+            border-radius: 50px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-back:hover {
+            box-shadow: 0 5px 15px rgba(182,109,255,0.4);
+            transform: translateY(-2px);
+            color: #fff;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-card">
+        <div class="auth-header">
+            <i class="mdi mdi-shield-lock-outline"></i>
+            <h4>Access Denied</h4>
+        </div>
+        <div class="auth-body">
+            <p class="error-message">
+                Access Denied — You don't have permission to view this page.
+            </p>
+            <a href="/Account/Login" class="btn-back">
+                <i class="mdi mdi-arrow-left me-1"></i> Back to Login
+            </a>
+        </div>
+    </div>
+    <script src="~/Admin/vendors/js/vendor.bundle.base.js"></script>
+</body>
+</html>

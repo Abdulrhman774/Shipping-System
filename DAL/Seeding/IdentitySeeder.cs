@@ -1,0 +1,64 @@
+﻿using DAL.Context;
+using Domain.Entities;
+using Microsoft.AspNetCore.Identity;
+
+namespace DAL.Seeding
+{
+    public static class IdentitySeeder
+    {
+        private static readonly string seedAdminEmail = "admin@gmail.com";
+
+        public static async Task SeedAsync(
+            AppDbContext context,
+            UserManager<ApplicationUser> userManager,
+            RoleManager<IdentityRole<Guid>> roleManager)
+        {
+            await SeedRolesAsync(roleManager);
+            await SeedAdminAsync(userManager);
+        }
+
+        private static async Task SeedRolesAsync(RoleManager<IdentityRole<Guid>> roleManager)
+        {
+            if (!await roleManager.RoleExistsAsync("Admin"))
+                await roleManager.CreateAsync(new IdentityRole<Guid>("Admin"));
+
+            if (!await roleManager.RoleExistsAsync("User"))
+                await roleManager.CreateAsync(new IdentityRole<Guid>("User"));
+        }
+
+        private static async Task SeedAdminAsync(UserManager<ApplicationUser> userManager)
+        {
+            var admin = await userManager.FindByEmailAsync(seedAdminEmail);
+
+            if (admin == null)
+            {
+                admin = new ApplicationUser
+                {
+                    UserName = seedAdminEmail,
+                    Email = seedAdminEmail,
+                    EmailConfirmed = true,
+
+                    // ✔ Custom fields
+                    FullName = "System Administrator",
+                    DateOfBirth = new DateOnly(1990, 1, 1),
+                    Gender = enGender.Male,
+                    ImageUrl = "https://default-image.com/admin.png",
+
+                    PhoneNumber = "+201234567890"
+                };
+
+
+                var result = await userManager.CreateAsync(admin, "Admin@12345");
+
+                if (!result.Succeeded)
+                {
+                    throw new Exception(
+                        string.Join(", ", result.Errors.Select(e => e.Description))
+                    );
+                }
+
+                await userManager.AddToRoleAsync(admin, "Admin");
+            }
+        }
+    }
+}

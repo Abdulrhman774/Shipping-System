@@ -7,5 +7,7 @@ namespace BL.DTOs.Base
     public class BaseDto
     {
         public Guid Id { get; set; }
+        public enEntityState CurrentState { get; set; }
+        public DateTime CreatedDate { get; set; }
     }
 }

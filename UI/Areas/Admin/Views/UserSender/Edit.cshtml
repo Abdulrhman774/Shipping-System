@@ -1,0 +1,74 @@
+@model BL.DTOs.UserSender.UpdateUserSenderDto
+@{
+    ViewData["Title"] = "Edit Sender";
+}
+
+<div class="content-wrapper">
+    <div class="page-header">
+        <h3 class="page-title"> Edit Sender </h3>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a asp-controller="Dashboard" asp-action="Index">Dashboard</a></li>
+                <li class="breadcrumb-item"><a asp-controller="UserSender" asp-action="Index">Senders</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Edit</li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="row">
+        <div class="col-12 grid-margin stretch-card">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title text-primary mb-4"><i class="mdi mdi-account me-2"></i>Edit Sender Details</h4>
+                    
+                    <form class="forms-sample" asp-controller="UserSender" asp-action="Edit" asp-route-id="@ViewBag.Id" method="post">
+                        @Html.AntiForgeryToken()
+                        
+                        <input type="hidden" asp-for="UserId" />
+
+                        <div class="form-group mb-3">
+                            <label asp-for="SenderName">Full Name</label>
+                            <input asp-for="SenderName" type="text" class="form-control" placeholder="Enter Full Name" required />
+                            <span asp-validation-for="SenderName" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="Email">Email Address</label>
+                            <input asp-for="Email" type="email" class="form-control" placeholder="Enter Email Address" required />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="Phone">Phone Number</label>
+                            <input asp-for="Phone" type="tel" class="form-control" placeholder="Enter Phone Number" required />
+                            <span asp-validation-for="Phone" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="CityId">City</label>
+                            <select asp-for="CityId" class="form-control form-select" asp-items="ViewBag.Cities" required>
+                                <option value="">Select City</option>
+                            </select>
+                            <span asp-validation-for="CityId" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label asp-for="Address">Full Address</label>
+                            <textarea asp-for="Address" rows="4" class="form-control" placeholder="Enter Street Address, Building, Apartment..." required></textarea>
+                            <span asp-validation-for="Address" class="text-danger"></span>
+                        </div>
+
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-gradient-primary me-2">
+                                <i class="mdi mdi-content-save me-1"></i> Save
+                            </button>
+                            <a asp-controller="UserSender" asp-action="Index" class="btn btn-light">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

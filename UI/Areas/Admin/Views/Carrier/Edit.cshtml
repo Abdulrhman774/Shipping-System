@@ -1,0 +1,46 @@
+@model BL.DTOs.Carrier.UpdateCarrierDto
+@{
+    ViewData["Title"] = "Edit Carrier";
+}
+
+<div class="content-wrapper">
+    <div class="page-header">
+        <h3 class="page-title"> Edit Carrier </h3>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a asp-controller="Dashboard" asp-action="Index">Dashboard</a></li>
+                <li class="breadcrumb-item"><a asp-controller="Carrier" asp-action="Index">Carriers</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Edit</li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="row">
+        <div class="col-12 grid-margin stretch-card">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title text-primary mb-4"><i class="mdi mdi-truck-delivery me-2"></i>Edit Carrier Details</h4>
+                    
+                    <form class="forms-sample" asp-controller="Carrier" asp-action="Edit" asp-route-id="@ViewBag.Id" method="post">
+                        @Html.AntiForgeryToken()
+                        
+                        <div class="form-group mb-4">
+                            <label asp-for="CarrierName">Carrier Name</label>
+                            <input asp-for="CarrierName" type="text" class="form-control" placeholder="Enter Carrier Name (e.g. DHL Express)" required />
+                            <span asp-validation-for="CarrierName" class="text-danger"></span>
+                        </div>
+
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-gradient-primary me-2">
+                                <i class="mdi mdi-content-save me-1"></i> Save
+                            </button>
+                            <a asp-controller="Carrier" asp-action="Index" class="btn btn-light">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

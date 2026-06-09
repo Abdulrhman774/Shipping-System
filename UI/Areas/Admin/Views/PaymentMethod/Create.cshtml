@@ -1,0 +1,58 @@
+@model BL.DTOs.PaymentMethod.CreatePaymentMethodDto
+@{
+    ViewData["Title"] = "Add Payment Method";
+}
+
+<div class="content-wrapper">
+    <div class="page-header">
+        <h3 class="page-title"> Add Payment Method </h3>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a asp-controller="Dashboard" asp-action="Index">Dashboard</a></li>
+                <li class="breadcrumb-item"><a asp-controller="PaymentMethod" asp-action="Index">Payment Methods</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Add</li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="row">
+        <div class="col-12 grid-margin stretch-card">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title text-primary mb-4"><i class="mdi mdi-cash-multiple me-2"></i>Payment Method Details</h4>
+                    
+                    <form class="forms-sample" asp-controller="PaymentMethod" asp-action="Create" method="post">
+                        @Html.AntiForgeryToken()
+                        
+                        <div class="form-group mb-3">
+                            <label asp-for="MethdAname">Arabic Name</label>
+                            <input asp-for="MethdAname" type="text" class="form-control" placeholder="Enter Arabic Name (e.g. الدفع عند الاستلام)" required />
+                            <span asp-validation-for="MethdAname" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="MethodEname">English Name</label>
+                            <input asp-for="MethodEname" type="text" class="form-control" placeholder="Enter English Name (e.g. Cash on Delivery)" required />
+                            <span asp-validation-for="MethodEname" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label asp-for="Commission">Commission (%)</label>
+                            <input asp-for="Commission" type="number" step="0.01" min="0" max="100" class="form-control" placeholder="Enter Commission Percentage (e.g. 5.00)" />
+                            <span asp-validation-for="Commission" class="text-danger"></span>
+                        </div>
+
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-gradient-primary me-2">
+                                <i class="mdi mdi-content-save me-1"></i> Save
+                            </button>
+                            <a asp-controller="PaymentMethod" asp-action="Index" class="btn btn-light">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

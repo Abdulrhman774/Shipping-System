@@ -1,0 +1,195 @@
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="content-wrapper">
+    <div class="page-header">
+        <h3 class="page-title">
+            <span class="page-title-icon bg-gradient-primary text-white me-2">
+                <i class="mdi mdi-home"></i>
+            </span> Dashboard
+        </h3>
+        <nav aria-label="breadcrumb">
+            <ul class="breadcrumb">
+                <li class="breadcrumb-item active" aria-current="page">
+                    <span></span>Overview
+                    <i class="mdi mdi-alert-circle-outline icon-sm text-primary align-middle"></i>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    @* ---- Stats Cards Row ---- *@
+    <div class="row">
+        <!-- Total Shipments -->
+        <div class="col-md-3 stretch-card grid-margin">
+            <div class="card bg-gradient-primary card-img-holder text-white">
+                <div class="card-body">
+                    <img src="~/Admin/images/dashboard/circle.svg" class="card-img-absolute" alt="circle-image" />
+                    <h4 class="font-weight-normal mb-3">
+                        Total Shipments
+                        <i class="mdi mdi-package-variant-closed mdi-24px float-end"></i>
+                    </h4>
+                    <h2 class="mb-5">1,284</h2>
+                    <h6 class="card-text">Total registered shipments</h6>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Carriers -->
+        <div class="col-md-3 stretch-card grid-margin">
+            <div class="card bg-gradient-success card-img-holder text-white">
+                <div class="card-body">
+                    <img src="~/Admin/images/dashboard/circle.svg" class="card-img-absolute" alt="circle-image" />
+                    <h4 class="font-weight-normal mb-3">
+                        Active Carriers
+                        <i class="mdi mdi-truck mdi-24px float-end"></i>
+                    </h4>
+                    <h2 class="mb-5">8</h2>
+                    <h6 class="card-text">Active delivery providers</h6>
+                </div>
+            </div>
+        </div>
+
+        <!-- Countries -->
+        <div class="col-md-3 stretch-card grid-margin">
+            <div class="card bg-gradient-warning card-img-holder text-white">
+                <div class="card-body">
+                    <img src="~/Admin/images/dashboard/circle.svg" class="card-img-absolute" alt="circle-image" />
+                    <h4 class="font-weight-normal mb-3">
+                        Countries
+                        <i class="mdi mdi-earth mdi-24px float-end"></i>
+                    </h4>
+                    <h2 class="mb-5">24</h2>
+                    <h6 class="card-text">Operational countries</h6>
+                </div>
+            </div>
+        </div>
+
+        <!-- Subscription Packages -->
+        <div class="col-md-3 stretch-card grid-margin">
+            <div class="card bg-gradient-info card-img-holder text-white">
+                <div class="card-body">
+                    <img src="~/Admin/images/dashboard/circle.svg" class="card-img-absolute" alt="circle-image" />
+                    <h4 class="font-weight-normal mb-3">
+                        Subscription Packages
+                        <i class="mdi mdi-star mdi-24px float-end"></i>
+                    </h4>
+                    <h2 class="mb-5">5</h2>
+                    <h6 class="card-text">Configured packages</h6>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* ---- Recent Shipments Table ---- *@
+    <div class="row">
+        <div class="col-12 grid-margin">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title">Recent Shipments</h4>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Tracking#</th>
+                                    <th>Sender</th>
+                                    <th>Receiver</th>
+                                    <th>Type</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>10001001</td>
+                                    <td>أحمد محمد</td>
+                                    <td>سارة أحمد</td>
+                                    <td>Express</td>
+                                    <td>Jun 1, 2026</td>
+                                    <td><label class="badge badge-gradient-success">Active</label></td>
+                                </tr>
+                                <tr>
+                                    <td>10001002</td>
+                                    <td>خالد عبدالله</td>
+                                    <td>علي حسن</td>
+                                    <td>Standard</td>
+                                    <td>Jun 3, 2026</td>
+                                    <td><label class="badge badge-gradient-success">Active</label></td>
+                                </tr>
+                                <tr>
+                                    <td>10001003</td>
+                                    <td>جون دو</td>
+                                    <td>فاطمة عمر</td>
+                                    <td>Same Day</td>
+                                    <td>Jun 5, 2026</td>
+                                    <td><label class="badge badge-gradient-warning">Inactive</label></td>
+                                </tr>
+                                <tr>
+                                    <td>10001004</td>
+                                    <td>سارة أحمد</td>
+                                    <td>أحمد محمد</td>
+                                    <td>Express</td>
+                                    <td>Jun 6, 2026</td>
+                                    <td><label class="badge badge-gradient-danger">Deleted</label></td>
+                                </tr>
+                                <tr>
+                                    <td>10001005</td>
+                                    <td>علي حسن</td>
+                                    <td>خالد عبدالله</td>
+                                    <td>Standard</td>
+                                    <td>Jun 7, 2026</td>
+                                    <td><label class="badge badge-gradient-success">Active</label></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* ---- Quick Links Row ---- *@
+    <div class="row">
+        <div class="col-md-3 stretch-card grid-margin">
+            <div class="card">
+                <div class="card-body text-center">
+                    <i class="mdi mdi-earth mdi-36px text-warning mb-3"></i>
+                    <h5 class="card-title">Countries</h5>
+                    <p class="card-text text-muted">Manage available countries.</p>
+                    <a asp-area="Admin" asp-controller="Country" asp-action="Index" class="btn btn-gradient-warning btn-sm w-100">Manage Countries</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 stretch-card grid-margin">
+            <div class="card">
+                <div class="card-body text-center">
+                    <i class="mdi mdi-truck mdi-36px text-success mb-3"></i>
+                    <h5 class="card-title">Carriers</h5>
+                    <p class="card-text text-muted">Manage shipping carriers.</p>
+                    <a asp-area="Admin" asp-controller="Carrier" asp-action="Index" class="btn btn-gradient-success btn-sm w-100">Manage Carriers</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 stretch-card grid-margin">
+            <div class="card">
+                <div class="card-body text-center">
+                    <i class="mdi mdi-package-variant-closed mdi-36px text-primary mb-3"></i>
+                    <h5 class="card-title">Shipments</h5>
+                    <p class="card-text text-muted">Manage all shipments.</p>
+                    <a asp-area="Admin" asp-controller="Shipment" asp-action="Index" class="btn btn-gradient-primary btn-sm w-100">Manage Shipments</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 stretch-card grid-margin">
+            <div class="card">
+                <div class="card-body text-center">
+                    <i class="mdi mdi-settings mdi-36px text-info mb-3"></i>
+                    <h5 class="card-title">System Settings</h5>
+                    <p class="card-text text-muted">Adjust system rates.</p>
+                    <a asp-area="Admin" asp-controller="Setting" asp-action="Edit" class="btn btn-gradient-info btn-sm w-100">System Settings</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

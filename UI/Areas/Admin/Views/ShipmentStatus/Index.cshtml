@@ -1,0 +1,135 @@
+@model List<Domain.Entities.TbShippmentStatus>
+@{
+    ViewData["Title"] = "Shipment Status History";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/Admin/vendors/datatables.net-bs4/dataTables.bootstrap4.css">
+    <style>
+        .dataTables_wrapper .dataTables_filter {
+            float: right;
+            text-align: right;
+        }
+        .dataTables_wrapper .dataTables_length {
+            float: left;
+        }
+        .dataTables_wrapper .dataTables_paginate {
+            float: right;
+            text-align: right;
+        }
+        .dataTables_wrapper .dataTables_info {
+            float: left;
+        }
+        .dataTables_wrapper .row {
+            margin-bottom: 15px;
+        }
+    </style>
+}
+
+<div class="content-wrapper">
+    <div class="page-header">
+        <h3 class="page-title"> Shipment Statuses </h3>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a asp-controller="Dashboard" asp-action="Index">Dashboard</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Shipment Statuses</li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="card-title">Status Updates Directory</h4>
+                <a asp-controller="ShipmentStatus" asp-action="Create" class="btn btn-gradient-primary btn-fw">
+                    <i class="mdi mdi-plus-circle me-1"></i> Add Status Update
+                </a>
+            </div>
+            <div class="table-responsive">
+                <table id="statuses-table" class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th> # </th>
+                            <th> Shipment (Tracking #) </th>
+                            <th> Carrier </th>
+                            <th> Notes </th>
+                            <th> Date </th>
+                            <th> Actions </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (int i = 0; i < Model.Count; i++)
+                        {
+                            var status = Model[i];
+                            <tr>
+                                <td> @(i + 1) </td>
+                                <td class="font-weight-bold"> @(status.Shippment?.TrackingNumber.ToString() ?? "N/A") </td>
+                                <td> @(status.Carrier?.CarrierName ?? "N/A") </td>
+                                <td style="max-width: 300px; white-space: normal; word-break: break-word;"> @status.Notes </td>
+                                <td> @status.CreatedDate.ToString("yyyy-MM-dd HH:mm") </td>
+                                <td>
+                                    <button type="button" class="btn btn-gradient-danger btn-sm delete-btn" data-id="@status.Id" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                                        <i class="mdi mdi-delete me-1"></i> Delete
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirm Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <i class="mdi mdi-alert-circle-outline text-danger display-3 mb-3"></i>
+                <p class="mb-0 font-weight-bold" style="font-size: 1.1rem;">Are you sure you want to delete this status update?</p>
+                <p class="text-muted small">This action will permanently delete the status record from the system.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteForm" method="post" action="">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-gradient-danger">Confirm Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/Admin/vendors/datatables.net/jquery.dataTables.js"></script>
+    <script src="~/Admin/vendors/datatables.net-bs4/dataTables.bootstrap4.js"></script>
+    <script>
+        $(document).ready(function () {
+            var table = $('#statuses-table').DataTable({
+                "aLengthMenu": [
+                    [5, 10, 15, -1],
+                    [5, 10, 15, "All"]
+                ],
+                "iDisplayLength": 5,
+                "language": {
+                    search: "",
+                    searchPlaceholder: "Search statuses..."
+                }
+            });
+
+            $('.dataTables_filter input').addClass('form-control form-control-sm d-inline-block w-auto ms-2');
+            $('.dataTables_length select').addClass('form-select form-select-sm d-inline-block w-auto me-2');
+
+            $(document).on('click', '.delete-btn', function () {
+                var id = $(this).data('id');
+                var url = '@Url.Action("Delete", "ShipmentStatus", new { area = "Admin" })/' + id;
+                $('#deleteForm').attr('action', url);
+            });
+        });
+    </script>
+}

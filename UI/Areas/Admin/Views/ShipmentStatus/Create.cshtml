@@ -1,0 +1,62 @@
+@model BL.DTOs.ShippmentStatus.CreateShippmentStatusDto
+@{
+    ViewData["Title"] = "Add Status Update";
+}
+
+<div class="content-wrapper">
+    <div class="page-header">
+        <h3 class="page-title"> Add Status Update </h3>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a asp-controller="Dashboard" asp-action="Index">Dashboard</a></li>
+                <li class="breadcrumb-item"><a asp-controller="ShipmentStatus" asp-action="Index">Shipment Statuses</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Add</li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="row">
+        <div class="col-12 grid-margin stretch-card">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title text-primary mb-4"><i class="mdi mdi-timeline me-2"></i>New Status Log</h4>
+                    
+                    <form class="forms-sample" asp-controller="ShipmentStatus" asp-action="Create" method="post">
+                        @Html.AntiForgeryToken()
+
+                        <div class="form-group mb-3">
+                            <label asp-for="ShippmentId">Shipment (Tracking Number)</label>
+                            <select asp-for="ShippmentId" class="form-control form-select" asp-items="ViewBag.Shipments" required>
+                                <option value="">Select Shipment</option>
+                            </select>
+                            <span asp-validation-for="ShippmentId" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="CarrierId">Carrier</label>
+                            <select asp-for="CarrierId" class="form-control form-select" asp-items="ViewBag.Carriers" required>
+                                <option value="">Select Carrier</option>
+                            </select>
+                            <span asp-validation-for="CarrierId" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label asp-for="Notes">Status Notes / Description</label>
+                            <textarea asp-for="Notes" rows="4" class="form-control" placeholder="e.g. Shipment departed sorting facility, custom clearance in progress..." required></textarea>
+                            <span asp-validation-for="Notes" class="text-danger"></span>
+                        </div>
+
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-gradient-primary me-2">
+                                <i class="mdi mdi-content-save me-1"></i> Save Update
+                            </button>
+                            <a asp-controller="ShipmentStatus" asp-action="Index" class="btn btn-light">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,61 @@
+﻿@using UI.Helpers
+
+@if (TempData["MessageType"] != null)
+{
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        $(document).ready(function () {
+        let messageType = @TempData["MessageType"];
+
+        const swalWithBootstrapButtons = Swal.mixin({
+        customClass: {
+        confirmButton: "btn btn-success mx-2",
+        cancelButton: "btn btn-danger mx-2"
+        },
+        buttonsStyling: false
+        });
+
+        switch (messageType) {
+        case @((int)enMessageType.SavedSuccessfully):
+        swalWithBootstrapButtons.fire({
+        title: "@Messages.SaveSuccessTitle",
+        text: "@Messages.SaveSuccessMessage",
+        icon: "success",
+        timer: 2500,
+        showConfirmButton: false
+        });
+        break;
+
+        case @((int)enMessageType.SavedFailed):
+        swalWithBootstrapButtons.fire({
+        title: "@Messages.SaveFailedTitle",
+        text: "@Messages.SaveFailedMessage",
+        icon: "error"
+        });
+        break;
+
+        case @((int)enMessageType.DeletedSuccessfully):
+        swalWithBootstrapButtons.fire({
+        title: "@Messages.DeleteSuccessTitle",
+        text: "@Messages.DeleteSucessMessage",
+        icon: "success",
+        timer: 2500,
+        showConfirmButton: false
+        });
+        break;
+
+        case @((int)enMessageType.DeletedFailed):
+        swalWithBootstrapButtons.fire({
+        title: "@Messages.DeleteFailedTitle",
+        text: "@Messages.DeleteFailedMessage",
+        icon: "error"
+        });
+        break;
+
+        default:
+        console.warn("Unknown message type:", messageType);
+        break;
+        }
+        });
+    </script>
+}

@@ -1,4 +1,4 @@
-using BL.Contracts.IServices;
+using BL.Contract.IServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;

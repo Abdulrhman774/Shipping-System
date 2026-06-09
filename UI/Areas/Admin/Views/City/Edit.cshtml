@@ -1,0 +1,60 @@
+@model BL.DTOs.City.UpdateCityDto
+@{
+    ViewData["Title"] = "Edit City";
+}
+
+<div class="content-wrapper">
+    <div class="page-header">
+        <h3 class="page-title"> Edit City </h3>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a asp-controller="Dashboard" asp-action="Index">Dashboard</a></li>
+                <li class="breadcrumb-item"><a asp-controller="City" asp-action="Index">Cities</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Edit</li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="row">
+        <div class="col-12 grid-margin stretch-card">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title text-primary mb-4"><i class="mdi mdi-map-marker me-2"></i>Edit City Details</h4>
+                    
+                    <form class="forms-sample" asp-controller="City" asp-action="Edit" asp-route-id="@ViewBag.Id" method="post">
+                        @Html.AntiForgeryToken()
+                        
+                        <div class="form-group mb-3">
+                            <label asp-for="CityAname">Arabic Name</label>
+                            <input asp-for="CityAname" type="text" class="form-control" placeholder="Enter Arabic Name (e.g. القاهرة)" required />
+                            <span asp-validation-for="CityAname" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="CityEname">English Name</label>
+                            <input asp-for="CityEname" type="text" class="form-control" placeholder="Enter English Name (e.g. Cairo)" required />
+                            <span asp-validation-for="CityEname" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label asp-for="CountryId">Country</label>
+                            <select asp-for="CountryId" class="form-control form-select" asp-items="ViewBag.Countries" required>
+                                <option value="">Select Country</option>
+                            </select>
+                            <span asp-validation-for="CountryId" class="text-danger"></span>
+                        </div>
+
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-gradient-primary me-2">
+                                <i class="mdi mdi-content-save me-1"></i> Save
+                            </button>
+                            <a asp-controller="City" asp-action="Index" class="btn btn-light">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

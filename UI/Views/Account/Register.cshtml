@@ -1,0 +1,213 @@
+@model UI.Models.RegisterViewModel
+@{
+    Layout = null;
+    ViewData["Title"] = "Register — Shipping System";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="~/Admin/vendors/mdi/css/materialdesignicons.min.css">
+    <link rel="stylesheet" href="~/Admin/vendors/css/vendor.bundle.base.css">
+    <link rel="stylesheet" href="~/Admin/css/demo_3/style.css">
+    <link rel="shortcut icon" href="~/Admin/images/favicon.png" />
+    <style>
+        body {
+            background: linear-gradient(135deg, #b66dff 0%, #6610f2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 0;
+        }
+        .auth-card {
+            width: 100%;
+            max-width: 500px;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+        }
+        .auth-header {
+            background: linear-gradient(135deg, #b66dff 0%, #6610f2 100%);
+            padding: 2rem;
+            text-align: center;
+        }
+        .auth-header img {
+            height: 48px;
+            margin-bottom: 0.75rem;
+        }
+        .auth-header h4 {
+            color: #fff;
+            font-weight: 700;
+            margin-bottom: 0;
+            font-size: 1.4rem;
+        }
+        .auth-body {
+            background: #fff;
+            padding: 2rem;
+        }
+        .auth-body .form-control {
+            border-radius: 8px;
+            height: 48px;
+            border-color: #e8e8e8;
+        }
+        .auth-body textarea.form-control {
+            height: auto;
+        }
+        .auth-body .form-control:focus {
+            border-color: #b66dff;
+            box-shadow: 0 0 0 0.2rem rgba(182,109,255,0.15);
+        }
+        .auth-body .input-group-text {
+            border-radius: 8px 0 0 8px;
+            background: #f4f5f7;
+            border-color: #e8e8e8;
+            color: #b66dff;
+        }
+        .btn-auth {
+            background: linear-gradient(135deg, #b66dff 0%, #6610f2 100%);
+            border: none;
+            border-radius: 8px;
+            height: 48px;
+            font-weight: 600;
+            font-size: 1rem;
+            letter-spacing: 0.5px;
+            transition: opacity 0.2s;
+        }
+        .btn-auth:hover {
+            opacity: 0.88;
+        }
+        .auth-footer-link {
+            text-align: center;
+            margin-top: 1.5rem;
+            font-size: 0.875rem;
+            color: #6c757d;
+        }
+        .auth-footer-link a {
+            color: #b66dff;
+            font-weight: 600;
+            text-decoration: none;
+        }
+        .auth-footer-link a:hover {
+            text-decoration: underline;
+        }
+        label {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #495057;
+        }
+        .gender-option {
+            display: inline-flex;
+            align-items: center;
+            margin-right: 1.5rem;
+            cursor: pointer;
+            font-weight: 500;
+            color: #495057;
+        }
+        .gender-option input[type="radio"] {
+            accent-color: #b66dff;
+            margin-right: 6px;
+            width: 16px;
+            height: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-card">
+        <div class="auth-header">
+            <img src="~/Admin/images/logo.svg" alt="Shipping System Logo" />
+            <h4>Create Account</h4>
+            <p class="text-white-50 mb-0 small">Fill in your details to get started</p>
+        </div>
+        <div class="auth-body">
+            <form asp-controller="Account" asp-action="Register" method="post">
+                @Html.AntiForgeryToken()
+
+                <div class="form-group mb-3">
+                    <label asp-for="FullName">Full Name</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="mdi mdi-account-outline"></i></span>
+                        </div>
+                        <input asp-for="FullName" type="text" class="form-control" placeholder="Enter your full name" id="reg-fullname" />
+                    </div>
+                    <span asp-validation-for="FullName" class="text-danger small"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Email">Email Address</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="mdi mdi-email-outline"></i></span>
+                        </div>
+                        <input asp-for="Email" type="email" class="form-control" placeholder="Enter your email" id="reg-email" />
+                    </div>
+                    <span asp-validation-for="Email" class="text-danger small"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Password">Password</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="mdi mdi-lock-outline"></i></span>
+                        </div>
+                        <input asp-for="Password" type="password" class="form-control" placeholder="Create a password (min. 6 characters)" id="reg-password" />
+                    </div>
+                    <span asp-validation-for="Password" class="text-danger small"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="ConfirmPassword">Confirm Password</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="mdi mdi-lock-check-outline"></i></span>
+                        </div>
+                        <input asp-for="ConfirmPassword" type="password" class="form-control" placeholder="Re-enter your password" id="reg-confirm-password" />
+                    </div>
+                    <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="DateOfBirth">Date of Birth</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="mdi mdi-calendar-outline"></i></span>
+                        </div>
+                        <input asp-for="DateOfBirth" type="date" class="form-control" id="reg-dob" />
+                    </div>
+                    <span asp-validation-for="DateOfBirth" class="text-danger small"></span>
+                </div>
+
+                <div class="form-group mb-4">
+                    <label class="d-block">Gender</label>
+                    <div class="d-flex mt-1">
+                        <label class="gender-option" for="gender-male">
+                            <input type="radio" asp-for="Gender" id="gender-male" value="1" />
+                            <i class="mdi mdi-gender-male me-1" style="color:#b66dff;"></i> Male
+                        </label>
+                        <label class="gender-option" for="gender-female">
+                            <input type="radio" asp-for="Gender" id="gender-female" value="2" />
+                            <i class="mdi mdi-gender-female me-1" style="color:#b66dff;"></i> Female
+                        </label>
+                    </div>
+                    <span asp-validation-for="Gender" class="text-danger small"></span>
+                </div>
+
+                <button type="submit" class="btn btn-auth btn-primary btn-block w-100 text-white" id="reg-submit">
+                    <i class="mdi mdi-account-plus me-2"></i> Register
+                </button>
+            </form>
+
+            <div class="auth-footer-link">
+                Already have an account? <a asp-controller="Account" asp-action="Login">Login</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="~/Admin/vendors/js/vendor.bundle.base.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.3/jquery.validate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
+</body>
+</html>

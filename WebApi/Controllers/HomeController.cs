@@ -1,4 +1,4 @@
-﻿using BL.Contracts.IServices;
+﻿using BL.Contract.IServices;
 using BL.DTOs.PaymentMethod;
 using BL.DTOs.ShippingType;
 using Microsoft.AspNetCore.Mvc;

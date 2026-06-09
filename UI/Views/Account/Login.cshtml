@@ -1,0 +1,155 @@
+@model UI.Models.LoginViewModel
+@{
+    Layout = null;
+    ViewData["Title"] = "Login — Shipping System";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="~/Admin/vendors/mdi/css/materialdesignicons.min.css">
+    <link rel="stylesheet" href="~/Admin/vendors/css/vendor.bundle.base.css">
+    <link rel="stylesheet" href="~/Admin/css/demo_3/style.css">
+    <link rel="shortcut icon" href="~/Admin/images/favicon.png" />
+    <style>
+        body {
+            background: linear-gradient(135deg, #b66dff 0%, #6610f2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .auth-card {
+            width: 100%;
+            max-width: 420px;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+        }
+        .auth-header {
+            background: linear-gradient(135deg, #b66dff 0%, #6610f2 100%);
+            padding: 2rem;
+            text-align: center;
+        }
+        .auth-header img {
+            height: 48px;
+            margin-bottom: 0.75rem;
+        }
+        .auth-header h4 {
+            color: #fff;
+            font-weight: 700;
+            margin-bottom: 0;
+            font-size: 1.4rem;
+        }
+        .auth-body {
+            background: #fff;
+            padding: 2rem;
+        }
+        .auth-body .form-control {
+            border-radius: 8px;
+            height: 48px;
+            border-color: #e8e8e8;
+        }
+        .auth-body .form-control:focus {
+            border-color: #b66dff;
+            box-shadow: 0 0 0 0.2rem rgba(182,109,255,0.15);
+        }
+        .auth-body .input-group-text {
+            border-radius: 8px 0 0 8px;
+            background: #f4f5f7;
+            border-color: #e8e8e8;
+            color: #b66dff;
+        }
+        .btn-auth {
+            background: linear-gradient(135deg, #b66dff 0%, #6610f2 100%);
+            border: none;
+            border-radius: 8px;
+            height: 48px;
+            font-weight: 600;
+            font-size: 1rem;
+            letter-spacing: 0.5px;
+            transition: opacity 0.2s;
+        }
+        .btn-auth:hover {
+            opacity: 0.88;
+        }
+        .auth-footer-link {
+            text-align: center;
+            margin-top: 1.5rem;
+            font-size: 0.875rem;
+            color: #6c757d;
+        }
+        .auth-footer-link a {
+            color: #b66dff;
+            font-weight: 600;
+            text-decoration: none;
+        }
+        .auth-footer-link a:hover {
+            text-decoration: underline;
+        }
+        label {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #495057;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-card">
+        <div class="auth-header">
+            <img src="~/Admin/images/logo.svg" alt="Shipping System Logo" />
+            <h4>Welcome Back</h4>
+            <p class="text-white-50 mb-0 small">Sign in to your account</p>
+        </div>
+        <div class="auth-body">
+            <form asp-controller="Account" asp-action="Login" method="post">
+                @Html.AntiForgeryToken()
+
+                <div class="form-group mb-3">
+                    <label asp-for="UsernameOrEmail">Username or Email</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="mdi mdi-email-outline"></i></span>
+                        </div>
+                        <input asp-for="UsernameOrEmail" type="text" class="form-control" placeholder="Enter your username or email" id="login-email" />
+                    </div>
+                    <span asp-validation-for="UsernameOrEmail" class="text-danger small"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Password">Password</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="mdi mdi-lock-outline"></i></span>
+                        </div>
+                        <input asp-for="Password" type="password" class="form-control" placeholder="Enter your password" id="login-password" />
+                    </div>
+                    <span asp-validation-for="Password" class="text-danger small"></span>
+                </div>
+
+                <div class="form-group mb-4 d-flex align-items-center justify-content-between">
+                    <div class="form-check">
+                        <input asp-for="RememberMe" class="form-check-input" type="checkbox" id="login-remember" />
+                        <label class="form-check-label fw-normal" asp-for="RememberMe">Remember me</label>
+                    </div>
+                    <a href="#" class="text-primary small">Forgot password?</a>
+                </div>
+
+                <button type="submit" class="btn btn-auth btn-primary btn-block w-100 text-white" id="login-submit">
+                    <i class="mdi mdi-login me-2"></i> Login
+                </button>
+            </form>
+
+            <div class="auth-footer-link">
+                Don't have an account? <a asp-controller="Account" asp-action="Register">Register</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="~/Admin/vendors/js/vendor.bundle.base.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.3/jquery.validate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
+</body>
+</html>

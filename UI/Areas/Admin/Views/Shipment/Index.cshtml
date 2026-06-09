@@ -1,0 +1,207 @@
+@model List<Domain.Entities.TbShippment>
+@{
+    ViewData["Title"] = "Shipments";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/Admin/vendors/datatables.net-bs4/dataTables.bootstrap4.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+    <style>
+        .dataTables_wrapper .dataTables_filter {
+            float: right;
+            text-align: right;
+        }
+        .dataTables_wrapper .dataTables_length {
+            float: left;
+        }
+        .dataTables_wrapper .dataTables_paginate {
+            float: right;
+            text-align: right;
+        }
+        .dataTables_wrapper .dataTables_info {
+            float: left;
+        }
+        .dataTables_wrapper .row {
+            margin-bottom: 15px;
+        }
+    </style>
+}
+
+<div class="content-wrapper">
+    <div class="page-header">
+        <h3 class="page-title"> Shipments </h3>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a asp-controller="Dashboard" asp-action="Index">Dashboard</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Shipments</li>
+            </ol>
+        </nav>
+    </div>
+
+    <!-- Filter Card -->
+    <div class="card mb-4">
+        <div class="card-body py-3">
+            <form id="filterForm" class="d-flex align-items-center gap-3">
+                <div class="form-group mb-0 flex-grow-1">
+                    <label class="mb-1 text-muted small">Filter by Date Range:</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="mdi mdi-calendar"></i></span>
+                        </div>
+                        <input type="text" class="form-control form-control-sm" name="daterange" id="daterange" placeholder="Select date range" />
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <button type="button" class="btn btn-gradient-primary btn-sm" id="btnFilter">
+                        <i class="mdi mdi-filter"></i> Apply Filter
+                    </button>
+                    <button type="button" class="btn btn-light btn-sm" id="btnReset">Reset</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="card-title">Shipments Directory</h4>
+                <a asp-controller="Shipment" asp-action="Create" class="btn btn-gradient-primary btn-fw">
+                    <i class="mdi mdi-plus-circle me-1"></i> Create Shipment
+                </a>
+            </div>
+            <div class="table-responsive">
+                <table id="shipments-table" class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th> # </th>
+                            <th> Tracking # </th>
+                            <th> Sender </th>
+                            <th> Receiver </th>
+                            <th> Type </th>
+                            <th> Date </th>
+                            <th> Rate </th>
+                            <th> Status </th>
+                            <th> Actions </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (int i = 0; i < Model.Count; i++)
+                        {
+                            var shipment = Model[i];
+                            <tr>
+                                <td> @(i + 1) </td>
+                                <td class="font-weight-bold"> @shipment.TrackingNumber </td>
+                                <td> @(shipment.Sender?.SenderName ?? "N/A") </td>
+                                <td> @(shipment.Receiver?.ReceiverName ?? "N/A") </td>
+                                <td> @(shipment.ShippingType?.ShippingTypeEname ?? "N/A") </td>
+                                <td> @shipment.ShippingDate.ToString("yyyy-MM-dd") </td>
+                                <td> @shipment.ShippingRate.ToString("C") </td>
+                                <td>
+                                    @if (shipment.CurrentState == enEntityState.Active)
+                                    {
+                                        <span class="badge badge-gradient-info">Processing</span>
+                                    }
+                                    else if (shipment.CurrentState == enEntityState.Inactive)
+                                    {
+                                        <span class="badge badge-gradient-warning">On Hold</span>
+                                    }
+                                    else if (shipment.CurrentState == enEntityState.Deleted)
+                                    {
+                                        <span class="badge badge-gradient-danger">Cancelled</span>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="d-flex gap-1">
+                                        <a asp-controller="Shipment" asp-action="Details" asp-route-id="@shipment.Id" class="btn btn-gradient-primary btn-sm me-1">
+                                            <i class="mdi mdi-eye me-1"></i> Details
+                                        </a>
+                                        <button type="button" class="btn btn-gradient-danger btn-sm delete-btn" data-id="@shipment.Id" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                                            <i class="mdi mdi-delete me-1"></i> Cancel
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirm Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Confirm Cancellation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <i class="mdi mdi-alert-circle-outline text-danger display-3 mb-3"></i>
+                <p class="mb-0 font-weight-bold" style="font-size: 1.1rem;">Are you sure you want to cancel this shipment?</p>
+                <p class="text-muted small">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                <form id="deleteForm" method="post" action="">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-gradient-danger">Confirm Cancel</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/Admin/vendors/datatables.net/jquery.dataTables.js"></script>
+    <script src="~/Admin/vendors/datatables.net-bs4/dataTables.bootstrap4.js"></script>
+    <script src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            var table = $('#shipments-table').DataTable({
+                "aLengthMenu": [
+                    [5, 10, 15, -1],
+                    [5, 10, 15, "All"]
+                ],
+                "iDisplayLength": 5,
+                "language": {
+                    search: "",
+                    searchPlaceholder: "Search tracking..."
+                }
+            });
+
+            $('.dataTables_filter input').addClass('form-control form-control-sm d-inline-block w-auto ms-2');
+            $('.dataTables_length select').addClass('form-select form-select-sm d-inline-block w-auto me-2');
+
+            // Date Range Picker
+            $('input[name="daterange"]').daterangepicker({
+                opens: 'left',
+                autoUpdateInput: false,
+                locale: {
+                    cancelLabel: 'Clear'
+                }
+            });
+
+            $('input[name="daterange"]').on('apply.daterangepicker', function(ev, picker) {
+                $(this).val(picker.startDate.format('YYYY-MM-DD') + ' - ' + picker.endDate.format('YYYY-MM-DD'));
+                // In a real scenario, this would trigger an AJAX reload or form submit
+            });
+
+            $('input[name="daterange"]').on('cancel.daterangepicker', function(ev, picker) {
+                $(this).val('');
+            });
+
+            $('#btnReset').click(function() {
+                $('#daterange').val('');
+            });
+
+            $(document).on('click', '.delete-btn', function () {
+                var id = $(this).data('id');
+                var url = '@Url.Action("Delete", "Shipment", new { area = "Admin" })/' + id;
+                $('#deleteForm').attr('action', url);
+            });
+        });
+    </script>
+}
