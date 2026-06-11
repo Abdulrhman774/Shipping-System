@@ -4,10 +4,8 @@ using DAL.Seeding;
 using Domain.Entities;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,16 +15,21 @@ builder.Services.AddPersistence(builder.Configuration, builder.Environment);
 builder.Services.AddRepositories();
 builder.Services.AddServices();
 builder.Services.AddValidators();
+
 builder.Services.AddIdentityConfig();
-#endregion
+
+builder.Services.AddJwtAuth(builder.Configuration);
+builder.Services.AddAppAuthorization();
+builder.Services.AddAppRateLimiting();
+builder.Services.AddSwaggerDocs();
 
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+#endregion
+
 
 var app = builder.Build();
 
-// Enabled seeding data 
+#region  Seeding data 
 bool WantedToSeed = false;
 
 if (WantedToSeed)
@@ -38,22 +41,29 @@ if (WantedToSeed)
 
         var context = services.GetRequiredService<ShippingDbContext>();
         var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
-        var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+        var roleManager = services.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
 
         await IdentitySeeder.SeedAsync(context, userManager, roleManager);
     }
 }
+#endregion
 
+
+#region Middleware pipeline
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    //app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+#endregion
 
 app.Run();

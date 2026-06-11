@@ -2,6 +2,7 @@
 using BL.DTOs.PaymentMethod;
 using BL.DTOs.ShippingType;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace WebApi.Controllers;
 
@@ -35,24 +36,21 @@ public class PaymentMethodController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create(CreatePaymentMethodDto dto)
     {
-        var createdBy = Guid.Parse("36C51FEE-3E95-43A0-964E-51E4FCF93192");
-        var result = await _service.AddAsync(dto, createdBy);
+        var result = await _service.AddAsync(dto);
         return result ? Ok("Created Successfully") : BadRequest("Creation Failed");
     }
 
     [HttpPut("{id:guid}")]
     public async Task<IActionResult> Update(Guid id, UpdatePaymentMethodDto dto)
     {
-        var updatedBy = Guid.NewGuid(); // مؤقت لحد ما تعمل Auth
-        var result = await _service.UpdateAsync(id, dto, updatedBy);
+        var result = await _service.UpdateAsync(id, dto);
         return result ? Ok("Updated Successfully") : BadRequest("Update Failed");
     }
 
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id)
     {
-        var updatedBy = Guid.NewGuid(); // مؤقت لحد ما تعمل Auth
-        var result = await _service.DeleteAsync(id, updatedBy);
+        var result = await _service.DeleteAsync(id);
         return result ? Ok("Deleted Successfully") : BadRequest("Delete Failed");
     }
 
