@@ -39,7 +39,7 @@ public class AuthService : IAuthService
             return new AuthResponseDto
             {
                 Success = false,
-                Errors = result.Errors.Select(e => e.Description).ToList()
+                //Errors = result.Errors.Select(e => e.Description).ToList()
             };
         }
 
