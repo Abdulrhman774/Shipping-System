@@ -1,0 +1,5 @@
+@WebApiHostAddress = https://localhost:7246
+
+### Test JWT Secret Key Exists
+GET {{WebApiHostAddress}}/JWT_SECRET_KEY
+Accept: application/json

@@ -1,4 +1,5 @@
-﻿using BL.Contract.IServices;
+﻿using BL.Common;
+using BL.Contract.IServices;
 using BL.DTOs.Auth;
 using Domain.Entities;
 using Microsoft.AspNetCore.Identity;
@@ -39,7 +40,8 @@ public class AuthService : IAuthService
             return new AuthResponseDto
             {
                 Success = false,
-                Errors = result.Errors.Select(e => e.Description).ToList()
+                //
+                //........0.Errors = result.Errors.Select(e => e.Description).ToList()
             };
         }
 
@@ -48,16 +50,16 @@ public class AuthService : IAuthService
         return new AuthResponseDto
         {
             Success = true,
-            UserId = user.Id,
+            UserId = Guid.Parse(user.Id),
             FullName = user.FullName,
             Email = user.Email!,
             UserName = user.UserName!
         };
     }
 
-    public async Task<AuthResponseDto?> LoginAsync(LoginDto dto)
+    public async Task<AuthResponseDto> LoginAsync(LoginDto dto)
     {
-        var user = await _userManager.FindByEmailAsync(dto.UsernameOrEmail);
+        var user = await _userManager.Users.FirstOrDefaultAsync(x => x.UserName == dto.UsernameOrEmail || x.Email == dto.UsernameOrEmail);
             
 
         if (user == null)
@@ -69,14 +71,8 @@ public class AuthService : IAuthService
         if (!result.Succeeded)
             return new AuthResponseDto { Success = false };
 
-        return new AuthResponseDto
-        {
-            Success = true,
-            UserId = user.Id,
-            FullName = user.FullName,
-            Email = user.Email!,
-            UserName = user.UserName!
-        };
+
+        return new AuthResponseDto { };
     }
 
     public async Task<bool> ChangePasswordAsync(string userId, ChangePasswordDto dto)
@@ -104,9 +100,16 @@ public class AuthService : IAuthService
         return result.Succeeded;
     }
 
-    public async Task LogoutAsync()
+    public async Task<AuthResponseDto> LogoutAsync()
     {
         await _signInManager.SignOutAsync();
+        return new AuthResponseDto { Success = true };
     }
 
+    public async Task<IEnumerable<string>> GetRolesAsync(string userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user == null) return new List<string>();
+        return await _userManager.GetRolesAsync(user);
+    }
 }

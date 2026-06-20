@@ -15,8 +15,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Sinks.MSSqlServer;
+using System.Net.Http.Headers;
 using UI.Services;
-using WebApi.Services;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -116,6 +116,10 @@ public static class ServiceExtensions
         services.AddScoped<IUserSubscriptionService, UserSubscriptionService>();
         #endregion
 
+        // Add service to can call api endpoint
+        services.AddScoped<GenericApiClient>();
+
+
         return services;
     }
 
@@ -126,7 +130,7 @@ public static class ServiceExtensions
 
     public static IServiceCollection AddIdentityConfig(this IServiceCollection services)
     {
-        services.AddIdentity<ApplicationUser, IdentityRole<Guid>>(options =>
+        services.AddIdentity<ApplicationUser, IdentityRole>(options =>
         {
             options.Password.RequireDigit = true;
             options.Password.RequiredLength = 9;
@@ -139,7 +143,7 @@ public static class ServiceExtensions
 
         services.ConfigureApplicationCookie(options =>
         {
-            options.LoginPath = "/Account/AccessDenied";
+            options.LoginPath = "/Account/Login";
             options.LogoutPath = "/Account/Logout";
             options.AccessDeniedPath = "/Account/AccessDenied";
             options.Cookie.Name = "ShippingAuthCookie";
@@ -159,6 +163,36 @@ public static class ServiceExtensions
         });
 
 
+
+        return services;
+    }
+
+    public static IServiceCollection AddHttpClientCallingApi(this IServiceCollection services)
+    {
+        services.AddHttpClient("ApiClient", client =>
+        {
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+        });
+
+        return services;
+    }
+
+    public static IServiceCollection AddSessionServices(this IServiceCollection services)
+    {
+        // For session storage in memory
+        services.AddDistributedMemoryCache(); 
+
+        services.AddSession(options =>
+        {
+            options.IdleTimeout = TimeSpan.FromMinutes(30);
+            options.Cookie.HttpOnly = true;
+            options.Cookie.IsEssential = true;
+            options.Cookie.SameSite = SameSiteMode.Strict;
+            options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+        });
+
+        // ✅ إضافة HttpContextAccessor للوصول إلى Session من أي مكان
+        services.AddHttpContextAccessor();
 
         return services;
     }

@@ -9,7 +9,7 @@ public class UserDto
     public string Email { get; set; } = null!;
     public enGender Gender { get; set; }
     public string ImageUrl { get; set; } = null!;
-
+    
     public byte Age
     {
         get

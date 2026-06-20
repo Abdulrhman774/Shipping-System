@@ -7,13 +7,15 @@ using System.Reflection;
 
 namespace DAL.Context
 {
-    public class ShippingDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid>
+    public class ShippingDbContext : IdentityDbContext<ApplicationUser>
     {
         public ShippingDbContext(DbContextOptions<ShippingDbContext> options) : base(options)
         {
         }
 
         #region DbSet for entities
+
+        public DbSet<TbRefreshToken> RefreshTokens { get; set; }
         public virtual DbSet<Log> Logs { get; set; }
 
         public virtual DbSet<TbCarrier> TbCarriers { get; set; }

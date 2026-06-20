@@ -29,6 +29,7 @@ builder.Services.AddControllers();
 
 var app = builder.Build();
 
+
 #region  Seeding data 
 bool WantedToSeed = false;
 
@@ -41,7 +42,7 @@ if (WantedToSeed)
 
         var context = services.GetRequiredService<ShippingDbContext>();
         var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
-        var roleManager = services.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
+        var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
 
         await IdentitySeeder.SeedAsync(context, userManager, roleManager);
     }

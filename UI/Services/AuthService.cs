@@ -48,7 +48,7 @@ public class AuthService : IAuthService
         return new AuthResponseDto
         {
             Success = true,
-            UserId = user.Id,
+            UserId = Guid.Parse(user.Id),
             FullName = user.FullName,
             Email = user.Email!,
             UserName = user.UserName!
@@ -57,13 +57,13 @@ public class AuthService : IAuthService
 
     public async Task<AuthResponseDto?> LoginAsync(LoginDto dto)
     {
-        var user = await _userManager.Users.FirstOrDefaultAsync(u =>
-            u.Email == dto.UsernameOrEmail ||
-            u.UserName == dto.UsernameOrEmail);
+        var user = await _userManager.Users.FirstOrDefaultAsync(x => x.UserName == dto.UsernameOrEmail || x.Email == dto.UsernameOrEmail);
 
-
+        
         if (user == null)
             return new AuthResponseDto { Success = false };
+
+        await _signInManager.SignInAsync(user, isPersistent: false);
 
         var result = await _signInManager
             .CheckPasswordSignInAsync(user, dto.Password, true);
@@ -71,12 +71,10 @@ public class AuthService : IAuthService
         if (!result.Succeeded)
             return new AuthResponseDto { Success = false };
 
-        await _signInManager.SignInAsync(user, isPersistent: false);
-
         return new AuthResponseDto
         {
             Success = true,
-            UserId = user.Id,
+            UserId = Guid.Parse(user.Id),
             FullName = user.FullName,
             Email = user.Email!,
             UserName = user.UserName!
@@ -108,9 +106,14 @@ public class AuthService : IAuthService
         return result.Succeeded;
     }
 
-    public async Task LogoutAsync()
+    public async Task<AuthResponseDto> LogoutAsync()
     {
         await _signInManager.SignOutAsync();
+        return new AuthResponseDto { Success = true };
     }
 
+    public Task<IEnumerable<string>> GetRolesAsync(string userId)
+    {
+        throw new NotImplementedException();
+    }
 }

@@ -16,6 +16,7 @@ using BL.DTOs.UserSender;
 using BL.DTOs.UserSubscription;
 using Domain.Entities.Views;
 using BL.DTOs.Views;
+using BL.DTOs.RefreshToken;
 
 namespace BL.Mapping
 {
@@ -92,6 +93,9 @@ namespace BL.Mapping
             CreateMap<TbUserSubscription, UserSubscriptionDto>();
             CreateMap<CreateUserSubscriptionDto, TbUserSubscription>();
             CreateMap<UpdateUserSubscriptionDto, TbUserSubscription>();
+
+            // TbRefreshToken
+            CreateMap<TbRefreshToken, RefreshTokenDto>().ReverseMap();
 
 
             // Views

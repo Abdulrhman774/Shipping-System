@@ -18,7 +18,8 @@ public abstract class BaseEntityConfiguration<TEntity> : IEntityTypeConfiguratio
                .HasDefaultValueSql("(newid())");
 
         builder.Property(e => e.CreatedDate)
-               .HasColumnType("datetime");
+               .HasColumnType("datetime")
+               .HasDefaultValueSql("GETDATE()");
 
         builder.Property(e => e.UpdatedDate)
                .HasColumnType("datetime");

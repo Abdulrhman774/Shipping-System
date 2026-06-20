@@ -4,6 +4,7 @@ using DAL.Exceptions;
 using Domain.Shared;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using System.Linq.Expressions;
 
 namespace DAL.Repositories.Generic;
 
@@ -152,6 +153,54 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
         {
             _logger.LogError(ex, "Error while changing status of entity {EntityType}", typeof(T).Name);
             throw new DataAccessException($"Error while changing status of {typeof(T).Name}", ex);
+        }
+    }
+
+    /// <summary>
+    /// Gets the first entity that matches the specified filter.
+    /// </summary>
+    /// <param name="filter"></param>
+    /// <returns></returns>
+    /// <exception cref="DataAccessException"></exception>
+    public async Task<T> GetFirstOrDefaultAsync(Expression<Func<T, bool>> filter)
+    {
+        try
+        {
+            return await _dbSet.Where(filter).AsNoTracking().FirstOrDefaultAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex,
+                "Error while getting first entity of type {EntityType}",
+                typeof(T).Name);
+
+            throw new DataAccessException(
+                $"Error while getting first {typeof(T).Name}.",
+                ex);
+        }
+    }
+
+    /// <summary>
+    /// Gets a list of entities that match the specified filter.
+    /// </summary>
+    /// <param name="filter"></param>
+    /// <returns></returns>
+    /// <exception cref="DataAccessException"></exception>
+    public async Task<List<T>> GetListAsync(Expression<Func<T, bool>> filter)
+    {
+        try
+        {
+            return await _dbSet.Where(filter).AsNoTracking().ToListAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex,
+                "Error while getting list of entities of type {EntityType}",
+                typeof(T).Name);
+
+            throw new DataAccessException(
+                $"Error while getting {typeof(T).Name} list.",
+                ex);
         }
     }
 } 

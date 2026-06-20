@@ -35,6 +35,12 @@ Content-Type: application/json
     "Commission": 7.5
 }
 
+@WebApiHostAddress = http://localhost:5112
+
+### Test JWT Secret Key Exists
+GET {{WebApiHostAddress}}/JWT_SECRET_KEY
+Accept: application/json
+
 ###
 
 ### Delete Payment Method (Soft Delete)

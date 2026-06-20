@@ -11,19 +11,19 @@ namespace DAL.Seeding
         public static async Task SeedAsync(
             ShippingDbContext context,
             UserManager<ApplicationUser> userManager,
-            RoleManager<IdentityRole<Guid>> roleManager)
+            RoleManager<IdentityRole> roleManager)
         {
             await SeedRolesAsync(roleManager);
             await SeedAdminAsync(userManager);
         }
 
-        private static async Task SeedRolesAsync(RoleManager<IdentityRole<Guid>> roleManager)
+        private static async Task SeedRolesAsync(RoleManager<IdentityRole> roleManager)
         {
             if (!await roleManager.RoleExistsAsync("Admin"))
-                await roleManager.CreateAsync(new IdentityRole<Guid> { Name = "Admin", NormalizedName = "ADMIN" });
+                await roleManager.CreateAsync(new IdentityRole { Name = "Admin", NormalizedName = "ADMIN" });
 
             if (!await roleManager.RoleExistsAsync("User"))
-                await roleManager.CreateAsync(new IdentityRole<Guid> { Name = "User", NormalizedName = "USER" });
+                await roleManager.CreateAsync(new IdentityRole { Name = "User", NormalizedName = "USER" });
         }
 
         private static async Task SeedAdminAsync(UserManager<ApplicationUser> userManager)

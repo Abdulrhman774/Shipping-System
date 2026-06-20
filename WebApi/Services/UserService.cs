@@ -19,7 +19,7 @@ public class UserService : IUserService
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public async Task<bool> DeleteAccountAsync(Guid userId)
+    public async Task<bool> DeleteAccountAsync(string userId)
     {
         var user = await _userManager.FindByIdAsync(userId.ToString());
         if (user == null) return false;
@@ -31,21 +31,21 @@ public class UserService : IUserService
 
     public async Task<IEnumerable<UserDto>> GetAllUsersAsync()
     {
-        var users = _userManager.Users.Select(u => MapToDto(u));
+        var users = _userManager.Users.Select(u => _MapToDto(u));
 
         return await users.ToListAsync();
     }
 
-    public async Task<UserDto> GetByIdAsync(Guid id)
+    public async Task<UserDto> GetByIdAsync(string id)
     {
         var user = await _userManager.FindByIdAsync(id.ToString());
         if (user == null) return null;
 
-        return MapToDto(user);
+        return _MapToDto(user);
     }
 
 
-    public async Task<bool> UpdateAsync(Guid updatedUserId, UpdateUserDto dto)
+    public async Task<bool> UpdateAsync(string updatedUserId, UpdateUserDto dto)
     {
         var user = await _userManager.FindByIdAsync(updatedUserId.ToString());
         if (user == null) return false;
@@ -62,9 +62,9 @@ public class UserService : IUserService
         return result.Succeeded;
     }
 
-    private static UserDto MapToDto(ApplicationUser u) => new()
+    private static UserDto _MapToDto(ApplicationUser u) => new()
     {
-        Id = u.Id,
+        Id = Guid.Parse(u.Id),
         FullName = u.FullName,
         Email = u.Email!,
         PhoneNumber = u.PhoneNumber,
@@ -77,8 +77,17 @@ public class UserService : IUserService
     {
         var userId = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        return !string.IsNullOrEmpty(userId)
-            ? Guid.Parse(userId)
-            : Guid.Empty;
+        return !string.IsNullOrEmpty(userId) ? Guid.Parse(userId) : Guid.Empty;
+    }
+
+    public async Task<UserDto> GetUserByEmailOrUsernameAsync(string emailOrUsername)
+    {
+        var user = _userManager.Users.FirstOrDefault(u => u.Email == emailOrUsername || u.UserName == emailOrUsername);
+
+        if (user == null) return null;
+
+        return _MapToDto(user);
+
+
     }
 }

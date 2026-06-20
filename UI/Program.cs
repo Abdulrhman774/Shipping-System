@@ -16,7 +16,8 @@ builder.Services.AddRepositories();
 builder.Services.AddServices();
 builder.Services.AddValidators();
 builder.Services.AddIdentityConfig();
-
+builder.Services.AddHttpClientCallingApi();
+builder.Services.AddSessionServices();
 // Simulate current user service for demonstration purposes
 //builder.Services.AddSingleton<ICurrentUserService, CurrentUserService>();
 #endregion
@@ -24,7 +25,7 @@ builder.Services.AddIdentityConfig();
 var app = builder.Build();
 
 // Enabled seeding data 
-bool WantedToSeed = false;
+bool WantedToSeed = true;
 
 if (WantedToSeed)
 {
@@ -35,7 +36,7 @@ if (WantedToSeed)
 
         var context = services.GetRequiredService<ShippingDbContext>();
         var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
-        var roleManager = services.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
+        var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
 
         await IdentitySeeder.SeedAsync(context, userManager, roleManager);
     }
@@ -51,12 +52,15 @@ if (!app.Environment.IsDevelopment())
 
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
+
 app.UseRouting();
+
+// Warning⚠: must be done before UseAuthentication()
+app.UseSession();
 
 app.UseAuthentication();
 app.UseAuthorization();
-
-app.MapStaticAssets();
 
 
 

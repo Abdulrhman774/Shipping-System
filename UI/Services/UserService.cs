@@ -1,6 +1,7 @@
 ﻿using BL.Contract.IServices;
 using BL.DTOs.User;
 using Domain.Entities;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
@@ -12,13 +13,13 @@ public class UserService : IUserService
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public UserService(UserManager<ApplicationUser> userManager, IHttpContextAccessor httpContextAccessor   )
+    public UserService(UserManager<ApplicationUser> userManager, IHttpContextAccessor httpContextAccessor)
     {
         _userManager = userManager;
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public async Task<bool> DeleteAccountAsync(Guid userId)
+    public async Task<bool> DeleteAccountAsync(string userId)
     {
         var user = await _userManager.FindByIdAsync(userId.ToString());
         if (user == null) return false;
@@ -35,7 +36,7 @@ public class UserService : IUserService
         return await users.ToListAsync();
     }
 
-    public async Task<UserDto> GetByIdAsync(Guid id)
+    public async Task<UserDto> GetByIdAsync(string id)
     {
         var user = await _userManager.FindByIdAsync(id.ToString());
         if (user == null) return null;
@@ -44,7 +45,7 @@ public class UserService : IUserService
     }
 
 
-    public async Task<bool> UpdateAsync(Guid updatedUserId, UpdateUserDto dto)
+    public async Task<bool> UpdateAsync(string updatedUserId, UpdateUserDto dto)
     {
         var user = await _userManager.FindByIdAsync(updatedUserId.ToString());
         if (user == null) return false;
@@ -63,7 +64,7 @@ public class UserService : IUserService
 
     private static UserDto MapToDto(ApplicationUser u) => new()
     {
-        Id = u.Id,
+        Id = Guid.Parse(u.Id),
         FullName = u.FullName,
         Email = u.Email!,
         PhoneNumber = u.PhoneNumber,
@@ -76,8 +77,11 @@ public class UserService : IUserService
     {
         var userId = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        return !string.IsNullOrEmpty(userId)
-            ? Guid.Parse(userId)
-            : Guid.Empty;
+        return !string.IsNullOrEmpty(userId) ? Guid.Parse(userId) : Guid.Empty;
+    }
+
+    public Task<UserDto> GetUserByEmailOrUsernameAsync(string emailOrUsername)
+    {
+        throw new NotImplementedException();
     }
 }

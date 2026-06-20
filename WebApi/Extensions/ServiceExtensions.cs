@@ -104,6 +104,9 @@ public static class ServiceExtensions
         #region Auth - UserManager, SignInManager, etc. services
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IUserService, UserService>();
+        services.AddScoped<IRefreshTokenService, RefreshTokenService>();
+        services.AddSingleton<TokenService>();
+
         #endregion
 
         #region Entity-specific services
@@ -131,7 +134,7 @@ public static class ServiceExtensions
 
     public static IServiceCollection AddIdentityConfig(this IServiceCollection services)
     {
-        services.AddIdentity<ApplicationUser, IdentityRole<Guid>>(options =>
+        services.AddIdentity<ApplicationUser, IdentityRole>(options =>
         {
             options.Password.RequireDigit = true;
             options.Password.RequiredLength = 9;

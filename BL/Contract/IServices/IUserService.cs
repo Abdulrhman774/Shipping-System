@@ -8,8 +8,9 @@ public interface IUserService
 {
     Task<IEnumerable<UserDto>> GetAllUsersAsync();
     Task<Guid> GetLoggedInUserAsync();
-    Task<UserDto> GetByIdAsync(Guid userId);
-    Task<bool> UpdateAsync(Guid updatedUserId, UpdateUserDto dto);
-    Task<bool> DeleteAccountAsync(Guid userId);
+    Task<UserDto> GetByIdAsync(string userId);
+    Task<UserDto> GetUserByEmailOrUsernameAsync(string emailOrUsername);
+    Task<bool> UpdateAsync(string updatedUserId, UpdateUserDto dto);
+    Task<bool> DeleteAccountAsync(string userId);
 }
 
