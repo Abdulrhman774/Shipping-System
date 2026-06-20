@@ -13,5 +13,5 @@ public interface IRefreshTokenService
     Task<RefreshTokenDto?> GetTokenAsync(string token);
     Task<bool> RevokeTokenAsync(string userId);
     Task<bool> SaveTokenAsync(string userId, string token, DateTime expires);
-    Task<bool> Refresh(RefreshTokenDto refreshToken);
+    Task<bool> RevokeTokenAsync(string userId, string token);
 }

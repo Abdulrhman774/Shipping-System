@@ -1,4 +1,5 @@
 ﻿using Microsoft.IdentityModel.Tokens;
+using System.Configuration;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -36,10 +37,18 @@ public class TokenService
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
-
     public string GenerateRefreshToken()
     {
         return Convert.ToHexString(RandomNumberGenerator.GetBytes(32));
     }
 
+    public int RefreshTokenExpiryMinutes()
+    {
+        return _config.GetValue<int>("Jwt:RefreshTokenExpiryDays");
+    }
+
+    public int GetAccessTokenExpiryMinutes()
+    {
+        return _config.GetValue<int>("Jwt:ExpiryMinutes");
+    }
 }

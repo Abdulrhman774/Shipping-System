@@ -41,19 +41,6 @@ public class RefreshTokenService : IRefreshTokenService
         return await _refreshRepo.AddAsync(entity);
     }
 
-    public Task<bool> Refresh(RefreshTokenDto refreshToken)
-    {
-        var RevokeOldRefreshToken = RevokeTokenAsync(refreshToken.UserId).Result;
-
-        // If the old refresh token is revoked successfully, generate a new refresh token
-        if (!RevokeOldRefreshToken) return Task.FromResult(false);
-
-
-        var dbToken = _mapper.Map<RefreshTokenDto, TbRefreshToken>(refreshToken);
-        
-        return _refreshRepo.AddAsync(dbToken);
-    }
-
     public async Task<bool> RevokeTokenAsync(string userId)
     {
         var tokenList = await  _refreshRepo.GetListAsync(rt => rt.UserId == userId);
@@ -66,5 +53,14 @@ public class RefreshTokenService : IRefreshTokenService
         }
 
         return true;
+    }
+
+    public async Task<bool> RevokeTokenAsync(string userId, string token)
+    {
+        var RevokedToken = await _refreshRepo.GetFirstOrDefaultAsync(rt => rt.UserId == userId && rt.Token == token);
+
+        if (RevokedToken.CurrentState is not enEntityState.Active) return false;
+
+        return await _refreshRepo.ChangeStatusAsync(RevokedToken.Id, Guid.Parse(userId), enEntityState.Inactive);
     }
 }

@@ -1,5 +1,6 @@
 ﻿using BL.Common;
 using Newtonsoft.Json;
+using System.Net;
 using System.Text;
 
 namespace UI.Services;
@@ -200,79 +201,45 @@ public class GenericApiClient
 
         try
         {
-            if (response.IsSuccessStatusCode)
-            {
-                var directData = JsonConvert.DeserializeObject<T>(responseContent);
-                if (directData != null)
-                {
-                    // Make sure T is not just an empty object (optional)
-                    // If T is a LoginResponseDto, make sure there is an AccessToken
-                    return ApiResponse<T>.Ok(directData);
-                }
-            }
-
-
-            // Try to deserialize as ApiResponse<T>
+            // ✅ Deserialize مباشرة إلى ApiResponse<T>
             var apiResponse = JsonConvert.DeserializeObject<ApiResponse<T>>(responseContent);
 
-            if (apiResponse != null)
-            {
-                // If it's a successful response
-                if (response.IsSuccessStatusCode && apiResponse.Success)
-                {
-                    return apiResponse;
-                }
+            // ✅ إذا كان الـ Response Success، نرجع ApiResponse
+            if (response.IsSuccessStatusCode && apiResponse != null)
+                return apiResponse;
 
-                // If it's an error response
-                if (!response.IsSuccessStatusCode)
-                {
-                    var errorMessage = apiResponse.Error ?? $"HTTP Error: {response.StatusCode}";
+            // ❌ إذا فشل، نبني ApiResponse من StatusCode
+            var errorMsg = apiResponse?.Error ?? GetDefaultErrorMessage(response.StatusCode);
 
-                    return response.StatusCode switch
-                    {
-                        System.Net.HttpStatusCode.NotFound => ApiResponse<T>.NotFound(errorMessage),
-                        System.Net.HttpStatusCode.Unauthorized => ApiResponse<T>.Unauthorized(errorMessage),
-                        System.Net.HttpStatusCode.Forbidden => ApiResponse<T>.Forbidden(errorMessage),
-                        System.Net.HttpStatusCode.BadRequest => ApiResponse<T>.BadRequest(errorMessage),
-                        _ => ApiResponse<T>.BadRequest(errorMessage)
-                    };
-                }
-
-                if (apiResponse.Data != null)
-                    return ApiResponse<T>.Ok(apiResponse.Data);
-
-                // وإلا نعيد BadRequest
-                return ApiResponse<T>.BadRequest("Invalid response format");
-            }
-
-            // If deserialization failed but status is success, try to deserialize as T directly
-            if (response.IsSuccessStatusCode)
-            {
-                var data = JsonConvert.DeserializeObject<T>(responseContent);
-                return ApiResponse<T>.Ok(data);
-            }
-
-            // Handle error based on status code
-            var errorMsg = $"HTTP Error: {response.StatusCode}";
             return response.StatusCode switch
             {
-                System.Net.HttpStatusCode.NotFound => ApiResponse<T>.NotFound(errorMsg),
-                System.Net.HttpStatusCode.Unauthorized => ApiResponse<T>.Unauthorized(errorMsg),
-                System.Net.HttpStatusCode.Forbidden => ApiResponse<T>.Forbidden(errorMsg),
+                HttpStatusCode.NotFound => ApiResponse<T>.NotFound(errorMsg),
+                HttpStatusCode.Unauthorized => ApiResponse<T>.Unauthorized(errorMsg),
+                HttpStatusCode.Forbidden => ApiResponse<T>.Forbidden(errorMsg),
+                HttpStatusCode.BadRequest => ApiResponse<T>.BadRequest(errorMsg),
                 _ => ApiResponse<T>.BadRequest(errorMsg)
             };
         }
         catch (JsonException ex)
         {
-            _logger.LogError(ex, "Failed to deserialize response from {Endpoint}", response.RequestMessage?.RequestUri);
+            _logger.LogError(ex, "Failed to deserialize response");
 
             if (response.IsSuccessStatusCode)
-            {
                 return ApiResponse<T>.Ok(default);
-            }
 
-            return ApiResponse<T>.BadRequest($"Failed to parse response: {ex.Message}");
+            return ApiResponse<T>.BadRequest("Invalid response format");
         }
+    }
+    private static string GetDefaultErrorMessage(HttpStatusCode statusCode)
+    {
+        return statusCode switch
+        {
+            HttpStatusCode.NotFound => "Resource not found",
+            HttpStatusCode.Unauthorized => "Unauthorized access",
+            HttpStatusCode.Forbidden => "Access forbidden",
+            HttpStatusCode.BadRequest => "Invalid request",
+            _ => "An error occurred"
+        };
     }
 
     #endregion

@@ -1,3 +1,4 @@
+using BL.Common;
 using BL.Contract.IServices;
 using BL.DTOs.Auth;
 using Domain.Entities;
@@ -113,6 +114,11 @@ public class AuthService : IAuthService
     }
 
     public Task<IEnumerable<string>> GetRolesAsync(string userId)
+    {
+        throw new NotImplementedException();
+    }
+
+    Task<ApiResponse<TokenResponseDto>> IAuthService.LoginAsync(LoginDto dto)
     {
         throw new NotImplementedException();
     }

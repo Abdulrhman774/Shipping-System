@@ -118,6 +118,7 @@ public static class ServiceExtensions
 
         // Add service to can call api endpoint
         services.AddScoped<GenericApiClient>();
+        services.AddScoped<AuthenticationService>();
 
 
         return services;

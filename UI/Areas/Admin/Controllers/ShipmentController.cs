@@ -104,7 +104,7 @@ namespace UI.Areas.Admin.Controllers
         public IActionResult Create()
         {
             LoadDropdowns();
-            return View(new CreateShippmentDto { ShippingDate = DateTime.Now });
+            return View(new CreateShippmentDto { ShippingDate = DateTime.UtcNow });
         }
 
         // POST: Admin/Shipment/Create

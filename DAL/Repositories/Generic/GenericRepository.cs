@@ -62,7 +62,7 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
         try
         {
             entity.CurrentState = enEntityState.Active;
-            entity.CreatedDate = DateTime.Now;
+            entity.CreatedDate = DateTime.UtcNow;
             await _dbSet.AddAsync(entity);
             return await _context.SaveChangesAsync() > 0;
         }
@@ -98,7 +98,7 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
             _context.Entry(existingEntity).Property(x => x.CreatedBy).IsModified = false;
 
             // 4. حدد وقت التعديل الحالي 
-            existingEntity.UpdatedDate = DateTime.Now;
+            existingEntity.UpdatedDate = DateTime.UtcNow;
             existingEntity.CurrentState = enEntityState.Active; // تأكد أن الحالة تظل نشطة بعد التعديل
 
             // 5. احفظ التغييرات (EF سيقوم بتحديث الحقول التي تغيرت قيمتها فعلياً فقط!)
@@ -123,7 +123,7 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
 
             // Soft Delete
             existingEntity.CurrentState = enEntityState.Deleted;
-            existingEntity.UpdatedDate = DateTime.Now;
+            existingEntity.UpdatedDate = DateTime.UtcNow;
             existingEntity.UpdatedBy = DeletedBy;
 
             return await _context.SaveChangesAsync() > 0;
@@ -144,7 +144,7 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
             if (existingEntity is null) return false;
 
             existingEntity.CurrentState = status;
-            existingEntity.UpdatedDate = DateTime.Now;
+            existingEntity.UpdatedDate = DateTime.UtcNow;
             existingEntity.UpdatedBy = updatedBy;
 
             return await _context.SaveChangesAsync() > 0;

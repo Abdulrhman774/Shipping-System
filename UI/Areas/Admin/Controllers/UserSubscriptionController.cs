@@ -54,7 +54,7 @@ namespace UI.Areas.Admin.Controllers
         public IActionResult Create()
         {
             LoadDropdowns();
-            return View(new CreateUserSubscriptionDto { SubscriptionDate = DateTime.Now });
+            return View(new CreateUserSubscriptionDto { SubscriptionDate = DateTime.UtcNow });
         }
 
         // POST: Admin/UserSubscription/Create

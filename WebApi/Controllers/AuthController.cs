@@ -47,35 +47,9 @@ public class AuthController : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginDto dto)
     {
-        var result = await _authService.LoginAsync(dto);
-        if (result is null || !result.Success)
-            return Unauthorized("Invalid credentials");
+        var response = await _authService.LoginAsync(dto);
 
-        var (claims, user) = await _GetClimsByEmailOrUsername(dto.UsernameOrEmail);
-
-        var accessToken = _tokenService.GenerateAccessToken(claims);
-        var refreshToken = _tokenService.GenerateRefreshToken();
-
-        await _refreshTokenService.SaveTokenAsync(
-            user.Id.ToString(), refreshToken, DateTime.UtcNow.AddDays(7));
-
-        Response.Cookies.Append("RefreshToken", refreshToken, new CookieOptions
-        {
-            HttpOnly = true,
-            Secure = true,
-            Expires = DateTime.UtcNow.AddDays(7)
-        });
-
-
-        var loginResponse = new TokenResponseDto
-        {
-            AccessToken = accessToken,
-            RefreshToken = refreshToken,
-            Email = user.Email
-        };
-
-        // Return ApiResponse<T> ✅
-        return Ok(ApiResponse<TokenResponseDto>.Ok(loginResponse));
+        return StatusCode(response.StatusCode, response);
     }
 
     [HttpPost("RefreshToken")]

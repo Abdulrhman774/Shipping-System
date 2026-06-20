@@ -61,7 +61,23 @@ app.UseSession();
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.Use(async (context, next) =>
+{
+    // ✅ إذا كان المستخدم مصادقاً والمسار هو Login أو الصفحة الرئيسية
+    if (context.User.Identity?.IsAuthenticated == true)
+    {
+        var path = context.Request.Path.Value?.ToLower();
 
+        // إذا كان في صفحة Login أو الصفحة الرئيسية
+        if (path == "/" || path == "/account/login" || string.IsNullOrEmpty(path))
+        {
+            context.Response.Redirect("/AdminPanel/Index");
+            return;
+        }
+    }
+
+    await next();
+});
 
 
 app.MapControllerRoute(

@@ -1,7 +1,9 @@
+using BL.Contract.IServices;
 using BL.DTOs.Auth;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -17,15 +19,18 @@ namespace UI.Controllers
         private readonly GenericApiClient _apiClient;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ILogger<AccountController> _logger;
+        public readonly Services.AuthenticationService _authenticationService;
 
         public AccountController(
             GenericApiClient apiClient,
             IHttpContextAccessor httpContextAccessor,
-            ILogger<AccountController> logger)
+            ILogger<AccountController> logger,
+            Services.AuthenticationService authenticationService)
         {
             _apiClient = apiClient;
             _httpContextAccessor = httpContextAccessor;
             _logger = logger;
+            _authenticationService = authenticationService;
         }
 
         // GET: /Account/Login
@@ -45,53 +50,29 @@ namespace UI.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel model, string? returnUrl = null)
         {
+            
             if (!ModelState.IsValid)
                 return View(model);
 
             try
             {
-                // 1. Prepare login data
+                // 1. تحويل ViewModel → DTO
                 var loginDto = new LoginDto
                 {
                     UsernameOrEmail = model.UsernameOrEmail,
                     Password = model.Password
                 };
 
-                // 2. Call API to login - returns ApiResponse<LoginResponseData>
-                var response = await _apiClient.PostAsync<TokenResponseDto>("Api/Auth/login", loginDto);
+                // 2. استدعاء Service (كل المنطق هناك)
+                var (success, principal, error, loginData) = await _authenticationService.LoginAsync(loginDto);
 
-                // 3. Check if login failed
-                if (!response.Success || response.Data == null)
+                if (!success || principal == null || loginData == null)
                 {
-                    ModelState.AddModelError("", response.Error ?? "Invalid username or password.");
+                    ModelState.AddModelError("", error ?? "Invalid username or password.");
                     return View(model);
                 }
 
-                var loginData = response.Data;
-
-                // 4. Decode JWT token to get user info
-                var tokenHandler = new JwtSecurityTokenHandler();
-                var jwtToken = tokenHandler.ReadJwtToken(loginData.AccessToken);
-
-                // 5. Extract claims from token
-                var claims = new List<Claim>
-                {
-                    new Claim(ClaimTypes.NameIdentifier, jwtToken.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value),
-                    new Claim(ClaimTypes.Name, jwtToken.Claims.First(c => c.Type == ClaimTypes.Name).Value),
-                    new Claim(ClaimTypes.Role, jwtToken.Claims.First(c => c.Type == ClaimTypes.Role).Value),
-                    new Claim("AccessToken", loginData.AccessToken),
-                    new Claim("Email", loginData.Email ?? ""),
-                };
-
-                // Add all other claims from token
-                var otherClaims = jwtToken.Claims
-                    .Where(c => c.Type != ClaimTypes.NameIdentifier &&
-                               c.Type != ClaimTypes.Name &&
-                               c.Type != ClaimTypes.Role);
-                claims.AddRange(otherClaims);
-
-                // 6. Create ClaimsIdentity and sign in
-                var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                // 3. تسجيل الدخول (مسؤولية Controller)
                 var authProperties = new AuthenticationProperties
                 {
                     IsPersistent = model.RememberMe,
@@ -99,16 +80,25 @@ namespace UI.Controllers
                 };
 
                 await HttpContext.SignInAsync(
-                    CookieAuthenticationDefaults.AuthenticationScheme,
-                    new ClaimsPrincipal(claimsIdentity),
+                    IdentityConstants.ApplicationScheme,
+                    principal,
                     authProperties);
 
-                // 7. Store token in session for API calls
+                // 4. تخزين AccessToken في Session
                 HttpContext.Session.SetString("AccessToken", loginData.AccessToken);
+
+                // 5. تخزين RefreshToken في Cookie آمن
+                Response.Cookies.Append("RefreshToken", loginData.RefreshToken, new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.Strict,
+                    Expires = DateTime.UtcNow.AddDays(7)
+                });
 
                 _logger.LogInformation($"User {model.UsernameOrEmail} logged in successfully");
 
-                // 8. Redirect to return URL or dashboard
+                // 6. إعادة التوجيه
                 if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
                     return Redirect(returnUrl);
 
@@ -121,7 +111,6 @@ namespace UI.Controllers
                 return View(model);
             }
         }
-
         // GET: /Account/Register
         [AllowAnonymous]
         public IActionResult Register()
