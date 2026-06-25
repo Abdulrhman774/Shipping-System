@@ -1,28 +1,17 @@
 ﻿using BL.DTOs.Auth;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.JsonWebTokens;
 using System.Security.Claims;
+using UI.Endpoints;
 
 namespace UI.Services;
 
-public class AuthenticationService
+public class AuthenticationService(GenericApiClient apiClient)
 {
-    private readonly GenericApiClient _apiClient;
-    private readonly IHttpContextAccessor _httpContextAccessor;
-
-    public AuthenticationService(
-        GenericApiClient apiClient,
-        IHttpContextAccessor httpContextAccessor)
+    public async Task<(bool Success, ClaimsPrincipal? Principal, string? Error, TokenResponseDto? Data)> LoginAsync(LoginDto dto)
     {
-        _apiClient = apiClient;
-        _httpContextAccessor = httpContextAccessor;
-    }
 
-    public async Task<(bool Success, ClaimsPrincipal? Principal, string? Error, TokenResponseDto? Data)>
-        LoginAsync(LoginDto dto)
-    {
-        var response = await _apiClient.PostAsync<TokenResponseDto>("Api/Auth/login", dto);
+        var response = await apiClient.PostAsync<TokenResponseDto>(stAuthEndpoints.Login, dto);
 
         if (!response.Success || response.Data == null)
             return (false, null, response.Error ?? "Login failed", null);
