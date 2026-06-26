@@ -33,6 +33,12 @@ public class Result<T> : IResult<T>
 
     private Result(IEnumerable<Error> errors)
     {
+        ArgumentNullException.ThrowIfNull(errors);
+
+        if (!errors.Any())
+            throw new ArgumentException(
+                "Failure must contain at least one error.");
+
         IsSuccess = false;
         _errors.AddRange(errors);
     }
@@ -53,4 +59,5 @@ public class Result<T> : IResult<T>
 
     public static implicit operator Result<T>(List<Error> errors)
         => new(errors);
+
 }

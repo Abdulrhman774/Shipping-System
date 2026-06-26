@@ -6,10 +6,7 @@ using System.Threading.Tasks;
 
 namespace BL.Common.Results;
 
-public sealed record Error(
-    string Code,
-    string Description,
-    enErrorKind Type)
+public sealed record Error(string Code, string Description, enErrorKind Type)
 {
     public static Error Failure(
         string code,

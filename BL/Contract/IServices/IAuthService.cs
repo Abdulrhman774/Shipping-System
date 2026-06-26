@@ -1,16 +1,12 @@
-﻿using BL.Common;
+﻿using BL.Common.Results;
 using BL.DTOs.Auth.Requests;
 using BL.DTOs.Auth.Responses;
-using BL.DTOs.Log;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace BL.Contract.IServices;
 
 public interface IAuthService
 {
-    Task<ApiResponse<RegisterResponseDto>> LoginAsync(LoginRequestDto dto);
+    Task<Result<TokenResponseDto>> LoginAsync(LoginRequestDto dto);
     Task<RegisterResponseDto> RegisterAsync(RegisterRequestDto dto);
     Task<RegisterResponseDto> LogoutAsync();
     Task<bool> ChangePasswordAsync(string Username, ChangePasswordRequstDto dto);

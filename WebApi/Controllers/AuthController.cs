@@ -1,4 +1,5 @@
 ﻿using BL.Common;
+using BL.Common.Results;
 using BL.Contract.IServices;
 using BL.DTOs.Auth.Requests;
 using BL.DTOs.RefreshToken;
@@ -11,6 +12,7 @@ using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using System.Data;
 using System.Security.Claims;
+using WebApi.Extensions;
 using WebApi.Services;
 
 namespace WebApi.Controllers;
@@ -49,7 +51,7 @@ public class AuthController : ControllerBase
     {
         var response = await _authService.LoginAsync(dto);
 
-        return StatusCode(response.StatusCode, response);
+        return response.ToActionResult(this);
     }
 
     [HttpPost("RefreshToken")]
@@ -82,7 +84,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("Refresh-AccessToken")]
-    public async Task<IActionResult> RefreshAccessToken([FromBody] RefreshRequestDto refreshTokenDto)
+    public async Task<IActionResult> RefreshAccessToken([FromBody] RefreshTokenRequestDto refreshTokenDto)
     {
         if (!Request.Cookies.TryGetValue("RefreshToken", out var refreshToken))
         {

@@ -217,7 +217,7 @@ public class GenericApiClient
                 HttpStatusCode.Unauthorized => ApiResponse<T>.Unauthorized(errorMsg),
                 HttpStatusCode.Forbidden => ApiResponse<T>.Forbidden(errorMsg),
                 HttpStatusCode.BadRequest => ApiResponse<T>.BadRequest(errorMsg),
-                _ => ApiResponse<T>.BadRequest(errorMsg)
+                _ => ApiResponse<T>.InternalServerError(errorMsg)
             };
         }
         catch (JsonException ex)

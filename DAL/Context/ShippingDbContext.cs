@@ -1,4 +1,5 @@
-﻿using Domain.Entities;
+﻿using DAL.Contracts;
+using Domain.Entities;
 using Domain.Entities.Views;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -7,7 +8,7 @@ using System.Reflection;
 
 namespace DAL.Context
 {
-    public class ShippingDbContext : IdentityDbContext<ApplicationUser>
+    public class ShippingDbContext : IdentityDbContext<ApplicationUser>, IUnitOfWork
     {
         public ShippingDbContext(DbContextOptions<ShippingDbContext> options) : base(options)
         {
@@ -63,5 +64,11 @@ namespace DAL.Context
 
             configurationBuilder.Properties<DateTime>().HaveColumnType("datetime");
         }
+
+        public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+           return base.SaveChangesAsync(cancellationToken);
+        }
+        
     }
 }

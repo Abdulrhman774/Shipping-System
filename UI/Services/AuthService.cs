@@ -1,4 +1,5 @@
 using BL.Common;
+using BL.Common.Results;
 using BL.Contract.IServices;
 using BL.DTOs.Auth.Requests;
 using BL.DTOs.Auth.Responses;
@@ -51,13 +52,12 @@ public class AuthService : IAuthService
         {
             Success = true,
             UserId = Guid.Parse(user.Id),
-            FullName = user.FullName,
             Email = user.Email!,
             UserName = user.UserName!
         };
     }
 
-    public async Task<RegisterResponseDto?> LoginAsync(LoginRequestDto dto)
+    public async Task<Result<RegisterResponseDto>?> LoginAsync(LoginRequestDto dto)
     {
         var user = await _userManager.Users.FirstOrDefaultAsync(x => x.UserName == dto.UsernameOrEmail || x.Email == dto.UsernameOrEmail);
 
@@ -77,7 +77,6 @@ public class AuthService : IAuthService
         {
             Success = true,
             UserId = Guid.Parse(user.Id),
-            FullName = user.FullName,
             Email = user.Email!,
             UserName = user.UserName!
         };
@@ -119,7 +118,7 @@ public class AuthService : IAuthService
         throw new NotImplementedException();
     }
 
-    Task<ApiResponse<TokenResponseDto>> IAuthService.LoginAsync(LoginRequestDto dto)
+    Task<Result<TokenResponseDto>> IAuthService.LoginAsync(LoginRequestDto dto)
     {
         throw new NotImplementedException();
     }

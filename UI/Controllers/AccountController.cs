@@ -1,5 +1,6 @@
 using BL.Contract.IServices;
 using BL.DTOs.Auth;
+using BL.DTOs.Auth.Requests;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;

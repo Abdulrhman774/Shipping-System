@@ -48,4 +48,19 @@ public class ApiResponse<T>
         StatusCode = 403,
         Error = error
     };
+
+    public static ApiResponse<T> Conflict(string error) => new()
+    {
+        Success = false,
+        StatusCode = 409,
+        Error = error
+    };
+
+    public static ApiResponse<T> InternalServerError(string error) => new()
+    {
+        Success = false,
+        StatusCode = 500,
+        Error = error
+    };
 }
+

@@ -1,4 +1,5 @@
 ﻿using BL.Common;
+using BL.Common.Results;
 using BL.Contract.IServices;
 using BL.DTOs.Auth.Requests;
 using BL.DTOs.Auth.Responses;
@@ -58,36 +59,35 @@ public class AuthService : IAuthService
         {
             Success = true,
             UserId = Guid.Parse(user.Id),
-            FullName = user.FullName,
+            //FullName = user.FullName,
             Email = user.Email!,
-            UserName = user.UserName!,
-            PhoneNumber = user.PhoneNumber!,
-            Gender = user.Gender,
-            ProfileImage = user.ImageUrl
+            UserName = user.UserName!
+            //PhoneNumber = user.PhoneNumber!,
+            //Gender = user.Gender,
+            //ProfileImage = user.ImageUrl
         };
 
     }
 
-    public async Task<ApiResponse<TokenResponseDto>> LoginAsync(LoginRequestDto dto)
+    public async Task<Result<TokenResponseDto>> LoginAsync(LoginRequestDto dto)
     {
         var user = await _userManager.Users.FirstOrDefaultAsync(x => x.UserName == dto.UsernameOrEmail || x.Email == dto.UsernameOrEmail);
             
 
         if (user == null)
-            return ApiResponse<TokenResponseDto>.Unauthorized("Invalid username or email");
+            return Error.Unauthorized("Auth.InvalidCredentials", "Invalid username or email.");
 
-        var result = await _signInManager.CheckPasswordSignInAsync(user, dto.Password, true);
+        var result = await _signInManager.CheckPasswordSignInAsync(user, dto.Password, lockoutOnFailure: true);
 
         if (!result.Succeeded)
         {
             if (result.IsLockedOut)
-                return ApiResponse<TokenResponseDto>.BadRequest("Account is locked out");
-
+                return Error.Forbidden("Auth.LockedOut", "Account is locked.");
             if (result.IsNotAllowed)
-                return ApiResponse<TokenResponseDto>.Unauthorized("Account not confirmed");
+                return Error.Unauthorized("Auth.NotAllowed", "Account is not confirmed.");
 
 
-            return ApiResponse<TokenResponseDto>.Unauthorized("Invalid password");
+            return Error.Unauthorized("Auth.InvalidPassword", "Invalid password.");
         }
 
         var claims = await BuildClaimsAsync(user);
@@ -97,17 +97,18 @@ public class AuthService : IAuthService
 
         bool SaveSuccessfully = await _refreshService.SaveTokenAsync(user.Id.ToString(), refreshToken, DateTime.UtcNow.AddDays(_tokenService.GetRefreshTokenExpiryDays()));
 
-        if (!SaveSuccessfully) return ApiResponse<TokenResponseDto>.BadRequest("Account is locked out");
+        if (!SaveSuccessfully) return Error.Unexpected("RefreshToken.SaveFailed", "Failed to save refresh token.");
 
 
-        return ApiResponse<TokenResponseDto>.Ok(new TokenResponseDto
+        return new TokenResponseDto
         {
             AccessToken = accessToken,
             RefreshToken = refreshToken,
-            Email = user.Email ?? "Email not found!",
+            Email = user.Email!,
             UserId = Guid.Parse(user.Id),
-            ExpiresAt = DateTime.UtcNow.AddMinutes(_tokenService.GetAccessTokenExpiryMinutes()),
-        });
+            ExpiresAt = DateTime.UtcNow.AddMinutes(
+            _tokenService.GetAccessTokenExpiryMinutes())
+        };
     }
 
     public async Task<bool> ChangePasswordAsync(string userId, ChangePasswordRequstDto dto)
