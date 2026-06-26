@@ -1,6 +1,7 @@
 ﻿using BL.Common;
 using BL.Contract.IServices;
-using BL.DTOs.Auth;
+using BL.DTOs.Auth.Requests;
+using BL.DTOs.Auth.Responses;
 using BL.DTOs.User;
 using BL.Services;
 using Domain.Entities;
@@ -27,7 +28,7 @@ public class AuthService : IAuthService
         _refreshService = refreshService;
     }
 
-    public async Task<AuthResponseDto> RegisterAsync(RegisterDto dto)
+    public async Task<RegisterResponseDto> RegisterAsync(RegisterRequestDto dto)
     {
         var user = new ApplicationUser
         {
@@ -44,27 +45,30 @@ public class AuthService : IAuthService
 
         if (!result.Succeeded)
         {
-            return new AuthResponseDto
+            return new RegisterResponseDto
             {
                 Success = false,
-                //
-                //........0.Errors = result.Errors.Select(e => e.Description).ToList()
+                Errors = result.Errors.Select(e => e.Description).ToList()
             };
         }
 
         await _userManager.AddToRoleAsync(user, "User");
 
-        return new AuthResponseDto
+        return new RegisterResponseDto
         {
             Success = true,
             UserId = Guid.Parse(user.Id),
             FullName = user.FullName,
             Email = user.Email!,
-            UserName = user.UserName!
+            UserName = user.UserName!,
+            PhoneNumber = user.PhoneNumber!,
+            Gender = user.Gender,
+            ProfileImage = user.ImageUrl
         };
+
     }
 
-    public async Task<ApiResponse<TokenResponseDto>> LoginAsync(LoginDto dto)
+    public async Task<ApiResponse<TokenResponseDto>> LoginAsync(LoginRequestDto dto)
     {
         var user = await _userManager.Users.FirstOrDefaultAsync(x => x.UserName == dto.UsernameOrEmail || x.Email == dto.UsernameOrEmail);
             
@@ -86,12 +90,12 @@ public class AuthService : IAuthService
             return ApiResponse<TokenResponseDto>.Unauthorized("Invalid password");
         }
 
-        var claims = await GetUserClaimsAsync(user);
+        var claims = await BuildClaimsAsync(user);
         var accessToken = _tokenService.GenerateAccessToken(claims);
         var refreshToken = _tokenService.GenerateRefreshToken();
 
 
-        bool SaveSuccessfully = await _refreshService.SaveTokenAsync(user.Id.ToString(), refreshToken, DateTime.UtcNow.AddDays(_tokenService.RefreshTokenExpiryMinutes()));
+        bool SaveSuccessfully = await _refreshService.SaveTokenAsync(user.Id.ToString(), refreshToken, DateTime.UtcNow.AddDays(_tokenService.GetRefreshTokenExpiryDays()));
 
         if (!SaveSuccessfully) return ApiResponse<TokenResponseDto>.BadRequest("Account is locked out");
 
@@ -106,7 +110,7 @@ public class AuthService : IAuthService
         });
     }
 
-    public async Task<bool> ChangePasswordAsync(string userId, ChangePasswordDto dto)
+    public async Task<bool> ChangePasswordAsync(string userId, ChangePasswordRequstDto dto)
     {
         var user = await _userManager.FindByIdAsync(userId);
         if (user == null) return false;
@@ -131,10 +135,10 @@ public class AuthService : IAuthService
         return result.Succeeded;
     }
 
-    public async Task<AuthResponseDto> LogoutAsync()
+    public async Task<RegisterResponseDto> LogoutAsync()
     {
         await _signInManager.SignOutAsync();
-        return new AuthResponseDto { Success = true };
+        return new RegisterResponseDto();
     }
 
     public async Task<IEnumerable<string>> GetRolesAsync(string userId)
@@ -144,10 +148,8 @@ public class AuthService : IAuthService
         return await _userManager.GetRolesAsync(user);
     }
 
-
-
     #region Private Method
-    private async Task<Claim[]> GetUserClaimsAsync(ApplicationUser user)
+    private async Task<Claim[]> BuildClaimsAsync(ApplicationUser user)
     {
         var roles = await _userManager.GetRolesAsync(user);
         var role = roles.FirstOrDefault() ?? "User";
@@ -162,6 +164,84 @@ public class AuthService : IAuthService
 
     #endregion
 
+
+    #region Custome Methods
+
+    public async Task<ApiResponse<RefreshTokenResponseDto>> RefreshTokenAsync(string refreshToken)
+    {
+        if (string.IsNullOrWhiteSpace(refreshToken))
+            return ApiResponse<RefreshTokenResponseDto>.BadRequest("Refresh token is required.");
+
+        var stored = await _refreshService.GetTokenAsync(refreshToken);
+
+        if (stored is null)
+            return ApiResponse<RefreshTokenResponseDto>.Unauthorized("Refresh token not found.");
+
+        if (stored.CurrentState is not enEntityState.Active)
+            return ApiResponse<RefreshTokenResponseDto>.Unauthorized("Refresh token has been revoked.");
+
+        if (stored.Expires < DateTime.UtcNow)
+            return ApiResponse<RefreshTokenResponseDto>.Unauthorized("Refresh token has expired.");
+
+        // Revoke before issuing new pair (rotation prevents replay attacks).
+        await _refreshService.RevokeTokensAsync(stored.UserId);
+
+        var user = await _userManager.FindByIdAsync(stored.UserId);
+        if (user is null)
+            return ApiResponse<RefreshTokenResponseDto>.Unauthorized("User no longer exists.");
+
+        var claims = await BuildClaimsAsync(user);
+        var newAccessToken = _tokenService.GenerateAccessToken(claims);
+        var newRefreshToken = _tokenService.GenerateRefreshToken();
+
+        var saved = await _refreshService.SaveTokenAsync(
+            stored.UserId,
+            newRefreshToken,
+            DateTime.UtcNow.AddDays(_tokenService.GetRefreshTokenExpiryDays()));
+
+        if (!saved)
+            return ApiResponse<RefreshTokenResponseDto>.BadRequest("Failed to persist new refresh token.");
+
+        return ApiResponse<RefreshTokenResponseDto>.Ok(new RefreshTokenResponseDto
+        {
+            AccessToken = newAccessToken,
+            RefreshToken = newRefreshToken,
+            ExpiresAt = DateTime.UtcNow.AddMinutes(_tokenService.GetAccessTokenExpiryMinutes()),
+        });
+    }
+
+    public async Task<ApiResponse<RefreshAccessTokenResponseDto>> RefreshAccessTokenAsync(string refreshToken)
+    {
+        if (string.IsNullOrWhiteSpace(refreshToken))
+            return ApiResponse<RefreshAccessTokenResponseDto>.BadRequest("Refresh token is required.");
+
+        var stored = await _refreshService.GetTokenAsync(refreshToken);
+
+        if (stored is null)
+            return ApiResponse<RefreshAccessTokenResponseDto>.Unauthorized("Refresh token not found.");
+
+        if (stored.CurrentState is not enEntityState.Active)
+            return ApiResponse<RefreshAccessTokenResponseDto>.Unauthorized("Refresh token has been revoked.");
+
+        if (stored.Expires < DateTime.UtcNow)
+            return ApiResponse<RefreshAccessTokenResponseDto>.Unauthorized("Refresh token has expired.");
+
+        // Do NOT revoke — only a new AccessToken is needed.
+        var user = await _userManager.FindByIdAsync(stored.UserId);
+        if (user is null)
+            return ApiResponse<RefreshAccessTokenResponseDto>.Unauthorized("User no longer exists.");
+
+        var claims = await BuildClaimsAsync(user);
+        var newAccessToken = _tokenService.GenerateAccessToken(claims);
+
+        return ApiResponse<RefreshAccessTokenResponseDto>.Ok(new RefreshAccessTokenResponseDto
+        {
+            AccessToken = newAccessToken,
+            ExpiresAt = DateTime.UtcNow.AddMinutes(_tokenService.GetAccessTokenExpiryMinutes()),
+        });
+    }
+
+    #endregion
 
 
 }

@@ -1,6 +1,6 @@
 ﻿using BL.Common;
 using BL.Contract.IServices;
-using BL.DTOs.Auth;
+using BL.DTOs.Auth.Requests;
 using BL.DTOs.RefreshToken;
 using BL.DTOs.User;
 using BL.Services;
@@ -34,18 +34,18 @@ public class AuthController : ControllerBase
     }
     
     [HttpPost("Register")]
-    public async Task<IActionResult> Register([FromBody] RegisterDto request)
+    public async Task<IActionResult> Register([FromBody] RegisterRequestDto request)
     {
-        var result = await _authService.RegisterAsync(request);
+        //var result = await _authService.RegisterAsync(request);
 
-        if (!result.Success)
-            return BadRequest("result.Errors");
+        //if (!result.Success)
+        //    return BadRequest("result.Errors");
 
         return Ok("User registered successfully");
     }
 
     [HttpPost("login")]
-    public async Task<IActionResult> Login([FromBody] LoginDto dto)
+    public async Task<IActionResult> Login([FromBody] LoginRequestDto dto)
     {
         var response = await _authService.LoginAsync(dto);
 
@@ -62,7 +62,7 @@ public class AuthController : ControllerBase
         if (stored == null || stored.Expires < DateTime.UtcNow)
             return Unauthorized("Invalid or expired refresh token");
 
-        await _refreshTokenService.RevokeTokenAsync(stored.UserId);
+        await _refreshTokenService.RevokeTokensAsync(stored.UserId);
 
         var (claims, user) = await _GetClimsById(stored.UserId);
         var newAccessToken = _tokenService.GenerateAccessToken(claims);
@@ -82,7 +82,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("Refresh-AccessToken")]
-    public async Task<IActionResult> RefreshAccessToken()
+    public async Task<IActionResult> RefreshAccessToken([FromBody] RefreshRequestDto refreshTokenDto)
     {
         if (!Request.Cookies.TryGetValue("RefreshToken", out var refreshToken))
         {
@@ -90,7 +90,7 @@ public class AuthController : ControllerBase
         }
 
         // Retrieve the refresh token from the database
-        var storedToken = await _refreshTokenService.GetTokenAsync(refreshToken);
+        var storedToken = await _refreshTokenService.GetTokenAsync(refreshTokenDto.RefreshToken);
 
         if (storedToken == null || storedToken.CurrentState is not enEntityState.Active || storedToken.Expires < DateTime.UtcNow)
         {
@@ -111,7 +111,7 @@ public class AuthController : ControllerBase
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (userId != null)
-            await _refreshTokenService.RevokeTokenAsync(userId);
+            await _refreshTokenService.RevokeTokensAsync(userId);
 
         Response.Cookies.Delete("RefreshToken");
         return NoContent();

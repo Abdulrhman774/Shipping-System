@@ -10,8 +10,9 @@ namespace BL.Contract.IServices;
 
 public interface IRefreshTokenService
 {
-    Task<RefreshTokenDto?> GetTokenAsync(string token);
-    Task<bool> RevokeTokenAsync(string userId);
+    Task<string?> GetRefreshTokenByUserIdAsync(string userId);
+    public Task<RefreshTokenDto?> GetTokenAsync(string token);
+    Task<bool> RevokeTokensAsync(string userId);
     Task<bool> SaveTokenAsync(string userId, string token, DateTime expires);
     Task<bool> RevokeTokenAsync(string userId, string token);
 }

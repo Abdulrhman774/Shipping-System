@@ -28,6 +28,11 @@ public class RefreshTokenService : IRefreshTokenService
         return _mapper.Map<TbRefreshToken, RefreshTokenDto>(refreshToken);
     }
 
+    public async Task<string?> GetRefreshTokenByUserIdAsync(string userId)
+    {
+        return (await _refreshRepo.GetFirstOrDefaultAsync(rt => rt.UserId == userId)).Token;
+    }
+
     public async Task<bool> SaveTokenAsync(string userId, string token, DateTime expires)
     {
         var entity = new TbRefreshToken
@@ -41,7 +46,7 @@ public class RefreshTokenService : IRefreshTokenService
         return await _refreshRepo.AddAsync(entity);
     }
 
-    public async Task<bool> RevokeTokenAsync(string userId)
+    public async Task<bool> RevokeTokensAsync(string userId)
     {
         var tokenList = await  _refreshRepo.GetListAsync(rt => rt.UserId == userId);
 
@@ -63,4 +68,5 @@ public class RefreshTokenService : IRefreshTokenService
 
         return await _refreshRepo.ChangeStatusAsync(RevokedToken.Id, Guid.Parse(userId), enEntityState.Inactive);
     }
+    
 }

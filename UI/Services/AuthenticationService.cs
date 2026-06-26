@@ -1,4 +1,5 @@
-﻿using BL.DTOs.Auth;
+﻿using BL.DTOs.Auth.Requests;
+using BL.DTOs.Auth.Responses;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.JsonWebTokens;
 using System.Security.Claims;
@@ -8,7 +9,7 @@ namespace UI.Services;
 
 public class AuthenticationService(GenericApiClient apiClient)
 {
-    public async Task<(bool Success, ClaimsPrincipal? Principal, string? Error, TokenResponseDto? Data)> LoginAsync(LoginDto dto)
+    public async Task<(bool Success, ClaimsPrincipal? Principal, string? Error, TokenResponseDto? Data)> LoginAsync(LoginRequestDto dto)
     {
 
         var response = await apiClient.PostAsync<TokenResponseDto>(stAuthEndpoints.Login, dto);

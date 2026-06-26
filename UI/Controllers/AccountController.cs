@@ -57,7 +57,7 @@ namespace UI.Controllers
             try
             {
                 // 1. تحويل ViewModel → DTO
-                var loginDto = new LoginDto
+                var loginDto = new LoginRequestDto
                 {
                     UsernameOrEmail = model.UsernameOrEmail,
                     Password = model.Password
@@ -130,7 +130,7 @@ namespace UI.Controllers
             try
             {
                 // 1. Prepare registration data
-                var registerDto = new RegisterDto
+                var registerDto = new RegisterRequestDto
                 {
                     FullName = model.FullName,
                     Email = model.Email,

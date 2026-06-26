@@ -6,18 +6,20 @@ using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
+#region DIC
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-#region DIC
 //builder.Host.AddSerilogLogging(builder.Configuration);
 builder.Services.AddPersistence(builder.Configuration, builder.Environment);
+
 builder.Services.AddRepositories();
 builder.Services.AddServices();
 builder.Services.AddValidators();
 builder.Services.AddIdentityConfig();
 builder.Services.AddHttpClientCallingApi();
 builder.Services.AddSessionServices();
+
 // Simulate current user service for demonstration purposes
 //builder.Services.AddSingleton<ICurrentUserService, CurrentUserService>();
 #endregion
@@ -25,7 +27,7 @@ builder.Services.AddSessionServices();
 var app = builder.Build();
 
 // Enabled seeding data 
-bool WantedToSeed = true;
+bool WantedToSeed = false;
 
 if (WantedToSeed)
 {

@@ -1,6 +1,7 @@
 using BL.Common;
 using BL.Contract.IServices;
-using BL.DTOs.Auth;
+using BL.DTOs.Auth.Requests;
+using BL.DTOs.Auth.Responses;
 using Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -20,7 +21,7 @@ public class AuthService : IAuthService
         _signInManager = signInManager;
     }
 
-    public async Task<AuthResponseDto> RegisterAsync(RegisterDto dto)
+    public async Task<RegisterResponseDto> RegisterAsync(RegisterRequestDto dto)
     {
         var user = new ApplicationUser
         {
@@ -37,7 +38,7 @@ public class AuthService : IAuthService
 
         if (!result.Succeeded)
         {
-            return new AuthResponseDto
+            return new RegisterResponseDto
             {
                 Success = false,
                 //Errors = result.Errors.Select(e => e.Description).ToList()
@@ -46,7 +47,7 @@ public class AuthService : IAuthService
 
         await _userManager.AddToRoleAsync(user, "User");
 
-        return new AuthResponseDto
+        return new RegisterResponseDto
         {
             Success = true,
             UserId = Guid.Parse(user.Id),
@@ -56,13 +57,13 @@ public class AuthService : IAuthService
         };
     }
 
-    public async Task<AuthResponseDto?> LoginAsync(LoginDto dto)
+    public async Task<RegisterResponseDto?> LoginAsync(LoginRequestDto dto)
     {
         var user = await _userManager.Users.FirstOrDefaultAsync(x => x.UserName == dto.UsernameOrEmail || x.Email == dto.UsernameOrEmail);
 
         
         if (user == null)
-            return new AuthResponseDto { Success = false };
+            return new RegisterResponseDto { Success = false };
 
         await _signInManager.SignInAsync(user, isPersistent: false);
 
@@ -70,9 +71,9 @@ public class AuthService : IAuthService
             .CheckPasswordSignInAsync(user, dto.Password, true);
 
         if (!result.Succeeded)
-            return new AuthResponseDto { Success = false };
+            return new RegisterResponseDto { Success = false };
 
-        return new AuthResponseDto
+        return new RegisterResponseDto
         {
             Success = true,
             UserId = Guid.Parse(user.Id),
@@ -82,7 +83,7 @@ public class AuthService : IAuthService
         };
     }
 
-    public async Task<bool> ChangePasswordAsync(string userId, ChangePasswordDto dto)
+    public async Task<bool> ChangePasswordAsync(string userId, ChangePasswordRequstDto dto)
     {
         var user = await _userManager.FindByIdAsync(userId);
         if (user == null) return false;
@@ -107,10 +108,10 @@ public class AuthService : IAuthService
         return result.Succeeded;
     }
 
-    public async Task<AuthResponseDto> LogoutAsync()
+    public async Task<RegisterResponseDto> LogoutAsync()
     {
         await _signInManager.SignOutAsync();
-        return new AuthResponseDto { Success = true };
+        return new RegisterResponseDto { Success = true };
     }
 
     public Task<IEnumerable<string>> GetRolesAsync(string userId)
@@ -118,7 +119,7 @@ public class AuthService : IAuthService
         throw new NotImplementedException();
     }
 
-    Task<ApiResponse<TokenResponseDto>> IAuthService.LoginAsync(LoginDto dto)
+    Task<ApiResponse<TokenResponseDto>> IAuthService.LoginAsync(LoginRequestDto dto)
     {
         throw new NotImplementedException();
     }

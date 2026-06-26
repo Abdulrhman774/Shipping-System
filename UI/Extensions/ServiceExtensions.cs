@@ -8,7 +8,6 @@ using DAL.Contracts;
 using DAL.Contracts.IRepositories;
 using DAL.Repositories;
 using DAL.Repositories.Generic;
-using DAL.Repositories.View;
 using Domain.Entities;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;

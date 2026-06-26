@@ -42,7 +42,7 @@ public class TokenService
         return Convert.ToHexString(RandomNumberGenerator.GetBytes(32));
     }
 
-    public int RefreshTokenExpiryMinutes()
+    public int GetRefreshTokenExpiryDays()
     {
         return _config.GetValue<int>("Jwt:RefreshTokenExpiryDays");
     }
