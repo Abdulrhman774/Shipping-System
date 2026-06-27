@@ -1,4 +1,5 @@
-﻿using BL.DTOs.Auth;
+﻿using BL.Common.Results;
+using BL.DTOs.Auth;
 using BL.DTOs.User;
 
 
@@ -6,11 +7,16 @@ namespace BL.Contract.IServices;
 
 public interface IUserService
 {
-    Task<IEnumerable<UserDto>> GetAllUsersAsync();
+    Task<Result> DeleteAccountAsync(string userId);
+
+    Task<Result<IEnumerable<UserDto>>> GetAllUsersAsync();
+
+    Task<Result<UserDto>> GetByIdAsync(string id);
+
+    Task<Result> UpdateAsync(string updatedUserId, UpdateUserDto dto);
+
     Task<Guid> GetLoggedInUserAsync();
-    Task<UserDto> GetByIdAsync(string userId);
-    Task<UserDto> GetUserByEmailOrUsernameAsync(string emailOrUsername);
-    Task<bool> UpdateAsync(string updatedUserId, UpdateUserDto dto);
-    Task<bool> DeleteAccountAsync(string userId);
+
+    Task<Result<UserDto>> GetUserByEmailOrUsernameAsync(string emailOrUsername);
 }
 

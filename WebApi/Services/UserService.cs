@@ -1,4 +1,5 @@
-﻿using BL.Contract.IServices;
+﻿using BL.Common.Results;
+using BL.Contract.IServices;
 using BL.DTOs.User;
 using Domain.Entities;
 using Microsoft.AspNetCore.Http;
@@ -19,38 +20,54 @@ public class UserService : IUserService
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public async Task<bool> DeleteAccountAsync(string userId)
+    public async Task<Result> DeleteAccountAsync(string userId)
     {
-        var user = await _userManager.FindByIdAsync(userId.ToString());
-        if (user == null) return false;
+        var user = await _userManager.FindByIdAsync(userId);
+
+        if (user is null)
+            return Error.NotFound(
+                "User.NotFound",
+                "User was not found.");
 
         var result = await _userManager.DeleteAsync(user);
 
-        return result.Succeeded;
+        if (!result.Succeeded)
+        {
+            return result.Errors
+                .Select(e => Error.Validation(e.Code, e.Description))
+                .ToList();
+        }
+
+        return Result.Success();
     }
-
-    public async Task<IEnumerable<UserDto>> GetAllUsersAsync()
+    public async Task<Result<IEnumerable<UserDto>>> GetAllUsersAsync()
     {
-        var users = _userManager.Users.Select(u => _MapToDto(u));
+        var users = await _userManager.Users
+            .Select(u => _MapToDto(u))
+            .ToListAsync();
 
-        return await users.ToListAsync();
+        return users;
     }
-
-    public async Task<UserDto> GetByIdAsync(string id)
+    public async Task<Result<UserDto>> GetByIdAsync(string id)
     {
-        var user = await _userManager.FindByIdAsync(id.ToString());
-        if (user == null) return null;
+        var user = await _userManager.FindByIdAsync(id);
+
+        if (user is null)
+            return Error.NotFound(
+                "User.NotFound",
+                "User was not found.");
 
         return _MapToDto(user);
     }
-
-
-    public async Task<bool> UpdateAsync(string updatedUserId, UpdateUserDto dto)
+    public async Task<Result> UpdateAsync(string updatedUserId, UpdateUserDto dto)
     {
-        var user = await _userManager.FindByIdAsync(updatedUserId.ToString());
-        if (user == null) return false;
+        var user = await _userManager.FindByIdAsync(updatedUserId);
 
-        // Update user properties
+        if (user is null)
+            return Error.NotFound(
+                "User.NotFound",
+                "User was not found.");
+
         user.FullName = dto.FullName;
         user.PhoneNumber = dto.PhoneNumber;
         user.ImageUrl = dto.ImageUrl ?? user.ImageUrl;
@@ -59,9 +76,35 @@ public class UserService : IUserService
 
         var result = await _userManager.UpdateAsync(user);
 
-        return result.Succeeded;
-    }
+        if (!result.Succeeded)
+        {
+            return result.Errors
+                .Select(e => Error.Validation(e.Code, e.Description))
+                .ToList();
+        }
 
+        return Result.Success();
+    }
+    public async Task<Result<UserDto>> GetUserByEmailOrUsernameAsync(string emailOrUsername)
+    {
+        var user = await _userManager.Users
+            .FirstOrDefaultAsync(u =>
+                u.Email == emailOrUsername ||
+                u.UserName == emailOrUsername);
+    
+        if (user is null)
+            return Error.NotFound(
+                "User.NotFound",
+                "User was not found.");
+    
+        return _MapToDto(user);
+    }
+    public async Task<Guid> GetLoggedInUserAsync()
+    {
+        var userId = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        return !string.IsNullOrEmpty(userId) ? Guid.Parse(userId) : Guid.Empty;
+    }
     private static UserDto _MapToDto(ApplicationUser u) => new()
     {
         Id = Guid.Parse(u.Id),
@@ -72,22 +115,4 @@ public class UserService : IUserService
         Gender = u.Gender,
         DateOfBirth = u.DateOfBirth,
     };
-
-    public async Task<Guid> GetLoggedInUserAsync()
-    {
-        var userId = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-        return !string.IsNullOrEmpty(userId) ? Guid.Parse(userId) : Guid.Empty;
-    }
-
-    public async Task<UserDto> GetUserByEmailOrUsernameAsync(string emailOrUsername)
-    {
-        var user = _userManager.Users.FirstOrDefault(u => u.Email == emailOrUsername || u.UserName == emailOrUsername);
-
-        if (user == null) return null;
-
-        return _MapToDto(user);
-
-
-    }
 }

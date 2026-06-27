@@ -61,3 +61,60 @@ public class Result<T> : IResult<T>
         => new(errors);
 
 }
+
+public class Result : IResult
+{
+    private readonly List<Error> _errors = [];
+
+    public bool IsSuccess { get; }
+
+    public bool IsFailure => !IsSuccess;
+
+    public IReadOnlyList<Error> Errors => _errors;
+
+    public Error? FirstError => _errors.FirstOrDefault();
+
+    private Result()
+    {
+        IsSuccess = true;
+    }
+
+    private Result(IEnumerable<Error> errors)
+    {
+        ArgumentNullException.ThrowIfNull(errors);
+
+        if (!errors.Any())
+            throw new ArgumentException(
+                "Failure result must contain at least one error.",
+                nameof(errors));
+
+        IsSuccess = false;
+        _errors.AddRange(errors);
+    }
+
+    #region Factory Methods
+
+    public static Result Success()
+        => new();
+
+    public static Result Failure(params Error[] errors)
+        => new(errors);
+
+    public static Result Failure(IEnumerable<Error> errors)
+        => new(errors);
+
+    #endregion
+
+    #region Implicit Operators
+
+    public static implicit operator Result(Error error)
+        => Failure(error);
+
+    public static implicit operator Result(List<Error> errors)
+        => Failure(errors);
+
+    public static implicit operator Result(Error[] errors)
+        => Failure(errors);
+
+    #endregion
+}

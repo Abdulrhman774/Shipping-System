@@ -8,7 +8,7 @@ using System.Reflection;
 
 namespace DAL.Context
 {
-    public class ShippingDbContext : IdentityDbContext<ApplicationUser>, IUnitOfWork
+    public class ShippingDbContext : IdentityDbContext<ApplicationUser>
     {
         public ShippingDbContext(DbContextOptions<ShippingDbContext> options) : base(options)
         {
@@ -64,11 +64,5 @@ namespace DAL.Context
 
             configurationBuilder.Properties<DateTime>().HaveColumnType("datetime");
         }
-
-        public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-        {
-           return base.SaveChangesAsync(cancellationToken);
-        }
-        
     }
 }

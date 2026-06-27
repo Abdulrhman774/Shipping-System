@@ -105,7 +105,7 @@
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IRefreshTokenService, RefreshTokenService>();
-            services.AddSingleton<TokenService>();
+            services.AddScoped<TokenService>();
 
             #endregion
 

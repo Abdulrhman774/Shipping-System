@@ -3,6 +3,7 @@ using BL.Common.Results;
 using BL.Contract.IServices;
 using BL.DTOs.Auth.Requests;
 using BL.DTOs.Auth.Responses;
+using BL.DTOs.RefreshToken;
 using BL.DTOs.User;
 using BL.Services;
 using Domain.Entities;
@@ -29,7 +30,8 @@ public class AuthService : IAuthService
         _refreshService = refreshService;
     }
 
-    public async Task<RegisterResponseDto> RegisterAsync(RegisterRequestDto dto)
+
+    public async Task<Result<RegisterResponseDto>> RegisterAsync(RegisterRequestDto dto)
     {
         var user = new ApplicationUser
         {
@@ -46,27 +48,27 @@ public class AuthService : IAuthService
 
         if (!result.Succeeded)
         {
-            return new RegisterResponseDto
-            {
-                Success = false,
-                Errors = result.Errors.Select(e => e.Description).ToList()
-            };
+            return result.Errors
+                .Select(e => Error.Validation(e.Code, e.Description)).ToList();
         }
 
-        await _userManager.AddToRoleAsync(user, "User");
+        var roleResult = await _userManager.AddToRoleAsync(user, "User");
+
+        if (!roleResult.Succeeded)
+        {
+            return roleResult.Errors
+                .Select(e => Error.Failure(
+                    e.Code,
+                    e.Description))
+                .ToList();
+        }
 
         return new RegisterResponseDto
         {
-            Success = true,
             UserId = Guid.Parse(user.Id),
-            //FullName = user.FullName,
             Email = user.Email!,
             UserName = user.UserName!
-            //PhoneNumber = user.PhoneNumber!,
-            //Gender = user.Gender,
-            //ProfileImage = user.ImageUrl
         };
-
     }
 
     public async Task<Result<TokenResponseDto>> LoginAsync(LoginRequestDto dto)
@@ -90,7 +92,7 @@ public class AuthService : IAuthService
             return Error.Unauthorized("Auth.InvalidPassword", "Invalid password.");
         }
 
-        var claims = await BuildClaimsAsync(user);
+        var claims = await _tokenService.BuildClaimsAsync(user);
         var accessToken = _tokenService.GenerateAccessToken(claims);
         var refreshToken = _tokenService.GenerateRefreshToken();
 
@@ -111,138 +113,79 @@ public class AuthService : IAuthService
         };
     }
 
-    public async Task<bool> ChangePasswordAsync(string userId, ChangePasswordRequstDto dto)
+    public async Task<Result> ChangePasswordAsync(string userId, ChangePasswordRequstDto dto)
     {
         var user = await _userManager.FindByIdAsync(userId);
-        if (user == null) return false;
+
+        if (user is null)
+            return Error.NotFound(
+                "User.NotFound",
+                "User was not found.");
 
         var result = await _userManager.ChangePasswordAsync(
             user,
             dto.CurrentPassword,
             dto.NewPassword);
 
-        return result.Succeeded;
+        if (!result.Succeeded)
+            return result.Errors
+                .Select(e => Error.Validation(e.Code, e.Description))
+                .ToList();
+
+        return Result.Success();
     }
 
-    public async Task<bool> ResetPasswordAsync(string email)
+    public async Task<Result> ResetPasswordAsync(string email)
     {
         var user = await _userManager.FindByEmailAsync(email);
-        if (user == null) return false;
+
+        if (user is null)
+            return Error.NotFound(
+                "User.NotFound",
+                "User was not found.");
 
         var token = await _userManager.GeneratePasswordResetTokenAsync(user);
 
-        var result = await _userManager.ResetPasswordAsync(user, token, "Temp@123");
+        var result = await _userManager.ResetPasswordAsync(
+            user,
+            token,
+            "Temp@123");
 
-        return result.Succeeded;
+        if (!result.Succeeded)
+            return result.Errors
+                .Select(e => Error.Validation(e.Code, e.Description))
+                .ToList();
+
+        return Result.Success();
     }
 
-    public async Task<RegisterResponseDto> LogoutAsync()
+    public async Task<Result> LogoutAsync(string userId)
     {
+        var revoked = await _refreshService.RevokeTokensAsync(userId);
+
+        if (!revoked)
+            return Error.Unexpected(
+                "RefreshToken.RevokeFailed",
+                "Failed to revoke refresh tokens.");
+
         await _signInManager.SignOutAsync();
-        return new RegisterResponseDto();
+
+        return Result.Success();
     }
 
-    public async Task<IEnumerable<string>> GetRolesAsync(string userId)
+
+
+    public async Task<Result<IEnumerable<string>>> GetRolesAsync(string userId)
     {
         var user = await _userManager.FindByIdAsync(userId);
-        if (user == null) return new List<string>();
-        return await _userManager.GetRolesAsync(user);
-    }
 
-    #region Private Method
-    private async Task<Claim[]> BuildClaimsAsync(ApplicationUser user)
-    {
+        if (user is null)
+            return Error.NotFound("User.NotFound", "User was not found.");
+
         var roles = await _userManager.GetRolesAsync(user);
-        var role = roles.FirstOrDefault() ?? "User";
 
-        return new[]
-        {
-            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new Claim(ClaimTypes.Email,           user.Email ?? "Email not found"),
-            new Claim(ClaimTypes.Role,           role)
-        };
+        return Result<IEnumerable<string>>.Success(roles);
     }
-
-    #endregion
-
-
-    #region Custome Methods
-
-    public async Task<ApiResponse<RefreshTokenResponseDto>> RefreshTokenAsync(string refreshToken)
-    {
-        if (string.IsNullOrWhiteSpace(refreshToken))
-            return ApiResponse<RefreshTokenResponseDto>.BadRequest("Refresh token is required.");
-
-        var stored = await _refreshService.GetTokenAsync(refreshToken);
-
-        if (stored is null)
-            return ApiResponse<RefreshTokenResponseDto>.Unauthorized("Refresh token not found.");
-
-        if (stored.CurrentState is not enEntityState.Active)
-            return ApiResponse<RefreshTokenResponseDto>.Unauthorized("Refresh token has been revoked.");
-
-        if (stored.Expires < DateTime.UtcNow)
-            return ApiResponse<RefreshTokenResponseDto>.Unauthorized("Refresh token has expired.");
-
-        // Revoke before issuing new pair (rotation prevents replay attacks).
-        await _refreshService.RevokeTokensAsync(stored.UserId);
-
-        var user = await _userManager.FindByIdAsync(stored.UserId);
-        if (user is null)
-            return ApiResponse<RefreshTokenResponseDto>.Unauthorized("User no longer exists.");
-
-        var claims = await BuildClaimsAsync(user);
-        var newAccessToken = _tokenService.GenerateAccessToken(claims);
-        var newRefreshToken = _tokenService.GenerateRefreshToken();
-
-        var saved = await _refreshService.SaveTokenAsync(
-            stored.UserId,
-            newRefreshToken,
-            DateTime.UtcNow.AddDays(_tokenService.GetRefreshTokenExpiryDays()));
-
-        if (!saved)
-            return ApiResponse<RefreshTokenResponseDto>.BadRequest("Failed to persist new refresh token.");
-
-        return ApiResponse<RefreshTokenResponseDto>.Ok(new RefreshTokenResponseDto
-        {
-            AccessToken = newAccessToken,
-            RefreshToken = newRefreshToken,
-            ExpiresAt = DateTime.UtcNow.AddMinutes(_tokenService.GetAccessTokenExpiryMinutes()),
-        });
-    }
-
-    public async Task<ApiResponse<RefreshAccessTokenResponseDto>> RefreshAccessTokenAsync(string refreshToken)
-    {
-        if (string.IsNullOrWhiteSpace(refreshToken))
-            return ApiResponse<RefreshAccessTokenResponseDto>.BadRequest("Refresh token is required.");
-
-        var stored = await _refreshService.GetTokenAsync(refreshToken);
-
-        if (stored is null)
-            return ApiResponse<RefreshAccessTokenResponseDto>.Unauthorized("Refresh token not found.");
-
-        if (stored.CurrentState is not enEntityState.Active)
-            return ApiResponse<RefreshAccessTokenResponseDto>.Unauthorized("Refresh token has been revoked.");
-
-        if (stored.Expires < DateTime.UtcNow)
-            return ApiResponse<RefreshAccessTokenResponseDto>.Unauthorized("Refresh token has expired.");
-
-        // Do NOT revoke — only a new AccessToken is needed.
-        var user = await _userManager.FindByIdAsync(stored.UserId);
-        if (user is null)
-            return ApiResponse<RefreshAccessTokenResponseDto>.Unauthorized("User no longer exists.");
-
-        var claims = await BuildClaimsAsync(user);
-        var newAccessToken = _tokenService.GenerateAccessToken(claims);
-
-        return ApiResponse<RefreshAccessTokenResponseDto>.Ok(new RefreshAccessTokenResponseDto
-        {
-            AccessToken = newAccessToken,
-            ExpiresAt = DateTime.UtcNow.AddMinutes(_tokenService.GetAccessTokenExpiryMinutes()),
-        });
-    }
-
-    #endregion
 
 
 }

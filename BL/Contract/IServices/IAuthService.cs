@@ -7,9 +7,9 @@ namespace BL.Contract.IServices;
 public interface IAuthService
 {
     Task<Result<TokenResponseDto>> LoginAsync(LoginRequestDto dto);
-    Task<RegisterResponseDto> RegisterAsync(RegisterRequestDto dto);
-    Task<RegisterResponseDto> LogoutAsync();
-    Task<bool> ChangePasswordAsync(string Username, ChangePasswordRequstDto dto);
-    Task<bool> ResetPasswordAsync(string Username);
-    Task<IEnumerable<string>> GetRolesAsync(string userId);
+    Task<Result<RegisterResponseDto>> RegisterAsync(RegisterRequestDto dto);
+    Task<Result> LogoutAsync(string userId);
+    Task<Result> ChangePasswordAsync(string Username, ChangePasswordRequstDto dto);
+    Task<Result> ResetPasswordAsync(string Username);
+    Task<Result<IEnumerable<string>>> GetRolesAsync(string userId);
 }
