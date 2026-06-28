@@ -1,30 +1,28 @@
-﻿    using BL.Contract.IServices;
-    using BL.Contract.IvwServices;
-    using BL.Mapping;
-    using BL.Services;
-    using BL.Services.vwServices;
-    using DAL.Context;
-    using DAL.Contracts;
-    using DAL.Contracts.IRepositories;
-    using DAL.Repositories;
-    using DAL.Repositories.Generic;
-    using Domain.Entities;
-    using Microsoft.AspNetCore.Authentication.Cookies;
-    using Microsoft.AspNetCore.Authentication.JwtBearer;
-    using Microsoft.AspNetCore.Identity;
-    using Microsoft.EntityFrameworkCore;
-    using Microsoft.IdentityModel.Tokens;
-    using Microsoft.OpenApi;
-    using Microsoft.OpenApi.Models;
-    using Serilog;
-    using Serilog.Sinks.MSSqlServer;
-    using System.Text;
-    using System.Threading.RateLimiting;
-    using WebApi.Services;
+using BL.Contract.IServices;
+using BL.Contract.IvwServices;
+using BL.Mapping;
+using BL.Services;
+using BL.Services.vwServices;
+using DAL.Context;
+using DAL.Contracts;
+using DAL.Contracts.IRepositories;
+using DAL.Repositories;
+using DAL.Repositories.Generic;
+using Domain.Entities;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using Serilog;
+using Serilog.Sinks.MSSqlServer;
+using System.Text;
+using System.Threading.RateLimiting;
+using WebApi.Services;
+using FluentValidation.AspNetCore;
 
-
-    namespace Microsoft.Extensions.DependencyInjection;
-
+namespace Microsoft.Extensions.DependencyInjection
+{
     public static class ServiceExtensions
     {
         public static IServiceCollection AddPersistence(this IServiceCollection services, IConfiguration configuration, IWebHostEnvironment env)
@@ -129,12 +127,72 @@
 
         public static IServiceCollection AddValidators(this IServiceCollection services)
         {
+            services.AddFluentValidationAutoValidation();
+
+            /*//services.AddScoped<IValidator<ChangePasswordRequstDto>, ChangePasswordRequestDtoValidator>();
+            //    services.AddScoped<IValidator<LoginRequestDto>, LoginRequestDtoValidator>();
+            //    services.AddScoped<IValidator<RefreshRequestDto>, RefreshRequestDtoValidator>();
+            //    services.AddScoped<IValidator<RefreshTokenRequestDto>, RefreshTokenRequestDtoValidator>();
+            //    services.AddScoped<IValidator<RegisterRequestDto>, RegisterRequestDtoValidator>();
+
+            //    services.AddScoped<IValidator<CreateCarrierDto>, CreateCarrierDtoValidator>();
+            //    services.AddScoped<IValidator<UpdateCarrierDto>, UpdateCarrierDtoValidator>();
+
+            //    services.AddScoped<IValidator<CreateCityDto>, CreateCityDtoValidator>();
+            //    services.AddScoped<IValidator<UpdateCityDto>, UpdateCityDtoValidator>();
+
+            //    services.AddScoped<IValidator<CreateCountryDto>, CreateCountryDtoValidator>();
+            //    services.AddScoped<IValidator<UpdateCountryDto>, UpdateCountryDtoValidator>();
+
+            //    services.AddScoped<IValidator<CreatePaymentMethodDto>, CreatePaymentMethodDtoValidator>();
+            //    services.AddScoped<IValidator<UpdatePaymentMethodDto>, UpdatePaymentMethodDtoValidator>();
+
+            //    services.AddScoped<IValidator<UpdateSettingDto>, UpdateSettingDtoValidator>();
+
+            //    services.AddScoped<IValidator<CreateShippingTypeDto>, CreateShippingTypeDtoValidator>();
+            //    services.AddScoped<IValidator<UpdateShippingTypeDto>, UpdateShippingTypeDtoValidator>();
+
+            //    services.AddScoped<IValidator<CreateShippmentDto>, CreateShippmentDtoValidator>();
+            //    services.AddScoped<IValidator<UpdateShippmentDto>, UpdateShippmentDtoValidator>();
+
+            //    services.AddScoped<IValidator<CreateShippmentStatusDto>, CreateShippmentStatusDtoValidator>();
+            //    services.AddScoped<IValidator<UpdateShippmentStatusDto>, UpdateShippmentStatusDtoValidator>();
+
+            //    services.AddScoped<IValidator<CreateSubscriptionPackageDto>, CreateSubscriptionPackageDtoValidator>();
+            //    services.AddScoped<IValidator<UpdateSubscriptionPackageDto>, UpdateSubscriptionPackageDtoValidator>();
+
+            //    services.AddScoped<IValidator<CreateUserReceiverDto>, CreateUserReceiverDtoValidator>();
+            //    services.AddScoped<IValidator<UpdateUserReceiverDto>, UpdateUserReceiverDtoValidator>();
+
+            //    services.AddScoped<IValidator<CreateUserSenderDto>, CreateUserSenderDtoValidator>();
+            //    services.AddScoped<IValidator<UpdateUserSenderDto>, UpdateUserSenderDtoValidator>();
+
+            //    services.AddScoped<IValidator<CreateUserSubscriptionDto>, CreateUserSubscriptionDtoValidator>();*/
+
+            return services;
+        }
+
+        public static IServiceCollection AddCorsPolicy(this IServiceCollection services, string corsPolicy)
+        {
+
+            services.AddCors(options =>
+            {
+                options.AddPolicy(corsPolicy, policy =>
+                {
+                    policy
+                        .WithOrigins(
+                            "https://localhost:7246"
+                        )
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
+                });
+            });
             return services;
         }
 
         public static IServiceCollection AddIdentityConfig(this IServiceCollection services)
         {
-            services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+            services.AddIdentityCore<ApplicationUser>(options =>
             {
                 options.Password.RequireDigit = true;
                 options.Password.RequiredLength = 9;
@@ -142,6 +200,9 @@
                 options.Password.RequireUppercase = true;
                 options.Password.RequireLowercase = true;
             })
+            .AddRoles<IdentityRole>()
+            .AddSignInManager<SignInManager<ApplicationUser>>()
+
             .AddEntityFrameworkStores<ShippingDbContext>()
             .AddDefaultTokenProviders();
 
@@ -150,25 +211,27 @@
 
         public static IServiceCollection AddJwtAuth(this IServiceCollection services, IConfiguration config)
         {
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer(options =>
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
                 {
-                    options.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        ValidateIssuer = true,
-                        ValidateAudience = true,
-                        ValidateLifetime = true,
-                        ValidateIssuerSigningKey = true,
-
-                        ValidIssuer = config["Jwt:Issuer"],
-                        ValidAudience = config["Jwt:Audience"],
-
-                        IssuerSigningKey = new SymmetricSecurityKey(
-                            Encoding.UTF8.GetBytes(config["Jwt:Key"]!)),
-
-                        ClockSkew = TimeSpan.Zero
-                    };
-                });
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = config["Jwt:Issuer"],
+                    ValidAudience = config["Jwt:Audience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(
+                        Encoding.UTF8.GetBytes(config["JWT_SECRET_KEY"]!)),
+                    ClockSkew = TimeSpan.Zero
+                };
+            });
 
             return services;
         }
@@ -181,7 +244,6 @@
                 options.AddPolicy("UserOnly", policy => policy.RequireRole("User"));
             });
 
-            //services.AddSingleton<IAuthorizationHandler, StudentOwnerOrAdminHandler>();
 
             return services;
         }
@@ -254,4 +316,8 @@
         }
 
     }
+}
+
+
+
 

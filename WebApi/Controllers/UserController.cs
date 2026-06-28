@@ -7,7 +7,7 @@ using WebApi.Extensions;
 
 namespace WebApi.Controllers;
 
-[Authorize(Roles = "Admin")]
+[Authorize]
 [ApiController]
 [Route("Api/User")]
 public class UserController : ControllerBase
@@ -19,6 +19,7 @@ public class UserController : ControllerBase
         _userService = userService;
     }
 
+    [AllowAnonymous]
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
@@ -35,6 +36,7 @@ public class UserController : ControllerBase
         return result.ToActionResult(this);
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpGet("Search")]
     public async Task<IActionResult> GetByEmailOrUsername([FromQuery] string emailOrUsername)
     {
@@ -43,6 +45,7 @@ public class UserController : ControllerBase
         return result.ToActionResult(this);
     }
 
+    
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(
         string id,
@@ -75,4 +78,35 @@ public class UserController : ControllerBase
 
         return result.ToActionResult(this);
     }
+
+
+
+    [AllowAnonymous]
+    [HttpGet("public")]
+    public IActionResult Public()
+    {
+        return Ok("✅ Public endpoint — no token needed.");
+    }
+
+    [Authorize]
+    [HttpGet("protected")]
+    public IActionResult Protected()
+    {
+        return Ok("✅ JWT is valid — you are authenticated.");
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpGet("admin")]
+    public IActionResult AdminOnly()
+    {
+        return Ok("✅ You have the Admin role.");
+    }
+
+    [Authorize(Roles = "User")]
+    [HttpGet("user")]
+    public IActionResult UserOnly()
+    {
+        return Ok("✅ You have the User role.");
+    }
+
 }

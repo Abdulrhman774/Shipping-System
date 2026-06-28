@@ -8,7 +8,7 @@ using WebApi.Services;
 
 namespace WebApi.Controllers;
 
-//[Authorize]
+[Authorize]
 [ApiController]
 [Route("Api/Auth")]
 public class AuthController : ControllerBase

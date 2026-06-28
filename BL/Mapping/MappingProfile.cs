@@ -1,6 +1,5 @@
 using AutoMapper;
 using Domain.Entities;
-using BL.DTOs.ApplicationUser;
 using BL.DTOs.Carrier;
 using BL.DTOs.City;
 using BL.DTOs.Country;
@@ -24,10 +23,6 @@ namespace BL.Mapping
     {
         public MappingProfile()
         {
-            // ApplicationUser
-            CreateMap<ApplicationUser, ApplicationUserDto>();
-            CreateMap<CreateApplicationUserDto, ApplicationUser>();
-            CreateMap<UpdateApplicationUserDto, ApplicationUser>();
 
             // Log
             CreateMap<Log, LogDto>();

@@ -2,12 +2,14 @@
 using DAL.Context;
 using DAL.Seeding;
 using Domain.Entities;
-using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
+var corsPolicy = builder.Configuration["Cors:PolicyName"]?? "ShippingAPICorsPolicy";
+
 
 #region DIC
 builder.Host.AddSerilogLogging(builder.Configuration);
@@ -16,9 +18,11 @@ builder.Services.AddRepositories();
 builder.Services.AddServices();
 builder.Services.AddValidators();
 
+builder.Services.AddCorsPolicy(corsPolicy);
 builder.Services.AddIdentityConfig();
-
 builder.Services.AddJwtAuth(builder.Configuration);
+
+
 builder.Services.AddAppAuthorization();
 builder.Services.AddAppRateLimiting();
 builder.Services.AddSwaggerDocs();
@@ -60,14 +64,27 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseCors(corsPolicy);
 
 app.UseRateLimiter();
 
 app.UseAuthentication();
+
 app.UseAuthorization();
 
 
 app.MapControllers();
+
+app.UseExceptionHandler(errorApp =>
+{
+    errorApp.Run(async context =>
+    {
+        var feature = context.Features.Get<IExceptionHandlerFeature>();
+
+        Console.WriteLine(feature?.Error);
+
+    });
+});
 #endregion
 
 app.Run();
