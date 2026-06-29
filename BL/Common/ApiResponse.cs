@@ -6,19 +6,43 @@ public class ApiResponse<T> : ApiResponse
 {
     public T? Data { get; set; }
 
-    public static ApiResponse<T> Ok(T data) => new()
+    private static ApiResponse<T> Create(
+        bool success,
+        int statusCode,
+        string? error = null,
+        T? data = default)
     {
-        Success = true,
-        StatusCode = StatusCodes.Status200OK,
-        Data = data
-    };
+        return new ApiResponse<T>
+        {
+            Success = success,
+            StatusCode = statusCode,
+            Error = error,
+            Data = data
+        };
+    }
 
-    public static ApiResponse<T> Created(T data) => new()
-    {
-        Success = true,
-        StatusCode = StatusCodes.Status201Created,
-        Data = data
-    };
+    public static ApiResponse<T> Ok(T data)
+        => Create(true, 200, data: data);
+
+    public static new ApiResponse<T> BadRequest(string error)
+        => Create(false, 400, error);
+
+    public static new ApiResponse<T> Unauthorized(string error)
+        => Create(false, 401, error);
+
+    public static new ApiResponse<T> Forbidden(string error)
+        => Create(false, 403, error);
+
+    public static new ApiResponse<T> NotFound(string error)
+        => Create(false, 404, error);
+
+    public static new ApiResponse<T> Conflict(string error)
+        => Create(false, 409, error);
+
+    public static new ApiResponse<T> InternalServerError(string error)
+        => Create(false, 500, error);
+
+
 }
 
 public class ApiResponse

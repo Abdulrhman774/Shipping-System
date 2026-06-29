@@ -1,5 +1,6 @@
 ﻿using BL.Contract.IServices;
 using BL.DTOs.User;
+using Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -29,6 +30,7 @@ public class UserController : ControllerBase
     }
 
     [HttpGet("{id}")]
+    [Authorize(Roles = "User")]
     public async Task<IActionResult> GetById(string id)
     {
         var result = await _userService.GetByIdAsync(id);

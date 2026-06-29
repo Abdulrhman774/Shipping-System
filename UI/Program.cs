@@ -73,7 +73,7 @@ app.Use(async (context, next) =>
         // إذا كان في صفحة Login أو الصفحة الرئيسية
         if (path == "/" || path == "/account/login" || string.IsNullOrEmpty(path))
         {
-            context.Response.Redirect("/AdminPanel/Index");
+            context.Response.Redirect("/Admin/Dashboard");
             return;
         }
     }

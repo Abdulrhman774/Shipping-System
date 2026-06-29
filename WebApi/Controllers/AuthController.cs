@@ -8,7 +8,6 @@ using WebApi.Services;
 
 namespace WebApi.Controllers;
 
-[Authorize]
 [ApiController]
 [Route("Api/Auth")]
 public class AuthController : ControllerBase
@@ -42,6 +41,7 @@ public class AuthController : ControllerBase
         return response.ToActionResult(this);
     }
 
+    [Authorize]
     [HttpPost("RotateRefreshToken")]
     public async Task<IActionResult> RotateRefreshToken(
     [FromBody] RefreshTokenRequestDto dto)
@@ -51,6 +51,8 @@ public class AuthController : ControllerBase
         return result.ToActionResult(this);
     }
 
+
+    [Authorize]
     [HttpPost("Refresh-AccessToken")]
     public async Task<IActionResult> RefreshAccessToken(
     [FromBody] RefreshTokenRequestDto dto)
@@ -60,7 +62,7 @@ public class AuthController : ControllerBase
         return result.ToActionResult(this);
     }
 
-
+    [Authorize]
     [HttpPost("Logout")]
     public async Task<IActionResult> Logout(string userId)
     {
@@ -69,6 +71,7 @@ public class AuthController : ControllerBase
         return result.ToActionResult(this);
     }
 
+    [Authorize]
     [HttpPost("ChangePassword")]
     public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequstDto dto)
     {

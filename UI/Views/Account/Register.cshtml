@@ -124,7 +124,7 @@
         <div class="auth-body">
             <form asp-controller="Account" asp-action="Register" method="post">
                 @Html.AntiForgeryToken()
-
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
                 <div class="form-group mb-3">
                     <label asp-for="FullName">Full Name</label>
                     <div class="input-group">
@@ -145,6 +145,44 @@
                         <input asp-for="Email" type="email" class="form-control" placeholder="Enter your email" id="reg-email" />
                     </div>
                     <span asp-validation-for="Email" class="text-danger small"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="UserName">Username</label>
+
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">
+                                <i class="mdi mdi-account"></i>
+                            </span>
+                        </div>
+
+                        <input asp-for="UserName"
+                               class="form-control"
+                               placeholder="Choose a username"
+                               id="reg-username" />
+                    </div>
+
+                    <span asp-validation-for="UserName" class="text-danger small"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="PhoneNumber">Phone Number</label>
+
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">
+                                <i class="mdi mdi-phone"></i>
+                            </span>
+                        </div>
+
+                        <input asp-for="PhoneNumber"
+                               class="form-control"
+                               placeholder="Enter your phone number"
+                               id="reg-phone" />
+                    </div>
+
+                    <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
                 </div>
 
                 <div class="form-group mb-3">
@@ -178,6 +216,25 @@
                         <input asp-for="DateOfBirth" type="date" class="form-control" id="reg-dob" />
                     </div>
                     <span asp-validation-for="DateOfBirth" class="text-danger small"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="ImageUrl">Profile Image URL</label>
+
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">
+                                <i class="mdi mdi-image"></i>
+                            </span>
+                        </div>
+
+                        <input asp-for="ImageUrl"
+                               class="form-control"
+                               placeholder="https://example.com/profile.jpg"
+                               id="reg-image" />
+                    </div>
+
+                    <span asp-validation-for="ImageUrl" class="text-danger small"></span>
                 </div>
 
                 <div class="form-group mb-4">

@@ -11,6 +11,7 @@ using System.Security.Claims;
 using UI.Models;
 using UI.Models.ResponsesModels;
 using UI.Services;
+using UI.Services.Contracts;
 
 namespace UI.Controllers
 {
@@ -18,20 +19,23 @@ namespace UI.Controllers
     public class AccountController : Controller
     {
         private readonly GenericApiClient _apiClient;
-        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly MvcAuthService _mvcAuthService;
         private readonly ILogger<AccountController> _logger;
-        public readonly Services.AuthenticationService _authenticationService;
+        private readonly ITokenProvider _tokenProvider;
+        private readonly IRefreshTokenProvider _refreshTokenProvider ;
 
         public AccountController(
             GenericApiClient apiClient,
-            IHttpContextAccessor httpContextAccessor,
             ILogger<AccountController> logger,
-            Services.AuthenticationService authenticationService)
+            MvcAuthService mvcAuthService,
+            ITokenProvider TokenProvider,
+            IRefreshTokenProvider refreshTokenProvider)
         {
             _apiClient = apiClient;
-            _httpContextAccessor = httpContextAccessor;
             _logger = logger;
-            _authenticationService = authenticationService;
+            _mvcAuthService = mvcAuthService;
+            _tokenProvider = TokenProvider;
+            _refreshTokenProvider = refreshTokenProvider;
         }
 
         // GET: /Account/Login
@@ -51,59 +55,46 @@ namespace UI.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel model, string? returnUrl = null)
         {
-            
-            if (!ModelState.IsValid)
-                return View(model);
+            if (!ModelState.IsValid) return View(model);
+
 
             try
             {
-                // 1. تحويل ViewModel → DTO
-                var loginDto = new LoginRequestDto
-                {
+                var loginDto = new LoginRequestDto {
                     UsernameOrEmail = model.UsernameOrEmail,
                     Password = model.Password
                 };
 
-                // 2. استدعاء Service (كل المنطق هناك)
-                var (success, principal, error, loginData) = await _authenticationService.LoginAsync(loginDto);
+                var (response, principal) = await _mvcAuthService.LoginApiAsync(loginDto);
 
-                if (!success || principal == null || loginData == null)
+                if (!response.Success || principal is null)
                 {
-                    ModelState.AddModelError("", error ?? "Invalid username or password.");
+                    ModelState.AddModelError("", response.Error!);
                     return View(model);
                 }
 
-                // 3. تسجيل الدخول (مسؤولية Controller)
+
                 var authProperties = new AuthenticationProperties
                 {
                     IsPersistent = model.RememberMe,
                     ExpiresUtc = DateTimeOffset.UtcNow.AddHours(8)
                 };
 
-                await HttpContext.SignInAsync(
-                    IdentityConstants.ApplicationScheme,
-                    principal,
-                    authProperties);
-
-                // 4. تخزين AccessToken في Session
-                HttpContext.Session.SetString("AccessToken", loginData.AccessToken);
-
-                // 5. تخزين RefreshToken في Cookie آمن
-                Response.Cookies.Append("RefreshToken", loginData.RefreshToken, new CookieOptions
-                {
-                    HttpOnly = true,
-                    Secure = true,
-                    SameSite = SameSiteMode.Strict,
-                    Expires = DateTime.UtcNow.AddDays(7)
-                });
-
+                await HttpContext.SignInAsync(IdentityConstants.ApplicationScheme, principal, authProperties);
+                
+                
+                _tokenProvider.SetAccessToken(response.Data!.AccessToken);
+                _refreshTokenProvider.SetRefreshToken(response.Data.RefreshToken, response.Data.ExpiresAt.AddDays(7));
+                                
                 _logger.LogInformation($"User {model.UsernameOrEmail} logged in successfully");
 
-                // 6. إعادة التوجيه
+                
+                // Redirect
                 if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
                     return Redirect(returnUrl);
+                else
+                    return RedirectToAction("Index", "Dashboard", new { area = "Admin" });
 
-                return RedirectToAction("Index", "AdminPanel", new { area = "Admin" });
             }
             catch (Exception ex)
             {
@@ -112,6 +103,9 @@ namespace UI.Controllers
                 return View(model);
             }
         }
+
+
+
         // GET: /Account/Register
         [AllowAnonymous]
         public IActionResult Register()
@@ -130,9 +124,7 @@ namespace UI.Controllers
 
             try
             {
-                // 1. Prepare registration data
-                var registerDto = new RegisterRequestDto
-                {
+                var dto = new RegisterRequestDto{
                     FullName = model.FullName,
                     Email = model.Email,
                     UserName = model.UserName,
@@ -140,35 +132,39 @@ namespace UI.Controllers
                     Password = model.Password,
                     DateOfBirth = model.DateOfBirth,
                     Gender = model.Gender,
-                    ImageUrl = ""
+                    ImageUrl = model.ImageUrl
                 };
 
-                // 2. Call API to register - returns ApiResponse<RegisterResponseData>
-                var response = await _apiClient.PostAsync<RegisterResponseData>("Api/Auth/Register", registerDto);
+                var response = await _mvcAuthService.RegisterAsync(dto);
 
-                // 3. Check if registration failed
                 if (!response.Success)
                 {
-                    // If response has error message
-                    if (!string.IsNullOrEmpty(response.Error))
-                    {
-                        ModelState.AddModelError("", response.Error);
-                    }
-                    else
-                    {
-                        ModelState.AddModelError("", "Registration failed. Please try again.");
-                    }
+                    ModelState.AddModelError(
+                        string.Empty,
+                        response.Error ?? "Registration failed.");
+
                     return View(model);
                 }
 
-                _logger.LogInformation($"User {model.Email} registered successfully");
-                TempData["SuccessMessage"] = "Registration successful! Please login.";
+                _logger.LogInformation(
+                    "User {Email} registered successfully",
+                    model.Email);
+
+                TempData["SuccessMessage"] = "Registration successful. Please login.";
+
                 return RedirectToAction(nameof(Login));
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Registration failed for user {Email}", model.Email);
-                ModelState.AddModelError("", "An error occurred during registration. Please try again.");
+                _logger.LogError(
+                    ex,
+                    "Registration failed for user {Email}",
+                    model.Email);
+
+                ModelState.AddModelError(
+                    string.Empty,
+                    "An unexpected error occurred.");
+
                 return View(model);
             }
         }
@@ -186,9 +182,7 @@ namespace UI.Controllers
                 if (!string.IsNullOrEmpty(token))
                 {
                     // Set token in header and call API logout
-                    _apiClient.SetAuthorizationHeader(token);
                     await _apiClient.PostAsync<object>("Api/Auth/logout", null);
-                    _apiClient.ClearAuthorizationHeader();
                 }
             }
             catch (Exception ex)
@@ -247,7 +241,7 @@ namespace UI.Controllers
             {
                 // Get current token from session
                 var token = HttpContext.Session.GetString("AccessToken");
-                _apiClient.SetAuthorizationHeader(token);
+                //_apiClient.SetAuthorizationHeader(token);
 
                 // Call API to refresh token - returns ApiResponse<RefreshTokenResponseData>
                 var response = await _apiClient.PostAsync<RefreshTokenResponseData>("Api/Auth/Refresh-Token", null);

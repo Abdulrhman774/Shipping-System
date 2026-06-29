@@ -1,7 +1,10 @@
 ﻿using BL.Common;
 using Newtonsoft.Json;
 using System.Net;
+using System.Net.Http.Headers;
 using System.Text;
+using UI.Services.Contracts;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace UI.Services;
 
@@ -13,49 +16,29 @@ namespace UI.Services;
 public class GenericApiClient
 {
     private readonly HttpClient _httpClient;
-    private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly ITokenProvider _tokenProvider;
     private readonly ILogger<GenericApiClient> _logger;
+    private readonly ITokenRefreshService _tokenRefreshService;
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="GenericApiClient"/> class.
-    /// </summary>
     public GenericApiClient(
         IHttpClientFactory httpClientFactory,
         IConfiguration configuration,
-        IHttpContextAccessor httpContextAccessor,
-        ILogger<GenericApiClient> logger)
+        ITokenProvider tokenProvider,
+        ILogger<GenericApiClient> logger,
+        ITokenRefreshService tokenRefreshService)
     {
         ArgumentNullException.ThrowIfNull(httpClientFactory, nameof(httpClientFactory));
         ArgumentNullException.ThrowIfNull(configuration, nameof(configuration));
 
         _httpClient = httpClientFactory.CreateClient("ApiClient");
-        _httpContextAccessor = httpContextAccessor;
+        _tokenProvider = tokenProvider;
         _logger = logger;
+        _tokenRefreshService = tokenRefreshService;
 
         var baseUrl = configuration["ApiSettings:BaseUrl"]
             ?? throw new InvalidOperationException("ApiSettings:BaseUrl is not configured.");
 
         _httpClient.BaseAddress = new Uri(baseUrl);
-    }
-
-    /// <summary>
-    /// Set authorization header with Bearer token
-    /// </summary>
-    public void SetAuthorizationHeader(string? token)
-    {
-        if (!string.IsNullOrEmpty(token))
-        {
-            _httpClient.DefaultRequestHeaders.Authorization =
-                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
-        }
-    }
-
-    /// <summary>
-    /// Clear authorization header
-    /// </summary>
-    public void ClearAuthorizationHeader()
-    {
-        _httpClient.DefaultRequestHeaders.Authorization = null;
     }
 
 
@@ -64,11 +47,9 @@ public class GenericApiClient
     /// </summary>
     public async Task<ApiResponse<T>> GetAsync<T>(string endpoint)
     {
-        _AddTokenFromSession();
-
         try
         {
-            var response = await _httpClient.GetAsync(endpoint);
+            var response = await SendAsync(() => _httpClient.GetAsync(endpoint));
             return await ProcessResponse<T>(response);
         }
         catch (Exception ex)
@@ -83,8 +64,6 @@ public class GenericApiClient
     /// </summary>
     public async Task<ApiResponse<T>> PostAsync<T>(string endpoint, object? data)
     {
-        _AddTokenFromSession();
-
         try
         {
             var content = new StringContent(
@@ -92,7 +71,7 @@ public class GenericApiClient
                 Encoding.UTF8,
                 "application/json");
 
-            var response = await _httpClient.PostAsync(endpoint, content);
+            var response = await SendAsync(() => _httpClient.PostAsync(endpoint, content));
             return await ProcessResponse<T>(response);
         }
         catch (Exception ex)
@@ -103,12 +82,10 @@ public class GenericApiClient
     }
 
     /// <summary>
-    /// Sends an asynchronous PUT request to the specified endpoint and returns ApiResponse{T}.
+    /// Sends an asynchronous PUT request to the specified endpoint and returns ApiResponse { T }.
     /// </summary>
     public async Task<ApiResponse<T>> PutAsync<T>(string endpoint, object data)
     {
-        _AddTokenFromSession();
-
         try
         {
             var content = new StringContent(
@@ -116,7 +93,7 @@ public class GenericApiClient
                 Encoding.UTF8,
                 "application/json");
 
-            var response = await _httpClient.PutAsync(endpoint, content);
+            var response = await SendAsync(() => _httpClient.PutAsync(endpoint, content));
             return await ProcessResponse<T>(response);
         }
         catch (Exception ex)
@@ -127,34 +104,13 @@ public class GenericApiClient
     }
 
     /// <summary>
-    /// Sends an asynchronous DELETE request to the specified endpoint and returns ApiResponse{T}.
-    /// </summary>
-    public async Task<ApiResponse<T>> DeleteAsync<T>(string endpoint)
-    {
-        _AddTokenFromSession();
-
-        try
-        {
-            var response = await _httpClient.DeleteAsync(endpoint);
-            return await ProcessResponse<T>(response);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "DELETE request failed for {Endpoint}", endpoint);
-            return ApiResponse<T>.BadRequest($"Request failed: {ex.Message}");
-        }
-    }
-
-    /// <summary>
     /// Sends an asynchronous DELETE request without expecting a response body.
     /// </summary>
     public async Task<bool> DeleteAsync(string endpoint)
     {
-        _AddTokenFromSession();
-
         try
         {
-            var response = await _httpClient.DeleteAsync(endpoint);
+            var response = await SendAsync(() => _httpClient.DeleteAsync(endpoint));
             return response.IsSuccessStatusCode;
         }
         catch (Exception ex)
@@ -168,78 +124,56 @@ public class GenericApiClient
     /// <summary>
     /// Automatically add token from session (with safety checks)
     /// </summary>
-    private void _AddTokenFromSession()
+    private void _AddAuthorizationHeader()
     {
-        try
+        var token = _tokenProvider.GetAccessToken();
+
+        if (string.IsNullOrWhiteSpace(token))
         {
-            // ✅ Check for HttpContext
-            if (_httpContextAccessor.HttpContext == null)
-                return;
-
-            // ✅ Check for Session
-            if (_httpContextAccessor.HttpContext.Session == null)
-                return;
-
-            // ✅ Attempt to read the token
-            var token = _httpContextAccessor.HttpContext.Session.GetString("AccessToken");
-
-            if (!string.IsNullOrEmpty(token))
-            {
-                _httpClient.DefaultRequestHeaders.Authorization =
-                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
-            }
+            _httpClient.DefaultRequestHeaders.Authorization = null;
+            return;
         }
-        catch (Exception ex)
-        {
-            _logger?.LogWarning(ex, "Failed to get token from session");
-        }
+
+        _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
     }
-
     private async Task<ApiResponse<T>> ProcessResponse<T>(HttpResponseMessage response)
     {
         var responseContent = await response.Content.ReadAsStringAsync();
 
         try
         {
-            // ✅ Deserialize مباشرة إلى ApiResponse<T>
             var apiResponse = JsonConvert.DeserializeObject<ApiResponse<T>>(responseContent);
 
-            // ✅ إذا كان الـ Response Success، نرجع ApiResponse
-            if (response.IsSuccessStatusCode && apiResponse != null)
+            if (apiResponse is not null)
                 return apiResponse;
 
-            // ❌ إذا فشل، نبني ApiResponse من StatusCode
-            var errorMsg = apiResponse?.Error ?? GetDefaultErrorMessage(response.StatusCode);
+            return ApiResponse<T>.InternalServerError("Empty response.");
 
-            return response.StatusCode switch
-            {
-                HttpStatusCode.NotFound => ApiResponse<T>.NotFound(errorMsg),
-                HttpStatusCode.Unauthorized => ApiResponse<T>.Unauthorized(errorMsg),
-                HttpStatusCode.Forbidden => ApiResponse<T>.Forbidden(errorMsg),
-                HttpStatusCode.BadRequest => ApiResponse<T>.BadRequest(errorMsg),
-                _ => ApiResponse<T>.InternalServerError(errorMsg)
-            };
         }
         catch (JsonException ex)
         {
             _logger.LogError(ex, "Failed to deserialize response");
 
-            if (response.IsSuccessStatusCode)
-                return ApiResponse<T>.Ok(default);
-
-            return ApiResponse<T>.BadRequest("Invalid response format");
+            return ApiResponse<T>.InternalServerError("Invalid response format.");
         }
     }
-    private static string GetDefaultErrorMessage(HttpStatusCode statusCode)
+    private async Task<HttpResponseMessage> SendAsync(Func<Task<HttpResponseMessage>> request)
     {
-        return statusCode switch
-        {
-            HttpStatusCode.NotFound => "Resource not found",
-            HttpStatusCode.Unauthorized => "Unauthorized access",
-            HttpStatusCode.Forbidden => "Access forbidden",
-            HttpStatusCode.BadRequest => "Invalid request",
-            _ => "An error occurred"
-        };
+        _AddAuthorizationHeader();
+
+        var response = await request();
+
+        if (response.StatusCode != HttpStatusCode.Unauthorized)
+            return response;
+
+        var refreshed = await _tokenRefreshService.RefreshAccessTokenAsync();
+
+        if (!refreshed)
+            return response;
+
+        _AddAuthorizationHeader();
+
+        return await request();
     }
 
     #endregion

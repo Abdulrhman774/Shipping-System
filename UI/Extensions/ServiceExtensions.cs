@@ -9,6 +9,7 @@ using DAL.Contracts.IRepositories;
 using DAL.Repositories;
 using DAL.Repositories.Generic;
 using Domain.Entities;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -16,6 +17,8 @@ using Serilog;
 using Serilog.Sinks.MSSqlServer;
 using System.Net.Http.Headers;
 using UI.Services;
+using UI.Services.Contracts;
+using UI.Services.Token;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -117,7 +120,11 @@ public static class ServiceExtensions
 
         // Add service to can call api endpoint
         services.AddScoped<GenericApiClient>();
-        services.AddScoped<AuthenticationService>();
+        services.AddScoped<MvcAuthService>();
+
+        services.AddScoped<ITokenProvider, SessionTokenProvider>();
+        services.AddScoped<ITokenRefreshService, TokenRefreshService>();
+        services.AddScoped<IRefreshTokenProvider, CookieRefreshTokenProvider>();
 
 
         return services;
@@ -125,6 +132,8 @@ public static class ServiceExtensions
 
     public static IServiceCollection AddValidators(this IServiceCollection services)
     {
+        services.AddFluentValidationAutoValidation();
+
         return services;
     }
 

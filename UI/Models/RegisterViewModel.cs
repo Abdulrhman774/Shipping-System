@@ -1,42 +1,50 @@
 using System.ComponentModel.DataAnnotations;
 using Domain.Entities;
 
-namespace UI.Models
+namespace UI.Models;
+
+public class RegisterViewModel
 {
-    public class RegisterViewModel
-    {
-        [Required]
-        [Display(Name = "Full Name")]
-        public string FullName { get; set; } = null!;
+    [Required]
+    [StringLength(100)]
+    [Display(Name = "Full Name")]
+    public string FullName { get; set; } = string.Empty;
 
-        [Required]
-        [EmailAddress]
-        public string Email { get; set; } = null!;
+    [Required]
+    [EmailAddress]
+    public string Email { get; set; } = string.Empty;
 
-        [Required]
-        [Display(Name = "Username")]
-        public string UserName { get; set; } = null!;
+    [Required]
+    [StringLength(50)]
+    [Display(Name = "Username")]
+    public string UserName { get; set; } = string.Empty;
 
-        [Required]
-        [Display(Name = "Phone Number")]
-        public string PhoneNumber { get; set; } = null!;
+    [Required]
+    [Phone]
+    [Display(Name = "Phone Number")]
+    public string PhoneNumber { get; set; } = string.Empty;
 
-        [Required]
-        [DataType(DataType.Password)]
-        [MinLength(6, ErrorMessage = "Password must be at least 6 characters.")]
-        public string Password { get; set; } = null!;
+    [Url]
+    [Display(Name = "Profile Image URL")]
+    public string? ImageUrl { get; set; }
 
-        [Required]
-        [DataType(DataType.Password)]
-        [Compare("Password", ErrorMessage = "Passwords do not match.")]
-        [Display(Name = "Confirm Password")]
-        public string ConfirmPassword { get; set; } = null!;
+    [Required]
+    [DataType(DataType.Password)]
+    [MinLength(6, ErrorMessage = "Password must be at least 6 characters.")]
+    public string Password { get; set; } = string.Empty;
 
-        [Required]
-        [Display(Name = "Date of Birth")]
-        public DateOnly DateOfBirth { get; set; }
+    [Required]
+    [DataType(DataType.Password)]
+    [Compare(nameof(Password), ErrorMessage = "Passwords do not match.")]
+    [Display(Name = "Confirm Password")]
+    public string ConfirmPassword { get; set; } = string.Empty;
 
-        [Required]
-        public enGender Gender { get; set; }
-    }
+    [Required]
+    [DataType(DataType.Date)]
+    [Display(Name = "Date of Birth")]
+    public DateOnly DateOfBirth { get; set; }
+
+    [Required]
+    [Display(Name = "Gender")]
+    public enGender Gender { get; set; }
 }
