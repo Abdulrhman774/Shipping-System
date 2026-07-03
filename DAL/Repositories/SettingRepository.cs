@@ -1,5 +1,6 @@
 ﻿using DAL.Context;
 using DAL.Contracts.IRepositories;
+using DAL.Repositories.Generic;
 using Domain.Entities;
 using Microsoft.Extensions.Logging;
 using System;
@@ -8,9 +9,9 @@ using System.Text;
 
 namespace DAL.Repositories;
 
-public class SettingRepository :  ISettingRepository
+public class SettingRepository : GenericRepository<TbSetting>, ISettingRepository
 {
-    public SettingRepository(ShippingDbContext context, ILogger<SettingRepository> logger)
+    public SettingRepository(ShippingDbContext context, ILogger<SettingRepository> logger) : base(context, logger)
     {
     }
 }

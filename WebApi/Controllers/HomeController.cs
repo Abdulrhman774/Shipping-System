@@ -1,63 +1,75 @@
 ﻿using BL.Contract.IServices;
 using BL.DTOs.PaymentMethod;
-using BL.DTOs.ShippingType;
+using Domain.Shared;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
+using WebApi.Extensions;
 
 namespace WebApi.Controllers;
 
-[Route("Api/[controller]")]
 [ApiController]
+[Route("Api/[controller]")]
 public class PaymentMethodController : ControllerBase
 {
     private readonly IPaymentMethodService _service;
-    private readonly ILogger<PaymentMethodController> _logger;
 
-    public PaymentMethodController(IPaymentMethodService service, ILogger<PaymentMethodController> logger)
+
+public PaymentMethodController(IPaymentMethodService service)
     {
         _service = service;
-        _logger = logger;
     }
 
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        var data = await _service.GetAllAsync();
-        return Ok(data);
+        var result = await _service.GetAllAsync();
+
+        return result.ToActionResult(this);
     }
 
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetById(Guid id)
     {
-        var data = await _service.GetByIdAsync(id);
-        return Ok(data);
+        var result = await _service.GetByIdAsync(id);
+
+        return result.ToActionResult(this);
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(CreatePaymentMethodDto dto)
+    public async Task<IActionResult> Create([FromBody] CreatePaymentMethodDto dto)
     {
         var result = await _service.AddAsync(dto);
-        return result ? Ok("Created Successfully") : BadRequest("Creation Failed");
+
+        return result.ToActionResult(this);
     }
 
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> Update(Guid id, UpdatePaymentMethodDto dto)
+    public async Task<IActionResult> Update(
+        Guid id,
+        [FromBody] UpdatePaymentMethodDto dto)
     {
         var result = await _service.UpdateAsync(id, dto);
-        return result ? Ok("Updated Successfully") : BadRequest("Update Failed");
+
+        return result.ToActionResult(this);
     }
 
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id)
     {
         var result = await _service.DeleteAsync(id);
-        return result ? Ok("Deleted Successfully") : BadRequest("Delete Failed");
+
+        return result.ToActionResult(this);
     }
 
+
     [HttpPatch("{id:guid}/status/{status:int}")]
-    public async Task<IActionResult> ChangeStatus(Guid id, enEntityState status)
+    public async Task<IActionResult> ChangeStatus(
+        Guid id,
+        enEntityState status)
     {
         var result = await _service.ChangeStatusAsync(id, status);
-        return result ? Ok("Status Changed Successfully") : BadRequest("Status Change Failed");
+
+        return result.ToActionResult(this);
     }
+
+
 }

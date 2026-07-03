@@ -1,11 +1,13 @@
 
+using BL.Common;
 using DAL.Context;
+using DAL.Exceptions;
 using DAL.Seeding;
 using Domain.Entities;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
-using Microsoft.AspNetCore.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
 var corsPolicy = builder.Configuration["Cors:PolicyName"]?? "ShippingAPICorsPolicy";
@@ -75,16 +77,42 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+// Custome middleware
 app.UseExceptionHandler(errorApp =>
 {
     errorApp.Run(async context =>
     {
-        var feature = context.Features.Get<IExceptionHandlerFeature>();
+        context.Response.ContentType = "application/json";
 
-        Console.WriteLine(feature?.Error);
+        var exception = context.Features.Get<IExceptionHandlerFeature>()?.Error;
 
+        ApiResponse response;
+
+        switch (exception)
+        {
+            case DataAccessException ex:
+
+                context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+
+                response = ApiResponse.InternalServerError(ex.Message);
+
+                break;
+
+            default:
+
+                context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+
+                response = ApiResponse.InternalServerError(
+                    "An unexpected error occurred.");
+
+                break;
+        }
+
+        await context.Response.WriteAsJsonAsync(response);
     });
 });
+
+
 #endregion
 
 app.Run();

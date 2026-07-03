@@ -1,15 +1,15 @@
-using Domain.Entities;
-using BL.DTOs.Setting;
 using BL.Contract.IServices;
-using DAL.Contracts;
+using BL.DTOs.Setting;
+using BL.DTOs.ShippingType;
 using BL.Mapping;
+using DAL.Contracts;
+using Domain.Entities;
 
 namespace BL.Services;
 
-public class SettingService : ISettingService
+public class SettingService
+    : BaseService<TbSetting, SettingDto, CreateSettingDto, UpdateSettingDto>, ISettingService
 {
-    public SettingService()
-    {
-
-    }
+    public SettingService(IGenericRepository<TbSetting> repository, IMapper mapper, IUserService userService)
+        : base(repository, mapper, userService) { }
 }

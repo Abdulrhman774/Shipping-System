@@ -26,7 +26,7 @@ public abstract class BaseEntityConfiguration<TEntity> : IEntityTypeConfiguratio
 
         builder.Property(e => e.CurrentState)
                .HasConversion<byte>();
-
+        
         builder.Property(e => e.CreatedBy);
 
         builder.Property(e => e.UpdatedBy);

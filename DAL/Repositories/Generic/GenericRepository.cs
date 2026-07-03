@@ -115,9 +115,7 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
     {
         try
         {
-            var existingEntity = await _dbSet
-                .Where(e => e.Id == id)
-                .FirstOrDefaultAsync();
+            var existingEntity = await _dbSet.FirstOrDefaultAsync(e => e.Id == id);
 
             if (existingEntity is null) return false;
 
@@ -139,7 +137,8 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
     {
         try
         {
-            var existingEntity = await _dbSet.Where(e => e.Id == id).FirstOrDefaultAsync();
+            var existingEntity = await _dbSet.IgnoreQueryFilters().FirstOrDefaultAsync(e => e.Id == id);
+
 
             if (existingEntity is null) return false;
 

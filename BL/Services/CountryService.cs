@@ -10,5 +10,7 @@ public class CountryService
     : BaseService<TbCountry, CountryDto, CreateCountryDto, UpdateCountryDto>, ICountryService
 {
     public CountryService(IGenericRepository<TbCountry> repository, IMapper mapper, IUserService userService)
-        : base(repository, mapper, userService) { }
+        : base(repository, mapper, userService)
+    {
+    }
 }

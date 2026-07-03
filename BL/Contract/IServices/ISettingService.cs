@@ -1,8 +1,6 @@
-using Domain.Entities;
 using BL.DTOs.Setting;
+using Domain.Entities;
 
 namespace BL.Contract.IServices;
 
-public interface ISettingService
-{ }
-
+public interface ISettingService : IBaseService<TbSetting, SettingDto, CreateSettingDto, UpdateSettingDto> { }

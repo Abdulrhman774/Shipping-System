@@ -6,6 +6,6 @@ using System.Text;
 
 namespace DAL.Contracts.IRepositories;
 
-public interface ISettingRepository
+public interface ISettingRepository : IGenericRepository<TbSetting>
 { 
 }
