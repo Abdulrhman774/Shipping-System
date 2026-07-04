@@ -1,7 +1,7 @@
 using Domain.Entities;
-using BL.DTOs.ShippmentStatus;
+using BL.DTOs.ShipmentStatus;
 
 namespace BL.Contract.IServices;
 
-public interface IShippmentStatusService 
-    : IBaseService<TbShippmentStatus, ShippmentStatusDto, CreateShippmentStatusDto, UpdateShippmentStatusDto> { }
+public interface IShipmentStatusService 
+    : IBaseService<TbShipmentStatus, ShipmentStatusDto, CreateShipmentStatusDto, UpdateShipmentStatusDto> { }

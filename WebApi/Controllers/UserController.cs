@@ -11,6 +11,7 @@ namespace WebApi.Controllers;
 [Authorize]
 [ApiController]
 [Route("Api/User")]
+[ApiConventionType(typeof(ApiConventions))]
 public class UserController : ControllerBase
 {
     private readonly IUserService _userService;

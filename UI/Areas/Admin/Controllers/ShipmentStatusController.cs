@@ -26,24 +26,24 @@ namespace UI.Areas.Admin.Controllers
         public IActionResult Index()
         {
             // Hardcoded list of shipment statuses for display
-            var statuses = new List<TbShippmentStatus>
+            var statuses = new List<TbShipmentStatus>
             {
-                new TbShippmentStatus
+                new TbShipmentStatus
                 {
                     Id = Guid.Parse("11111111-2222-3333-4444-555555555555"),
-                    ShippmentId = Guid.Parse("aaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"),
-                    Shippment = new TbShippment { TrackingNumber = 10001001 },
+                    ShipmentId = Guid.Parse("aaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"),
+                    Shippment = new TbShipment { TrackingNumber = "10001001" },
                     CarrierId = Guid.Parse("22222222-3333-4444-5555-666666666666"),
                     Carrier = new TbCarrier { CarrierName = "DHL Express" },
                     Notes = "Shipment picked up and processed at the origin hub.",
                     CreatedDate = new DateTime(2026, 6, 5, 10, 30, 0),
                     CurrentState = enEntityState.Active
                 },
-                new TbShippmentStatus
+                new TbShipmentStatus
                 {
                     Id = Guid.Parse("22222222-3333-4444-5555-666666666666"),
-                    ShippmentId = Guid.Parse("fffffff-eeee-dddd-cccc-bbbbbbbbbbbb"),
-                    Shippment = new TbShippment { TrackingNumber = 10001002 },
+                    ShipmentId = Guid.Parse("fffffff-eeee-dddd-cccc-bbbbbbbbbbbb"),
+                    Shippment = new TbShipment { TrackingNumber = "10001002" },
                     CarrierId = Guid.Parse("33333333-4444-5555-6666-777777777777"),
                     Carrier = new TbCarrier { CarrierName = "FedEx" },
                     Notes = "In transit to the destination country facility.",
@@ -82,10 +82,10 @@ namespace UI.Areas.Admin.Controllers
 
         private void LoadDropdowns()
         {
-            var shipments = new List<TbShippment>
+            var shipments = new List<TbShipment>
             {
-                new TbShippment { Id = Guid.Parse("aaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"), TrackingNumber = 10001001 },
-                new TbShippment { Id = Guid.Parse("fffffff-eeee-dddd-cccc-bbbbbbbbbbbb"), TrackingNumber = 10001002 }
+                new TbShipment { Id = Guid.Parse("aaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"), TrackingNumber = "10001001" },
+                new TbShipment { Id = Guid.Parse("fffffff-eeee-dddd-cccc-bbbbbbbbbbbb"), TrackingNumber = "10001002" }
             };
             // Displaying tracking number as text
             ViewBag.Shipments = new SelectList(shipments, "Id", "TrackingNumber");

@@ -1,6 +1,6 @@
-namespace BL.DTOs.Shippment
+namespace BL.DTOs.Shipment
 {
-    public class UpdateShippmentDto
+    public class UpdateShipmentDto
     {
         public DateTime ShippingDate { get; set; }
         public Guid SenderId { get; set; }

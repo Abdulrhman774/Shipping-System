@@ -9,7 +9,7 @@ using System.Text;
 
 namespace DAL.Repositories;
 
-public class ShippmentRepository : GenericRepository<TbShippment>, IShippmentRepository
+public class ShippmentRepository : GenericRepository<TbShipment>, IShippmentRepository
 {
     public ShippmentRepository(ShippingDbContext context, ILogger<ShippmentRepository> logger) : base(context, logger)
     {

@@ -8,6 +8,7 @@ using WebApi.Services;
 
 namespace WebApi.Controllers;
 
+[ApiConventionType(typeof(ApiConventions))]
 [ApiController]
 [Route("Api/Auth")]
 public class AuthController : ControllerBase

@@ -31,7 +31,7 @@ namespace UI.Areas.Admin.Controllers
                 {
                     Id = Guid.Parse("11111111-7777-7777-7777-111111111111"),
                     PackageName = "الباقة الأساسية (Basic)",
-                    ShippimentCount = 100,
+                    ShipmentCount = 100,
                     NumberOfKiloMeters = 500.0,
                     TotalWeight = 1000.0,
                     CurrentState = enEntityState.Active,
@@ -41,7 +41,7 @@ namespace UI.Areas.Admin.Controllers
                 {
                     Id = Guid.Parse("22222222-8888-8888-8888-222222222222"),
                     PackageName = "الباقة المتقدمة (Premium)",
-                    ShippimentCount = 500,
+                    ShipmentCount = 500,
                     NumberOfKiloMeters = 3000.0,
                     TotalWeight = 5000.0,
                     CurrentState = enEntityState.Active,
@@ -51,7 +51,7 @@ namespace UI.Areas.Admin.Controllers
                 {
                     Id = Guid.Parse("33333333-9999-9999-9999-333333333333"),
                     PackageName = "الباقة غير المحدودة (Enterprise)",
-                    ShippimentCount = 2000,
+                    ShipmentCount = 2000,
                     NumberOfKiloMeters = 15000.0,
                     TotalWeight = 25000.0,
                     CurrentState = enEntityState.Inactive,

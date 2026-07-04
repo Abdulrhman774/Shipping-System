@@ -17,8 +17,7 @@ namespace DAL.Configurations.Entities
             builder.HasOne(d => d.Package)
                    .WithMany(p => p.TbUserSubscriptions)
                    .HasForeignKey(d => d.PackageId)
-                   .OnDelete(DeleteBehavior.ClientSetNull)
-                   .HasConstraintName("FK_TbUserSubscriptions_TbSubscriptionPackages");
+                   .OnDelete(DeleteBehavior.ClientSetNull);
         }
     }
 }

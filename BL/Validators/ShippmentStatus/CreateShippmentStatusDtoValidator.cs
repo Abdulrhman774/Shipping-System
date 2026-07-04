@@ -1,11 +1,11 @@
 using FluentValidation;
-using BL.DTOs.ShippmentStatus;
+using BL.DTOs.ShipmentStatus;
 
-namespace BL.Validators.ShippmentStatus;
+namespace BL.Validators.ShipmentStatus;
 
-public class CreateShippmentStatusDtoValidator : AbstractValidator<CreateShippmentStatusDto>
+public class CreateShipmentStatusDtoValidator : AbstractValidator<CreateShipmentStatusDto>
 {
-    public CreateShippmentStatusDtoValidator()
+    public CreateShipmentStatusDtoValidator()
     {
         RuleFor(x => x.CarrierId).NotEmpty().WithMessage("Carrier is required.");
     }

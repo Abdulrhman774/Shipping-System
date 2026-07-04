@@ -110,8 +110,8 @@ public static class ServiceExtensions
         services.AddScoped<IPaymentMethodService, PaymentMethodService>();
         services.AddScoped<ISettingService, SettingService>();
         services.AddScoped<IShippingTypeService, ShippingTypeService>();
-        services.AddScoped<IShippmentService, ShippmentService>();
-        services.AddScoped<IShippmentStatusService, ShippmentStatusService>();
+        services.AddScoped<IShipmentService, ShipmentService>();
+        services.AddScoped<IShipmentStatusService, ShipmentStatusService>();
         services.AddScoped<ISubscriptionPackageService, SubscriptionPackageService>();
         services.AddScoped<IUserReceiverService, UserReceiverService>();
         services.AddScoped<IUserSenderService, UserSenderService>();

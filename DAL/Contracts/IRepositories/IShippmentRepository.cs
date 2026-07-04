@@ -5,6 +5,6 @@ using System.Text;
 
 namespace DAL.Contracts.IRepositories;
 
-public interface IShippmentRepository : IGenericRepository<TbShippment>
+public interface IShippmentRepository : IGenericRepository<TbShipment>
 {
 }

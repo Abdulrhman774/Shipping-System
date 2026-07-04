@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
 using Domain.Entities;
-using BL.DTOs.Shippment;
+using BL.DTOs.Shipment;
 using BL.Contract.IServices;
 
 namespace UI.Areas.Admin.Controllers
@@ -26,12 +26,12 @@ namespace UI.Areas.Admin.Controllers
         public IActionResult Index()
         {
             // Hardcoded list of shipments for display
-            var shipments = new List<TbShippment>
+            var shipments = new List<TbShipment>
             {
-                new TbShippment
+                new TbShipment
                 {
                     Id = Guid.Parse("11111111-2222-3333-4444-555555555555"),
-                    TrackingNumber = 10001001,
+                    TrackingNumber = "10001001",
                     ShippingDate = new DateTime(2026, 6, 1, 10, 0, 0),
                     Sender = new TbUserSender { SenderName = "أحمد محمد" },
                     Receiver = new TbUserReceiver { ReceiverName = "سارة أحمد" },
@@ -39,10 +39,10 @@ namespace UI.Areas.Admin.Controllers
                     ShippingRate = 150.00m,
                     CurrentState = enEntityState.Active
                 },
-                new TbShippment
+                new TbShipment
                 {
                     Id = Guid.Parse("22222222-3333-4444-5555-666666666666"),
-                    TrackingNumber = 10001002,
+                    TrackingNumber = "10001002",
                     ShippingDate = new DateTime(2026, 6, 3, 14, 30, 0),
                     Sender = new TbUserSender { SenderName = "خالد عبدالله" },
                     Receiver = new TbUserReceiver { ReceiverName = "علي حسن" },
@@ -50,10 +50,10 @@ namespace UI.Areas.Admin.Controllers
                     ShippingRate = 50.00m,
                     CurrentState = enEntityState.Active
                 },
-                new TbShippment
+                new TbShipment
                 {
                     Id = Guid.Parse("33333333-4444-5555-6666-777777777777"),
-                    TrackingNumber = 10001003,
+                    TrackingNumber = "10001003",
                     ShippingDate = new DateTime(2026, 6, 5, 9, 15, 0),
                     Sender = new TbUserSender { SenderName = "جون دو" },
                     Receiver = new TbUserReceiver { ReceiverName = "فاطمة عمر" },
@@ -70,10 +70,10 @@ namespace UI.Areas.Admin.Controllers
         public IActionResult Details(Guid id)
         {
             // Hardcoded shipment details for display
-            var shipment = new TbShippment
+            var shipment = new TbShipment
             {
                 Id = id,
-                TrackingNumber = 10001001,
+                TrackingNumber = "10001001",
                 ShippingDate = new DateTime(2026, 6, 1, 10, 0, 0),
                 Sender = new TbUserSender { SenderName = "أحمد محمد", Phone = "+201001234567" },
                 Receiver = new TbUserReceiver { ReceiverName = "سارة أحمد", Phone = "+201009876543", Address = "شارع التحرير، الدقي، القاهرة" },
@@ -104,13 +104,13 @@ namespace UI.Areas.Admin.Controllers
         public IActionResult Create()
         {
             LoadDropdowns();
-            return View(new CreateShippmentDto { ShippingDate = DateTime.UtcNow });
+            return View(new CreateShipmentDto { ShippingDate = DateTime.UtcNow });
         }
 
         // POST: Admin/Shipment/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(CreateShippmentDto dto)
+        public IActionResult Create(CreateShipmentDto dto)
         {
             // Redirect to Index (no actual business logic)
             return RedirectToAction(nameof(Index));

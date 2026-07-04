@@ -10,7 +10,6 @@ namespace DAL.Configurations.Entities
         {
             base.Configure(builder);
 
-            builder.ToTable("TbSetting");
 
             builder.Property(e => e.KiloMeterRate).HasColumnType("float");
             builder.Property(e => e.KilooGramRate).HasColumnType("float");

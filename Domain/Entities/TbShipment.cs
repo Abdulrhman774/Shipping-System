@@ -1,18 +1,20 @@
 ﻿using Domain.Shared;
-using System;
-using System.Collections.Generic;
 
 namespace Domain.Entities;
 
-public partial class TbShippment : BaseEntity
+public partial class TbShipment : BaseEntity
 {
     public DateTime ShippingDate { get; set; }
+
+    public DateTime? DeliveryDate { get; set; }
 
     public Guid SenderId { get; set; }
 
     public Guid ReceiverId { get; set; }
 
     public Guid ShippingTypeId { get; set; }
+
+    public Guid? ShippingPackagingId { get; set; }
 
     public double Width { get; set; }
 
@@ -30,7 +32,7 @@ public partial class TbShippment : BaseEntity
 
     public Guid? UserSubscriptionId { get; set; }
 
-    public double? TrackingNumber { get; set; }
+    public string? TrackingNumber { get; set; }
 
     public Guid? ReferenceId { get; set; }
 
@@ -42,5 +44,7 @@ public partial class TbShippment : BaseEntity
 
     public virtual TbShippingType ShippingType { get; set; } = null!;
 
-    public virtual ICollection<TbShippmentStatus> TbShippmentStatuses { get; set; } = new List<TbShippmentStatus>();
+    public virtual TbShippingPackaging? ShippingPackaging { get; set; }
+
+    public virtual ICollection<TbShipmentStatus> TbShipmentStatuses { get; set; } = new List<TbShipmentStatus>();
 }

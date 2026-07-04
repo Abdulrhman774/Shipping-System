@@ -7,8 +7,8 @@ using BL.DTOs.Log;
 using BL.DTOs.PaymentMethod;
 using BL.DTOs.Setting;
 using BL.DTOs.ShippingType;
-using BL.DTOs.Shippment;
-using BL.DTOs.ShippmentStatus;
+using BL.DTOs.Shipment;
+using BL.DTOs.ShipmentStatus;
 using BL.DTOs.SubscriptionPackage;
 using BL.DTOs.UserReceiver;
 using BL.DTOs.UserSender;
@@ -59,15 +59,15 @@ namespace BL.Mapping
             CreateMap<CreateShippingTypeDto, TbShippingType>();
             CreateMap<UpdateShippingTypeDto, TbShippingType>();
 
-            // TbShippment
-            CreateMap<TbShippment, ShippmentDto>();
-            CreateMap<CreateShippmentDto, TbShippment>();
-            CreateMap<UpdateShippmentDto, TbShippment>();
+            // TbShipment
+            CreateMap<TbShipment, ShipmentDto>();
+            CreateMap<CreateShipmentDto, TbShipment>();
+            CreateMap<UpdateShipmentDto, TbShipment>();
 
-            // TbShippmentStatus
-            CreateMap<TbShippmentStatus, ShippmentStatusDto>();
-            CreateMap<CreateShippmentStatusDto, TbShippmentStatus>();
-            CreateMap<UpdateShippmentStatusDto, TbShippmentStatus>();
+            // TbShipmentStatus
+            CreateMap<TbShipmentStatus, ShipmentStatusDto>();
+            CreateMap<CreateShipmentStatusDto, TbShipmentStatus>();
+            CreateMap<UpdateShipmentStatusDto, TbShipmentStatus>();
 
             // TbSubscriptionPackage
             CreateMap<TbSubscriptionPackage, SubscriptionPackageDto>();

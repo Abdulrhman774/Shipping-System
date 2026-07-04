@@ -1,10 +1,6 @@
-﻿using Domain.Entities;
-using Domain.Shared;
+﻿using Domain.Shared;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace DAL.Configurations.Entities;
 
@@ -12,6 +8,8 @@ public abstract class BaseEntityConfiguration<TEntity> : IEntityTypeConfiguratio
 {
     public virtual void Configure(EntityTypeBuilder<TEntity> builder)
     {
+        builder.ToTable(typeof(TEntity).Name);
+
         builder.HasKey(e => e.Id);
 
         builder.Property(e => e.Id)

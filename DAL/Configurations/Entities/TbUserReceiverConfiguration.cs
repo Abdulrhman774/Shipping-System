@@ -13,6 +13,10 @@ namespace DAL.Configurations.Entities
             builder.Property(e => e.ReceiverName).HasMaxLength(200).IsRequired();
             builder.Property(e => e.Email).HasMaxLength(200).IsRequired();
             builder.Property(e => e.Phone).HasMaxLength(200).IsRequired();
+            builder.Property(e => e.PostalCode).HasMaxLength(200).IsRequired();
+            builder.Property(e => e.Contact).HasMaxLength(200).IsRequired();
+            builder.Property(e => e.OtherAddress).HasMaxLength(500);
+            builder.Property(e => e.IsDefaultAddress).IsRequired();
             builder.Property(e => e.Address).HasMaxLength(500).IsRequired();
             builder.Property(e => e.UserId).IsRequired();
             builder.Property(e => e.CityId).IsRequired();
@@ -20,8 +24,8 @@ namespace DAL.Configurations.Entities
             builder.HasOne(d => d.City)
                    .WithMany(p => p.TbUserReceivers)
                    .HasForeignKey(d => d.CityId)
-                   .OnDelete(DeleteBehavior.ClientSetNull)
-                   .HasConstraintName("FK_TbUserReceivers_TbCities");
+                   .OnDelete(DeleteBehavior.ClientSetNull);
+
         }
     }
 }

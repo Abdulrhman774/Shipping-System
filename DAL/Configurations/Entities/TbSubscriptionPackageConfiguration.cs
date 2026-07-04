@@ -11,7 +11,7 @@ namespace DAL.Configurations.Entities
             base.Configure(builder);
 
             builder.Property(e => e.PackageName).HasMaxLength(200).IsRequired();
-            builder.Property(e => e.ShippimentCount).HasColumnType("int").IsRequired();
+            builder.Property(e => e.ShipmentCount).HasColumnType("int").IsRequired();
             builder.Property(e => e.NumberOfKiloMeters).HasColumnType("float").IsRequired();
             builder.Property(e => e.TotalWeight).HasColumnType("float").IsRequired();
 

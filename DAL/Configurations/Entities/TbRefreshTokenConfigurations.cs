@@ -16,8 +16,6 @@ namespace DAL.Configurations.Entities
         {
             base.Configure(builder);
 
-            builder.ToTable("TbRefreshToken");
-
             builder.Property(x => x.Token)
                    .HasMaxLength(500)
                    .IsRequired();

@@ -1,23 +1,25 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using WebApi.Extensions;
 
 namespace WebApi.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
+[ApiConventionType(typeof(ApiConventions))]
 public class TestController : ControllerBase
 {
     [AllowAnonymous]
-    [HttpGet("public")]
-    public IActionResult Public()
+    [HttpGet("testPublic")]
+    public IActionResult testPublic()
     {
         return Ok("✅ Public endpoint — no token needed.");
     }
 
     [Authorize]
-    [HttpGet("protected")]
-    public IActionResult Protected()
+    [HttpGet("testProtected")]
+    public IActionResult testProtected()
     {
         return Ok("✅ JWT is valid — you are authenticated.");
     }

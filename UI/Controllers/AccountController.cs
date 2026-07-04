@@ -1,4 +1,4 @@
-using BL.Contract.IServices;
+﻿using BL.Contract.IServices;
 using BL.DTOs.Auth;
 using BL.DTOs.Auth.Requests;
 using Microsoft.AspNetCore.Authentication;
@@ -54,7 +54,7 @@ namespace UI.Controllers
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel model, string? returnUrl = null)
-            {
+        {
             if (!ModelState.IsValid) return View(model);
 
 
@@ -88,13 +88,20 @@ namespace UI.Controllers
                                 
                 _logger.LogInformation($"User {model.UsernameOrEmail} logged in successfully");
 
-                
-                // Redirect
-                if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
-                    return Redirect(returnUrl);
-                else
-                    return RedirectToAction("Index", "Dashboard", new { area = "Admin" });
 
+                // Redirect to the originally requested page
+                if (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl))
+                {
+                    return Redirect(returnUrl);
+                }
+               
+                // No returnUrl → redirect based on role
+                if (principal.IsInRole("Admin"))
+                {
+                    return RedirectToAction("Index", "Dashboard", new { area = "Admin" });
+                }
+
+                return RedirectToAction("Index", "Home");
             }
             catch (Exception ex)
             {
@@ -135,7 +142,7 @@ namespace UI.Controllers
                     Password = model.Password,
                     DateOfBirth = model.DateOfBirth,
                     Gender = model.Gender,
-                    ImageUrl = model.ImageUrl
+                    ImageUrl = model.ImageUrl!
                 };
 
                 var response = await _mvcAuthService.RegisterAsync(dto);

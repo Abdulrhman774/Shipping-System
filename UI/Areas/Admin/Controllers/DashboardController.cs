@@ -4,7 +4,8 @@ using Microsoft.AspNetCore.Authorization;
 namespace UI.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize]
+    [Authorize(Roles = "Admin")]
+
     public class DashboardController : BaseController
     {
         public IActionResult Index()

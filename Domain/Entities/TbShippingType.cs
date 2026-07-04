@@ -12,5 +12,5 @@ public partial class TbShippingType : BaseEntity
 
     public double ShippingFactor { get; set; }
 
-    public virtual ICollection<TbShippment> TbShippments { get; set; } = new List<TbShippment>();
+    public virtual ICollection<TbShipment> TbShipments { get; set; } = new List<TbShipment>();
 }

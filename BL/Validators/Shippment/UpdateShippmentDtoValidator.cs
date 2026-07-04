@@ -1,11 +1,11 @@
 using FluentValidation;
-using BL.DTOs.Shippment;
+using BL.DTOs.Shipment;
 
-namespace BL.Validators.Shippment;
+namespace BL.Validators.Shipment;
 
-public class UpdateShippmentDtoValidator : AbstractValidator<UpdateShippmentDto>
+public class UpdateShipmentDtoValidator : AbstractValidator<UpdateShipmentDto>
 {
-    public UpdateShippmentDtoValidator()
+    public UpdateShipmentDtoValidator()
     {
         RuleFor(x => x.ShippingDate).NotEmpty().WithMessage("Shipping date is required.");
         RuleFor(x => x.SenderId).NotEmpty().WithMessage("Sender is required.");

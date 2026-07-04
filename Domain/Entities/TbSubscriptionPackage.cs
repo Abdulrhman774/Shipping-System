@@ -8,7 +8,7 @@ public partial class TbSubscriptionPackage : BaseEntity
 {
     public string PackageName { get; set; } = null!;
 
-    public int ShippimentCount { get; set; }
+    public int ShipmentCount { get; set; }
 
     public double NumberOfKiloMeters { get; set; }
 

@@ -31,9 +31,9 @@ namespace DAL.Context
 
         public virtual DbSet<TbShippingType> TbShippingTypes { get; set; }
 
-        public virtual DbSet<TbShippment> TbShippments { get; set; }
+        public virtual DbSet<TbShipment> TbShippments { get; set; }
 
-        public virtual DbSet<TbShippmentStatus> TbShippmentStatuses { get; set; }
+        public virtual DbSet<TbShipmentStatus> TbShippmentStatuses { get; set; }
 
         public virtual DbSet<TbSubscriptionPackage> TbSubscriptionPackages { get; set; }
 
@@ -42,6 +42,8 @@ namespace DAL.Context
         public virtual DbSet<TbUserSender> TbUserSenders { get; set; }
 
         public virtual DbSet<TbUserSubscription> TbUserSubscriptions { get; set; }
+
+        public virtual DbSet<TbShippingPackaging> TbShippingPackagings { get; set; }
         #endregion
 
 

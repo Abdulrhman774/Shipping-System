@@ -1,6 +1,8 @@
-namespace BL.DTOs.Shippment
+using BL.DTOs.Base;
+
+namespace BL.DTOs.Shipment
 {
-    public class CreateShippmentDto
+    public class ShipmentDto : BaseDto
     {
         public DateTime ShippingDate { get; set; }
         public Guid SenderId { get; set; }

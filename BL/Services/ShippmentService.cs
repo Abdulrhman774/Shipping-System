@@ -1,14 +1,14 @@
 using Domain.Entities;
-using BL.DTOs.Shippment;
+using BL.DTOs.Shipment;
 using BL.Contract.IServices;
 using DAL.Contracts;
 using BL.Mapping;
 
 namespace BL.Services;
 
-public class ShippmentService 
-    : BaseService<TbShippment, ShippmentDto, CreateShippmentDto, UpdateShippmentDto>, IShippmentService
+public class ShipmentService 
+    : BaseService<TbShipment, ShipmentDto, CreateShipmentDto, UpdateShipmentDto>, IShipmentService
 {
-    public ShippmentService(IGenericRepository<TbShippment> repository, IMapper mapper, IUserService userService)
+    public ShipmentService(IGenericRepository<TbShipment> repository, IMapper mapper, IUserService userService)
         : base(repository, mapper, userService) { }
 }

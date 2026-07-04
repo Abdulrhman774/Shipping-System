@@ -12,21 +12,18 @@ namespace DAL.Configurations.Entities
 
             builder.Property(e => e.CityAname)
                 .HasMaxLength(10)
-                .IsFixedLength()
                 .HasColumnName("CityAName");
 
 
             builder.Property(e => e.CityEname)
                 .HasMaxLength(10)
-                .IsFixedLength()
                 .HasColumnName("CityEName");
 
             builder.Property(e => e.CountryId).IsRequired();
 
             builder.HasOne(d => d.Country).WithMany(p => p.TbCities)
                 .HasForeignKey(d => d.CountryId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_TbCities_TbCountries");
+                .OnDelete(DeleteBehavior.ClientSetNull);
         }
     }
 }
