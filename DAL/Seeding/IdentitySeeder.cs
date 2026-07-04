@@ -39,7 +39,10 @@ namespace DAL.Seeding
                     EmailConfirmed = true,
 
                     // ✔ Custom fields
-                    FullName = "System Administrator",
+                    FirstName = "System",
+                    SecondName = "Control",
+                    ThirdName = "Main",
+                    LastName = "Administrator",
                     DateOfBirth = new DateOnly(1990, 1, 1),
                     Gender = enGender.Male,
                     ImageUrl = "https://default-image.com/admin.png",

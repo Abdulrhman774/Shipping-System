@@ -68,7 +68,10 @@ public class UserService : IUserService
                 "User.NotFound",
                 "User was not found.");
 
-        user.FullName = dto.FullName;
+        user.FirstName = dto.FirstName;
+        user.SecondName = dto.SecondName;
+        user.ThirdName = dto.ThirdName;
+        user.LastName = dto.LastName;
         user.PhoneNumber = dto.PhoneNumber;
         user.ImageUrl = dto.ImageUrl ?? user.ImageUrl;
         user.DateOfBirth = dto.DateOfBirth;
@@ -108,7 +111,10 @@ public class UserService : IUserService
     private static UserDto _MapToDto(ApplicationUser u) => new()
     {
         Id = Guid.Parse(u.Id),
-        FullName = u.FullName,
+        FirstName = u.FirstName,
+        SecondName = u.SecondName,
+        ThirdName = u.ThirdName,
+        LastName = u.LastName,
         Email = u.Email!,
         PhoneNumber = u.PhoneNumber,
         ImageUrl = u.ImageUrl,

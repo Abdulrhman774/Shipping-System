@@ -11,9 +11,20 @@ public class ApplicationUserConfigurations : IEntityTypeConfiguration<Applicatio
     {
         builder.ToTable("AspNetUsers");
 
-        builder.Property(u => u.FullName)
+        builder.Property(u => u.FirstName)
                .IsRequired()
-               .HasMaxLength(150);
+               .HasMaxLength(100);
+
+        builder.Property(u => u.SecondName)
+               .IsRequired()
+               .HasMaxLength(100);
+
+        builder.Property(u => u.ThirdName)
+               .HasMaxLength(100);
+
+        builder.Property(u => u.LastName)
+               .IsRequired()
+               .HasMaxLength(100);
 
         builder.Property(u => u.DateOfBirth)
                .IsRequired()

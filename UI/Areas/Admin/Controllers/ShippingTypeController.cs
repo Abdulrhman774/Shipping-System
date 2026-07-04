@@ -55,7 +55,7 @@ namespace UI.Areas.Admin.Controllers
 
             var result = await _service.AddAsync(dto);
 
-            if (!result)
+            if (!result.IsSuccess)
             {
                 ModelState.AddModelError("", "Failed to create shipping type");
                 return View(dto);
@@ -78,9 +78,9 @@ namespace UI.Areas.Admin.Controllers
 
             var dto = new UpdateShippingTypeDto
             {
-                ShippingTypeAname = shippingType.ShippingTypeAname,
-                ShippingTypeEname = shippingType.ShippingTypeEname,
-                ShippingFactor = shippingType.ShippingFactor
+                ShippingTypeAname = shippingType.Value.ShippingTypeAname,
+                ShippingTypeEname = shippingType.Value.ShippingTypeEname,
+                ShippingFactor = shippingType.Value.ShippingFactor
             };
 
             return View(dto);
@@ -103,7 +103,7 @@ namespace UI.Areas.Admin.Controllers
             {
                 var result = await _service.UpdateAsync(id, dto);
 
-                if (!result)
+                if (!result.IsSuccess)
                 {
                     TempData["MessageType"] = enMessageType.SavedFailed;
                     return View("Edit", dto);

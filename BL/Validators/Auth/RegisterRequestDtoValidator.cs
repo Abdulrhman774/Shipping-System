@@ -8,9 +8,19 @@ public class RegisterRequestDtoValidator : AbstractValidator<RegisterRequestDto>
 {
     public RegisterRequestDtoValidator()
     {
-        RuleFor(x => x.FullName)
-            .NotEmpty().WithMessage("Full name is required.")
-            .MaximumLength(150).WithMessage("Full name must not exceed 150 characters.");
+        RuleFor(x => x.FirstName)
+            .NotEmpty().WithMessage("First name is required.")
+            .MaximumLength(150).WithMessage("First name must not exceed 150 characters.");
+
+        RuleFor(x => x.SecondName)
+            .MaximumLength(150).WithMessage("Second name must not exceed 150 characters.");
+
+        RuleFor(x => x.ThirdName)
+            .MaximumLength(150).WithMessage("Third name must not exceed 150 characters.");
+
+        RuleFor(x => x.LastName)
+            .NotEmpty().WithMessage("Last name is required.")
+            .MaximumLength(150).WithMessage("Last name must not exceed 150 characters.");
 
         RuleFor(x => x.Email)
             .NotEmpty().WithMessage("Email is required.")

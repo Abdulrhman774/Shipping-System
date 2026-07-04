@@ -54,7 +54,7 @@ namespace UI.Controllers
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel model, string? returnUrl = null)
-        {
+            {
             if (!ModelState.IsValid) return View(model);
 
 
@@ -125,7 +125,10 @@ namespace UI.Controllers
             try
             {
                 var dto = new RegisterRequestDto{
-                    FullName = model.FullName,
+                    FirstName = model.FirstName,
+                    SecondName = model.SecondName,
+                    ThirdName = model.ThirdName,
+                    LastName = model.LastName,
                     Email = model.Email,
                     UserName = model.UserName,
                     PhoneNumber = model.PhoneNumber,

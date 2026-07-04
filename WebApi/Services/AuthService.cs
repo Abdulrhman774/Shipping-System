@@ -35,7 +35,10 @@ public class AuthService : IAuthService
     {
         var user = new ApplicationUser
         {
-            FullName = dto.FullName,
+            FirstName = dto.FirstName,
+            SecondName = dto.SecondName,
+            ThirdName = dto.ThirdName,
+            LastName = dto.LastName,
             Email = dto.Email,
             UserName = dto.UserName,
             PhoneNumber = dto.PhoneNumber,

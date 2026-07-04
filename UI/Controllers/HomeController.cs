@@ -6,7 +6,7 @@ using UI.Models;
 
 namespace UI.Controllers
 {
-    //[Authorize]
+    [Authorize]
     //[Area("Admin")]
     public class HomeController : Controller
     {
@@ -20,7 +20,7 @@ namespace UI.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var types = await _IGenericRepository.GetAllAsync();
+            //var types = await _IGenericRepository.GetAllAsync();
             return View();
         }
 
