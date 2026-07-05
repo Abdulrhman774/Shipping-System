@@ -1,4 +1,4 @@
-@model BL.DTOs.ShippmentStatus.CreateShippmentStatusDto
+@model BL.DTOs.ShipmentStatus.CreateShipmentStatusDto
 @{
     ViewData["Title"] = "Add Status Update";
 }
@@ -25,11 +25,11 @@
                         @Html.AntiForgeryToken()
 
                         <div class="form-group mb-3">
-                            <label asp-for="ShippmentId">Shipment (Tracking Number)</label>
-                            <select asp-for="ShippmentId" class="form-control form-select" asp-items="ViewBag.Shipments" required>
+                            <label asp-for="ShipmentId">Shipment (Tracking Number)</label>
+                            <select asp-for="ShipmentId" class="form-control form-select" asp-items="ViewBag.Shipments" required>
                                 <option value="">Select Shipment</option>
                             </select>
-                            <span asp-validation-for="ShippmentId" class="text-danger"></span>
+                            <span asp-validation-for="ShipmentId" class="text-danger"></span>
                         </div>
 
                         <div class="form-group mb-3">

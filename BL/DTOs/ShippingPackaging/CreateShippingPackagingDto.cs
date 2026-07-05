@@ -1,4 +1,4 @@
-namespace BL.DTOs.ShippingType
+namespace BL.DTOs.ShippingPackaging
 {
     public class CreateShippingPackagingDto
     {

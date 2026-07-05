@@ -20,6 +20,8 @@ using System.Text;
 using System.Threading.RateLimiting;
 using WebApi.Services;
 using FluentValidation.AspNetCore;
+using BL.Contract.IServices.Shipment;
+using BL.Services.Shipment;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -119,7 +121,11 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddScoped<ISubscriptionPackageService, SubscriptionPackageService>();
             services.AddScoped<IUserReceiverService, UserReceiverService>();
             services.AddScoped<IUserSenderService, UserSenderService>();
-            services.AddScoped<IUserSubscriptionService, UserSubscriptionService>();
+            services.AddScoped<IUserSubscriptionService, UserSubscriptionService>();            
+            services.AddScoped<IShippingPackagingService, ShippingPackagingService>();
+
+            services.AddScoped<IRateCalculator, RateCalculator>();
+            services.AddScoped<ITrackingNumberCalculator, TrackingNumberCalculator>();
             #endregion
 
             return services;

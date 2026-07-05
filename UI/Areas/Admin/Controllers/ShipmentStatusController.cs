@@ -1,11 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using System;
-using System.Collections.Generic;
 using Domain.Entities;
-using BL.DTOs.ShippmentStatus;
-using BL.Contract.IServices;
+using BL.DTOs.ShipmentStatus;
 
 namespace UI.Areas.Admin.Controllers
 {
@@ -59,13 +56,13 @@ namespace UI.Areas.Admin.Controllers
         public IActionResult Create()
         {
             LoadDropdowns();
-            return View(new CreateShippmentStatusDto());
+            return View(new CreateShipmentStatusDto());
         }
 
         // POST: Admin/ShipmentStatus/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(CreateShippmentStatusDto dto)
+        public IActionResult Create(CreateShipmentStatusDto dto)
         {
             // Redirect to Index (no actual business logic)
             return RedirectToAction(nameof(Index));

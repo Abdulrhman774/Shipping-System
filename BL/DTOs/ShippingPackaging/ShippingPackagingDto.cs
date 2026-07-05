@@ -1,10 +1,9 @@
 using BL.DTOs.Base;
 
-namespace BL.DTOs.ShippingType
+namespace BL.DTOs.ShippingPackaging;
+
+public class ShippingPackagingDto : BaseDto
 {
-    public class ShippingPackagingDto : BaseDto
-    {
-        public string? ShippingPackagingAname { get; set; }
-        public string? ShippingPackagingEname { get; set; }
-    }
+    public string? ShippingPackagingAname { get; set; }
+    public string? ShippingPackagingEname { get; set; }
 }

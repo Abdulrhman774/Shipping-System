@@ -11,12 +11,12 @@ namespace DAL.Configurations.Entities
             base.Configure(builder);
 
             builder.Property(e => e.CityAname)
-                .HasMaxLength(10)
+                .HasMaxLength(100)
                 .HasColumnName("CityAName");
 
 
             builder.Property(e => e.CityEname)
-                .HasMaxLength(10)
+                .HasMaxLength(100)
                 .HasColumnName("CityEName");
 
             builder.Property(e => e.CountryId).IsRequired();

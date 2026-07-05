@@ -191,13 +191,13 @@ namespace DAL.Migrations
                         .HasDefaultValueSql("(newid())");
 
                     b.Property<string>("CityAname")
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
                         .HasColumnName("CityAName");
 
                     b.Property<string>("CityEname")
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
                         .HasColumnName("CityEName");
 
                     b.Property<Guid>("CountryId")
@@ -235,13 +235,13 @@ namespace DAL.Migrations
                         .HasDefaultValueSql("(newid())");
 
                     b.Property<string>("CountryAname")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
                         .HasColumnName("CountryAName");
 
                     b.Property<string>("CountryEname")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
                         .HasColumnName("CountryEName");
 
                     b.Property<Guid>("CreatedBy")

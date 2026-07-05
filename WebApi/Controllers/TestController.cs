@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using BL.DTOs.Shipment;
+using BL.Services.Shipment;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Extensions;
@@ -37,4 +39,14 @@ public class TestController : ControllerBase
     {
         return Ok("✅ You have the User role.");
     }
+
+
+    [HttpGet("CreateShipment")]
+    [Authorize(Roles = "User")]
+    public IActionResult CreateShipment()
+    {
+        
+        return Ok();
+    }
+
 }

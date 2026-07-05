@@ -8,7 +8,7 @@ using BL.DTOs.PaymentMethod;
 using BL.DTOs.Setting;
 using BL.DTOs.ShippingType;
 using BL.DTOs.Shipment;
-using BL.DTOs.ShipmentStatus;
+using BL.DTOs.ShippingPackaging;
 using BL.DTOs.SubscriptionPackage;
 using BL.DTOs.UserReceiver;
 using BL.DTOs.UserSender;
@@ -16,6 +16,7 @@ using BL.DTOs.UserSubscription;
 using Domain.Entities.Views;
 using BL.DTOs.Views;
 using BL.DTOs.RefreshToken;
+using BL.DTOs.ShipmentStatus;
 
 namespace BL.Mapping
 {
@@ -88,6 +89,11 @@ namespace BL.Mapping
             CreateMap<TbUserSubscription, UserSubscriptionDto>();
             CreateMap<CreateUserSubscriptionDto, TbUserSubscription>();
             CreateMap<UpdateUserSubscriptionDto, TbUserSubscription>();
+
+            // TbShippingPackaging
+            CreateMap<TbShippingPackaging, ShippingPackagingDto>();
+            CreateMap<CreateShippingPackagingDto, TbShippingPackaging>();
+            CreateMap<UpdateShippingPackagingDto, TbShippingPackaging>();
 
             // TbRefreshToken
             CreateMap<TbRefreshToken, RefreshTokenDto>().ReverseMap();

@@ -1,7 +1,9 @@
 using BL.Contract.IServices;
+using BL.Contract.IServices.Shipment;
 using BL.Contract.IvwServices;
 using BL.Mapping;
 using BL.Services;
+using BL.Services.Shipment;
 using BL.Services.vwServices;
 using DAL.Context;
 using DAL.Contracts;
@@ -116,6 +118,10 @@ public static class ServiceExtensions
         services.AddScoped<IUserReceiverService, UserReceiverService>();
         services.AddScoped<IUserSenderService, UserSenderService>();
         services.AddScoped<IUserSubscriptionService, UserSubscriptionService>();
+        services.AddScoped<IShippingPackagingService, ShippingPackagingService>();
+
+        services.AddScoped<IRateCalculator, RateCalculator>();
+        services.AddScoped<ITrackingNumberCalculator, TrackingNumberCalculator>();
         #endregion
 
         // Add service to can call api endpoint

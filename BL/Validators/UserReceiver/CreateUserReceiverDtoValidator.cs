@@ -20,7 +20,18 @@ public class CreateUserReceiverDtoValidator : AbstractValidator<CreateUserReceiv
         RuleFor(x => x.Address).NotEmpty().WithMessage("Address is required.")
             .MaximumLength(500).WithMessage("Address must not exceed 500 characters.");
 
-        RuleFor(x => x.UserId).NotEmpty().WithMessage("User is required.");
+        RuleFor(x => x.PostalCode)
+            .NotEmpty().WithMessage("Postal code is required.")
+            .MaximumLength(200).WithMessage("Postal code must not exceed 200 characters.");
+
+        RuleFor(x => x.Contact)
+            .NotEmpty().WithMessage("Contact is required.")
+            .MaximumLength(200).WithMessage("Contact must not exceed 200 characters.");
+
+        RuleFor(x => x.OtherAddress)
+            .MaximumLength(500).WithMessage("Other address must not exceed 500 characters.");
+
+        //RuleFor(x => x.UserId).NotEmpty().WithMessage("User is required.");
         RuleFor(x => x.CityId).NotEmpty().WithMessage("City is required.");
     }
 }

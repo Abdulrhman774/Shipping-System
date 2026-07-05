@@ -98,4 +98,22 @@ public class BaseService<T, TDto, TCreateDto, TUpdateDto> : IBaseService<T, TDto
 
         return Result.Success();
     }
+
+    public async Task<Result<Guid>> CreateAsync(TCreateDto dto)
+    {
+        var entity = _mapper.Map<TCreateDto, T>(dto);
+
+        entity.CreatedBy = await _userService.GetLoggedInUserAsync();
+
+        var added = await _repository.AddAsync(entity);
+
+        if (!added)
+        {
+            return Error.Unexpected(
+                $"{typeof(T).Name}.CreateFailed",
+                $"Failed to create {typeof(T).Name}.");
+        }
+
+        return Result<Guid>.Success(entity.Id);
+    }
 }

@@ -202,4 +202,33 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
                 ex);
         }
     }
+
+
+    /// <summary>
+    /// Adds an entity and returns the ID of the created entity.
+    /// </summary>
+    /// <param name="entity"></param>
+    /// <returns></returns>
+    /// <exception cref="DataAccessException"></exception>
+    public async Task<Guid> CreateAsync(T entity)
+    {
+        try
+        {
+            entity.CurrentState = enEntityState.Active;
+            entity.CreatedDate = DateTime.UtcNow;
+
+            // Add the entity to the DbSet
+            _dbSet.Add(entity);
+
+            // Save changes to the database
+            await _context.SaveChangesAsync();
+
+            return entity?.Id ?? Guid.Empty;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error while adding entity of type {EntityType}", typeof(T).Name);
+            throw new DataAccessException($"Error while adding {typeof(T).Name}", ex);
+        }
+    }
 } 

@@ -1,4 +1,5 @@
 using Domain.Entities;
+using BL.DTOs.ShippingPackaging;
 using BL.DTOs.ShipmentStatus;
 
 namespace BL.Contract.IServices;

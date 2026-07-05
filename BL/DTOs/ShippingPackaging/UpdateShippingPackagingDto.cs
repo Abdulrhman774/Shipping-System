@@ -1,8 +1,7 @@
-namespace BL.DTOs.ShippingType
+namespace BL.DTOs.ShippingPackaging;
+
+public class UpdateShippingPackagingDto
 {
-    public class UpdateShippingPackagingDto
-    {
-        public string? ShippingPackagingAname { get; set; }
-        public string? ShippingPackagingEname { get; set; }
-    }
+    public string? ShippingPackagingAname { get; set; }
+    public string? ShippingPackagingEname { get; set; }
 }

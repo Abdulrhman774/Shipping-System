@@ -3,6 +3,7 @@ namespace BL.DTOs.Shipment
     public class CreateShipmentDto
     {
         public DateTime ShippingDate { get; set; }
+        public DateTime? DeliveryDate { get; set; }
         public Guid SenderId { get; set; }
         public Guid ReceiverId { get; set; }
         public Guid ShippingTypeId { get; set; }
@@ -14,7 +15,8 @@ namespace BL.DTOs.Shipment
         public decimal ShippingRate { get; set; }
         public Guid? PaymentMethodId { get; set; }
         public Guid? UserSubscriptionId { get; set; }
-        public double? TrackingNumber { get; set; }
+        public Guid? ShippingPackagingId { get; set; }
+        public string? TrackingNumber { get; set; }
         public Guid? ReferenceId { get; set; }
     }
 }

@@ -11,10 +11,10 @@ namespace DAL.Configurations.Entities
             base.Configure(builder);
 
             builder.Property(e => e.CountryAname)
-                .HasMaxLength(200)
+                .HasMaxLength(100)
                 .HasColumnName("CountryAName");
             builder.Property(e => e.CountryEname)
-                .HasMaxLength(200)
+                .HasMaxLength(100)
                 .HasColumnName("CountryEName");
         }
     }
