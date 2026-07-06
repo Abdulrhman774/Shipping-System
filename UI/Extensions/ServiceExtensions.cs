@@ -133,6 +133,11 @@ public static class ServiceExtensions
         services.AddScoped<IRefreshTokenProvider, CookieRefreshTokenProvider>();
 
 
+
+
+        // Unit of Work
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
+
         return services;
     }
 

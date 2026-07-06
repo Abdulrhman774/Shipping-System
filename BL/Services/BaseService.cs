@@ -4,7 +4,6 @@ using BL.Contract.IServices;
 using BL.Mapping;
 using DAL.Contracts;
 using Domain.Shared;
-using System.Security.Principal;
 
 namespace BL.Services;
 public class BaseService<T, TDto, TCreateDto, TUpdateDto> : IBaseService<T, TDto, TCreateDto, TUpdateDto> where T : BaseEntity
@@ -12,11 +11,21 @@ public class BaseService<T, TDto, TCreateDto, TUpdateDto> : IBaseService<T, TDto
     protected readonly IGenericRepository<T> _repository;
     protected readonly IMapper _mapper;
     protected readonly IUserService _userService;
+    protected readonly IUnitOfWork _unitOfWork;
     public BaseService(IGenericRepository<T> repository, IMapper mapper, IUserService userService)
     {
         _repository = repository;
         _mapper = mapper;
         _userService = userService;
+        _unitOfWork = new UnsupportedUnitOfWork();
+    }
+
+    public BaseService(IUnitOfWork unitOfWork, IMapper mapper, IUserService userService)
+    {
+        _mapper = mapper;
+        _userService = userService;
+        _repository = unitOfWork.Repository<T>();
+        _unitOfWork = unitOfWork;
     }
 
     public async Task<Result<IEnumerable<TDto>>> GetAllAsync()

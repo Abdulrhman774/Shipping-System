@@ -231,4 +231,28 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
             throw new DataAccessException($"Error while adding {typeof(T).Name}", ex);
         }
     }
+
+    /// <summary>
+    /// Checks whether any entity matches the specified filter.
+    /// </summary>
+    /// <param name="filter"></param>
+    /// <returns></returns>
+    /// <exception cref="DataAccessException"></exception>
+    public async Task<bool> ExistsAsync(Expression<Func<T, bool>> filter)
+    {
+        try
+        {
+            return await _dbSet.AnyAsync(filter);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex,
+                "Error while checking existence of entity of type {EntityType}",
+                typeof(T).Name);
+
+            throw new DataAccessException(
+                $"Error while checking existence of {typeof(T).Name}.",
+                ex);
+        }
+    }
 } 

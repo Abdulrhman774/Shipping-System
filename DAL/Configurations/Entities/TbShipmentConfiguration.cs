@@ -25,6 +25,8 @@ public class TbShipmentConfiguration : BaseEntityConfiguration<TbShipment>
         builder.Property(e => e.TrackingNumber).HasMaxLength(100);
         builder.Property(e => e.ReferenceId);
 
+        builder.HasIndex(e => e.TrackingNumber).IsUnique();
+
         builder.HasOne(d => d.PaymentMethod).WithMany(p => p.TbShippments)
                .HasForeignKey(d => d.PaymentMethodId);
 

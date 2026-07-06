@@ -128,6 +128,10 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddScoped<ITrackingNumberCalculator, TrackingNumberCalculator>();
             #endregion
 
+
+            // Unit of Work
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
+
             return services;
         }
 

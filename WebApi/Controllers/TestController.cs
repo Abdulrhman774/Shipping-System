@@ -1,4 +1,5 @@
-﻿using BL.DTOs.Shipment;
+﻿using BL.Contract.IServices.Shipment;
+using BL.DTOs.Shipment;
 using BL.Services.Shipment;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -10,8 +11,10 @@ namespace WebApi.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 [ApiConventionType(typeof(ApiConventions))]
-public class TestController : ControllerBase
+public class TestController(IShipmentService shipmentService) : ControllerBase
 {
+    private readonly IShipmentService _shipmentService = shipmentService;
+
     [AllowAnonymous]
     [HttpGet("testPublic")]
     public IActionResult testPublic()
@@ -41,12 +44,17 @@ public class TestController : ControllerBase
     }
 
 
-    [HttpGet("CreateShipment")]
-    [Authorize(Roles = "User")]
-    public IActionResult CreateShipment()
+    [HttpPost("CreateShipment")]
+    //    [Authorize(Roles = "User")]
+    [AllowAnonymous]
+    public async Task<IActionResult> CreateShipment([FromBody] CreateShipmentDto dto)
     {
-        
-        return Ok();
+        var result = await _shipmentService.CreateShipment(dto);
+
+        if (result.IsFailure)
+            return BadRequest(result.Errors);
+
+        return Ok(result.Value);
     }
 
 }

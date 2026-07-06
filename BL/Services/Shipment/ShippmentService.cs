@@ -1,10 +1,11 @@
-using Domain.Entities;
-using BL.DTOs.Shipment;
-using BL.Contract.IServices;
-using DAL.Contracts;
-using BL.Mapping;
-using BL.Contract.IServices.Shipment;
 using BL.Common.Results;
+using BL.Contract.IServices;
+using BL.Contract.IServices.Shipment;
+using BL.DTOs.Shipment;
+using BL.Mapping;
+using DAL.Contracts;
+using DAL.Repositories.Generic;
+using Domain.Entities;
 
 namespace BL.Services.Shipment;
 
@@ -19,8 +20,8 @@ public class ShipmentService
 
     public ShipmentService(IGenericRepository<TbShipment> repository, IMapper mapper, IUserService userService,
         IUserReceiverService userReceiver, IUserSenderService userSender, 
-        ITrackingNumberCalculator trackingNumberCalculator, IRateCalculator rateCalculator)
-        : base(repository, mapper, userService)
+        ITrackingNumberCalculator trackingNumberCalculator, IRateCalculator rateCalculator, IUnitOfWork unitOfWork)
+        : base(unitOfWork, mapper, userService)
     {
         _userReceiver = userReceiver;
         _userSender = userSender;
@@ -30,15 +31,36 @@ public class ShipmentService
 
     public async Task<Result<Guid>> CreateShipment(CreateShipmentDto dto)
     {
-        var validation = await ValidateSenderAndReceiverAsync(dto);
-        
-        if (validation.IsFailure)
-            return validation.Errors.ToList();   
+        await _unitOfWork.BeginTransactionAsync();
 
-        dto.TrackingNumber = await _trackingNumberCalculator.GenerateTrackingNumber();
-        dto.ShippingRate = await _rateCalculator.CalculateShippingRate(dto);
+        try
+        {
+            var validation = await ValidateSenderAndReceiverAsync(dto);
+            if (validation.IsFailure)
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                return validation.Errors.ToList();
+            }
 
-        return await CreateAsync(dto);
+            dto.TrackingNumber = await _trackingNumberCalculator.GenerateTrackingNumber();
+            dto.ShippingRate = await _rateCalculator.CalculateShippingRate(dto);
+
+            var result = await CreateAsync(dto);
+
+            if (result.IsFailure)
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                return result;
+            }
+
+            await _unitOfWork.CommitTransactionAsync();
+            return result;
+        }
+        catch
+        {
+            await _unitOfWork.RollbackTransactionAsync();
+            throw; // أو ترجع Error.Failure عام حسب استراتيجية التعامل مع الأخطاء عندك
+        }
     }
 
 
@@ -47,27 +69,22 @@ public class ShipmentService
     #region Private Methods
     private async Task<Result> ValidateSenderAndReceiverAsync(CreateShipmentDto dto)
     {
-        if (dto.ReceiverId != Guid.Empty)
-        {
-            var receiver = await _userReceiver.GetByIdAsync(dto.ReceiverId);
-
-            if (receiver is null)
-                return Error.NotFound(
-                    "Receiver.NotFound",
-                    "Receiver was not found.");
-        }
-
-        if (dto.SenderId != Guid.Empty)
-        {
-            var sender = await _userSender.GetByIdAsync(dto.SenderId);
-
-            if (sender is null)
-                return Error.NotFound(
-                    "Sender.NotFound",
-                    "Sender was not found.");
-        }
-
+        if (dto.ReceiverId == Guid.Empty)
+            return Error.Validation("Receiver.Required", "Receiver is required.");
+    
+        var receiver = await _userReceiver.GetByIdAsync(dto.ReceiverId);
+        if (receiver is null)
+            return Error.NotFound("Receiver.NotFound", "Receiver was not found.");
+    
+        if (dto.SenderId == Guid.Empty)
+            return Error.Validation("Sender.Required", "Sender is required.");
+    
+        var sender = await _userSender.GetByIdAsync(dto.SenderId);
+        if (sender is null)
+            return Error.NotFound("Sender.NotFound", "Sender was not found.");
+    
         return Result.Success();
     }
+    
     #endregion
 }
