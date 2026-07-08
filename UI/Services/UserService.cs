@@ -2,12 +2,15 @@
 using BL.Common.Results;
 using BL.Contract.IServices;
 using BL.DTOs.User;
+using System.Security.Claims;
 using UI.Endpoints;
 
 namespace UI.Services;
 
-public class UserService(GenericApiClient apiClient) : IUserService
+public class UserService(GenericApiClient apiClient, HttpContextAccessor _httpContextAccessor) : IUserService
 {
+    
+
     public Task<Result> DeleteAccountAsync(string userId)
     {
         throw new NotImplementedException();
@@ -28,9 +31,11 @@ public class UserService(GenericApiClient apiClient) : IUserService
         throw new NotImplementedException();
     }
 
-    public Task<Guid> GetLoggedInUserAsync()
+    public async Task<Guid> GetLoggedInUserAsync()
     {
-        throw new NotImplementedException();
+        var userId = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        return !string.IsNullOrEmpty(userId) ? Guid.Parse(userId) : Guid.Empty;
     }
 
     public async Task<ApiResponse<UserDto>> GetUserByEmailOrUsernameAsync(string search)
