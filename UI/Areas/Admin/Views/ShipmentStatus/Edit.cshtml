@@ -1,0 +1,55 @@
+@model BL.DTOs.ShipmentStatus.UpdateShipmentStatusDto
+@{
+    ViewData["Title"] = "Edit Shipment Status";
+}
+
+<div class="content-wrapper">
+    <div class="page-header">
+        <h3 class="page-title"> Edit Shipment Status </h3>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a asp-controller="Dashboard" asp-action="Index">Dashboard</a></li>
+                <li class="breadcrumb-item"><a asp-controller="ShipmentStatus" asp-action="Index">Shipment Statuses</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Edit</li>
+            </ol>
+        </nav>
+    </div>
+    <div class="row">
+        <div class="col-12 grid-margin stretch-card">
+            <div class="card">
+                <div class="card-body">
+                    <form class="forms-sample" asp-controller="ShipmentStatus" asp-action="Edit" asp-route-id="@ViewBag.Id" method="post">
+                        @Html.AntiForgeryToken()
+                        
+                        <div class="form-group mb-4">
+                            <label asp-for="ShipmentId">Shipment</label>
+                            <select asp-for="ShipmentId" class="form-control" asp-items="ViewBag.Shipments">
+                                <option value="">-- Select Shipment --</option>
+                            </select>
+                            <span asp-validation-for="ShipmentId" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label asp-for="CarrierId">Carrier</label>
+                            <select asp-for="CarrierId" class="form-control" asp-items="ViewBag.Carriers">
+                                <option value="">-- Select Carrier --</option>
+                            </select>
+                            <span asp-validation-for="CarrierId" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label asp-for="Notes">Notes</label>
+                            <textarea asp-for="Notes" class="form-control" rows="3"></textarea>
+                            <span asp-validation-for="Notes" class="text-danger"></span>
+                        </div>
+
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-gradient-primary me-2">Save</button>
+                            <a asp-controller="ShipmentStatus" asp-action="Index" class="btn btn-light">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

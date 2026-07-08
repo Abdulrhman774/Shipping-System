@@ -1,97 +1,59 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Domain.Entities;
 using BL.DTOs.ShipmentStatus;
+using BL.DTOs.Shipment;
+using BL.DTOs.Carrier;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using UI.Controllers;
+using UI.Services;
 
 namespace UI.Areas.Admin.Controllers
 {
     [Area("Admin")]
     [Authorize]
-    public class ShipmentStatusController : BaseController
+    public class ShipmentStatusController : BaseMvcController<ShipmentStatusDto, CreateShipmentStatusDto, UpdateShipmentStatusDto>
     {
-        // Constructor inject IShippmentStatusService (commented out as per instructions)
-        /*
-        private readonly IShippmentStatusService _shipmentStatusService;
-        public ShipmentStatusController(IShippmentStatusService shipmentStatusService)
+        public ShipmentStatusController(GenericApiClient apiClient, ILogger<ShipmentStatusController> logger)
+            : base(apiClient, logger, "Api/ShipmentStatus")
         {
-            _shipmentStatusService = shipmentStatusService;
-        }
-        */
-
-        // GET: Admin/ShipmentStatus
-        public IActionResult Index()
-        {
-            // Hardcoded list of shipment statuses for display
-            var statuses = new List<TbShipmentStatus>
-            {
-                new TbShipmentStatus
-                {
-                    Id = Guid.Parse("11111111-2222-3333-4444-555555555555"),
-                    ShipmentId = Guid.Parse("aaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"),
-                    Shippment = new TbShipment { TrackingNumber = "10001001" },
-                    CarrierId = Guid.Parse("22222222-3333-4444-5555-666666666666"),
-                    Carrier = new TbCarrier { CarrierName = "DHL Express" },
-                    Notes = "Shipment picked up and processed at the origin hub.",
-                    CreatedDate = new DateTime(2026, 6, 5, 10, 30, 0),
-                    CurrentState = enEntityState.Active
-                },
-                new TbShipmentStatus
-                {
-                    Id = Guid.Parse("22222222-3333-4444-5555-666666666666"),
-                    ShipmentId = Guid.Parse("fffffff-eeee-dddd-cccc-bbbbbbbbbbbb"),
-                    Shippment = new TbShipment { TrackingNumber = "10001002" },
-                    CarrierId = Guid.Parse("33333333-4444-5555-6666-777777777777"),
-                    Carrier = new TbCarrier { CarrierName = "FedEx" },
-                    Notes = "In transit to the destination country facility.",
-                    CreatedDate = new DateTime(2026, 6, 6, 8, 15, 0),
-                    CurrentState = enEntityState.Active
-                }
-            };
-
-            return View(statuses);
         }
 
-        // GET: Admin/ShipmentStatus/Create
-        public IActionResult Create()
+        public new async Task<IActionResult> Create()
         {
-            LoadDropdowns();
+            await LoadDropdownsAsync();
             return View(new CreateShipmentStatusDto());
         }
 
-        // POST: Admin/ShipmentStatus/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Create(CreateShipmentStatusDto dto)
+        public override async Task<IActionResult> Edit(Guid id)
         {
-            // Redirect to Index (no actual business logic)
-            return RedirectToAction(nameof(Index));
-        }
-
-        // POST: Admin/ShipmentStatus/Delete/{id}
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Delete(Guid id)
-        {
-            // Redirect to Index (no actual business logic)
-            return RedirectToAction(nameof(Index));
-        }
-
-        private void LoadDropdowns()
-        {
-            var shipments = new List<TbShipment>
+            await LoadDropdownsAsync();
+            var response = await _apiClient.GetAsync<ShipmentStatusDto>($"{_apiEndpoint}/{id}");
+            if (!response.Success || response.Data == null)
             {
-                new TbShipment { Id = Guid.Parse("aaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"), TrackingNumber = "10001001" },
-                new TbShipment { Id = Guid.Parse("fffffff-eeee-dddd-cccc-bbbbbbbbbbbb"), TrackingNumber = "10001002" }
+                TempData["ErrorMessage"] = response.Error ?? "Item not found.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var dto = response.Data;
+            var updateDto = new UpdateShipmentStatusDto
+            {
+                ShipmentId = dto.ShipmentId,
+                Notes = dto.Notes,
+                CarrierId = dto.CarrierId
             };
-            // Displaying tracking number as text
+
+            ViewBag.Id = id;
+            return View(updateDto);
+        }
+
+        private async Task LoadDropdownsAsync()
+        {
+            var shipmentsResponse = await _apiClient.GetAsync<IEnumerable<ShipmentDto>>("Api/Shipment");
+            var shipments = shipmentsResponse.Success && shipmentsResponse.Data != null ? shipmentsResponse.Data : new List<ShipmentDto>();
             ViewBag.Shipments = new SelectList(shipments, "Id", "TrackingNumber");
 
-            var carriers = new List<TbCarrier>
-            {
-                new TbCarrier { Id = Guid.Parse("22222222-3333-4444-5555-666666666666"), CarrierName = "DHL Express" },
-                new TbCarrier { Id = Guid.Parse("33333333-4444-5555-6666-777777777777"), CarrierName = "FedEx" }
-            };
+            var carriersResponse = await _apiClient.GetAsync<IEnumerable<CarrierDto>>("Api/Carrier");
+            var carriers = carriersResponse.Success && carriersResponse.Data != null ? carriersResponse.Data : new List<CarrierDto>();
             ViewBag.Carriers = new SelectList(carriers, "Id", "CarrierName");
         }
     }
