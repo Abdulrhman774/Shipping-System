@@ -21,6 +21,9 @@ namespace DAL.Configurations.Entities
             builder.Property(e => e.UserId).IsRequired();
             builder.Property(e => e.CityId).IsRequired();
 
+            builder.HasIndex(e => e.Email).IsUnique();
+            builder.HasIndex(e => e.Phone).IsUnique();
+
             builder.HasOne(d => d.City)
                    .WithMany(p => p.TbUserReceivers)
                    .HasForeignKey(d => d.CityId)

@@ -37,6 +37,10 @@ public class ApplicationUserConfigurations : IEntityTypeConfiguration<Applicatio
 
         builder.Property(u => u.ImageUrl)
                .IsRequired()
-               .HasMaxLength(800);               
+               .HasMaxLength(800);
+
+
+        builder.HasIndex(e => e.Email).IsUnique();
+        builder.HasIndex(e => e.PhoneNumber).IsUnique();
     }
 }

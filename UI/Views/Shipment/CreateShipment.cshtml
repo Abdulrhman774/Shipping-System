@@ -1,207 +1,417 @@
-@model UI.Models.Shipment.CreateShipmentViewModel
-
+@model UI.Models.Shipment.ShipmentWizardViewModel
 @{
-    ViewData["Title"] = "Create Shipment";
+    ViewData["Title"] = "Create New Shipment";
 }
 
-<div class="container mt-4">
-    <div class="card shadow">
-        <div class="card-header bg-primary text-white">
-            <h4 class="mb-0">Create New Shipment</h4>
-        </div>
-        <div class="card-body">
-            <form asp-action="CreateShipment" method="post">
-                @Html.AntiForgeryToken()
-
-                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
-
-                <div class="row">
-                    <!-- Sender Information -->
-                    <div class="col-md-6 mb-4">
-                        <div class="card border-info h-100">
-                            <div class="card-header bg-info text-white">
-                                <h5 class="mb-0">Sender Details</h5>
-                            </div>
-                            <div class="card-body">
-                                <input type="hidden" asp-for="Sender.ExistingId" />
-                                
-                                <div class="mb-3">
-                                    <label asp-for="Sender.Name" class="form-label">Name</label>
-                                    <input asp-for="Sender.Name" class="form-control" />
-                                    <span asp-validation-for="Sender.Name" class="text-danger"></span>
-                                </div>
-                                <div class="mb-3">
-                                    <label asp-for="Sender.Email" class="form-label">Email</label>
-                                    <input asp-for="Sender.Email" class="form-control" />
-                                    <span asp-validation-for="Sender.Email" class="text-danger"></span>
-                                </div>
-                                <div class="mb-3">
-                                    <label asp-for="Sender.Phone" class="form-label">Phone</label>
-                                    <input asp-for="Sender.Phone" class="form-control" />
-                                    <span asp-validation-for="Sender.Phone" class="text-danger"></span>
-                                </div>
-                                <div class="mb-3">
-                                    <label asp-for="Sender.CityId" class="form-label">City</label>
-                                    <select asp-for="Sender.CityId" asp-items="Model.Cities" class="form-select">
-                                        <option value="">-- Select City --</option>
-                                    </select>
-                                    <span asp-validation-for="Sender.CityId" class="text-danger"></span>
-                                </div>
-                                <div class="mb-3">
-                                    <label asp-for="Sender.Address" class="form-label">Address</label>
-                                    <input asp-for="Sender.Address" class="form-control" />
-                                    <span asp-validation-for="Sender.Address" class="text-danger"></span>
-                                </div>
-                                <div class="mb-3">
-                                    <label asp-for="Sender.OtherAddress" class="form-label">Other Address</label>
-                                    <input asp-for="Sender.OtherAddress" class="form-control" />
-                                    <span asp-validation-for="Sender.OtherAddress" class="text-danger"></span>
-                                </div>
-                                <div class="mb-3">
-                                    <label asp-for="Sender.PostalCode" class="form-label">Postal Code</label>
-                                    <input asp-for="Sender.PostalCode" class="form-control" />
-                                    <span asp-validation-for="Sender.PostalCode" class="text-danger"></span>
-                                </div>
-                                <div class="mb-3">
-                                    <label asp-for="Sender.Contact" class="form-label">Contact</label>
-                                    <input asp-for="Sender.Contact" class="form-control" />
-                                    <span asp-validation-for="Sender.Contact" class="text-danger"></span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Receiver Information -->
-                    <div class="col-md-6 mb-4">
-                        <div class="card border-success h-100">
-                            <div class="card-header bg-success text-white">
-                                <h5 class="mb-0">Receiver Details</h5>
-                            </div>
-                            <div class="card-body">
-                                <input type="hidden" asp-for="Receiver.ExistingId" />
-                                
-                                <div class="mb-3">
-                                    <label asp-for="Receiver.Name" class="form-label">Name</label>
-                                    <input asp-for="Receiver.Name" class="form-control" />
-                                    <span asp-validation-for="Receiver.Name" class="text-danger"></span>
-                                </div>
-                                <div class="mb-3">
-                                    <label asp-for="Receiver.Email" class="form-label">Email</label>
-                                    <input asp-for="Receiver.Email" class="form-control" />
-                                    <span asp-validation-for="Receiver.Email" class="text-danger"></span>
-                                </div>
-                                <div class="mb-3">
-                                    <label asp-for="Receiver.Phone" class="form-label">Phone</label>
-                                    <input asp-for="Receiver.Phone" class="form-control" />
-                                    <span asp-validation-for="Receiver.Phone" class="text-danger"></span>
-                                </div>
-                                <div class="mb-3">
-                                    <label asp-for="Receiver.CityId" class="form-label">City</label>
-                                    <select asp-for="Receiver.CityId" asp-items="Model.Cities" class="form-select">
-                                        <option value="">-- Select City --</option>
-                                    </select>
-                                    <span asp-validation-for="Receiver.CityId" class="text-danger"></span>
-                                </div>
-                                <div class="mb-3">
-                                    <label asp-for="Receiver.Address" class="form-label">Address</label>
-                                    <input asp-for="Receiver.Address" class="form-control" />
-                                    <span asp-validation-for="Receiver.Address" class="text-danger"></span>
-                                </div>
-                                <div class="mb-3">
-                                    <label asp-for="Receiver.OtherAddress" class="form-label">Other Address</label>
-                                    <input asp-for="Receiver.OtherAddress" class="form-control" />
-                                    <span asp-validation-for="Receiver.OtherAddress" class="text-danger"></span>
-                                </div>
-                                <div class="mb-3">
-                                    <label asp-for="Receiver.PostalCode" class="form-label">Postal Code</label>
-                                    <input asp-for="Receiver.PostalCode" class="form-control" />
-                                    <span asp-validation-for="Receiver.PostalCode" class="text-danger"></span>
-                                </div>
-                                <div class="mb-3">
-                                    <label asp-for="Receiver.Contact" class="form-label">Contact</label>
-                                    <input asp-for="Receiver.Contact" class="form-control" />
-                                    <span asp-validation-for="Receiver.Contact" class="text-danger"></span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Shipment Information -->
-                <div class="card border-warning mb-4">
-                    <div class="card-header bg-warning text-dark">
-                        <h5 class="mb-0">Shipment Details</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-4 mb-3">
-                                <label asp-for="Weight" class="form-label">Weight</label>
-                                <input asp-for="Weight" class="form-control" />
-                                <span asp-validation-for="Weight" class="text-danger"></span>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label asp-for="Length" class="form-label">Length</label>
-                                <input asp-for="Length" class="form-control" />
-                                <span asp-validation-for="Length" class="text-danger"></span>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label asp-for="Width" class="form-label">Width</label>
-                                <input asp-for="Width" class="form-control" />
-                                <span asp-validation-for="Width" class="text-danger"></span>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label asp-for="Height" class="form-label">Height</label>
-                                <input asp-for="Height" class="form-control" />
-                                <span asp-validation-for="Height" class="text-danger"></span>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label asp-for="PackageValue" class="form-label">Package Value</label>
-                                <input asp-for="PackageValue" class="form-control" />
-                                <span asp-validation-for="PackageValue" class="text-danger"></span>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label asp-for="ShippingDate" class="form-label">Shipping Date</label>
-                                <input asp-for="ShippingDate" class="form-control" />
-                                <span asp-validation-for="ShippingDate" class="text-danger"></span>
-                            </div>
-                        </div>
-
-                        <div class="row mt-3">
-                            <div class="col-md-4 mb-3">
-                                <label asp-for="ShippingTypeId" class="form-label">Shipping Type</label>
-                                <select asp-for="ShippingTypeId" asp-items="Model.ShippingTypes" class="form-select">
-                                    <option value="">-- Select --</option>
-                                </select>
-                                <span asp-validation-for="ShippingTypeId" class="text-danger"></span>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label asp-for="ShippingPackagingId" class="form-label">Packaging Type</label>
-                                <select asp-for="ShippingPackagingId" asp-items="Model.PackagingTypes" class="form-select">
-                                    <option value="">-- Select --</option>
-                                </select>
-                                <span asp-validation-for="ShippingPackagingId" class="text-danger"></span>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label asp-for="PaymentMethodId" class="form-label">Payment Method</label>
-                                <select asp-for="PaymentMethodId" asp-items="Model.PaymentMethods" class="form-select">
-                                    <option value="">-- Select --</option>
-                                </select>
-                                <span asp-validation-for="PaymentMethodId" class="text-danger"></span>
-                            </div>
-                        </div>
-                        
-                        <input type="hidden" asp-for="UserSubscriptionId" />
-                    </div>
-                </div>
-
-                <div class="text-end">
-                    <button type="submit" class="btn btn-primary btn-lg px-5">Submit Shipment</button>
-                </div>
-            </form>
+<!-- Breadcroumbs start -->
+<div class="wshipping-content-block wshipping-breadcroumb inner-bg-1">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 col-lg-7">
+                <h1>Create New Shipment</h1>
+                <a href="/" title="Home">Home</a> / Create New Shipment
+            </div>
+            <div class="col-12 col-lg-5 text-right">
+                <h4>We freight to all over the world The best logistic company, <span>FAST</span> and <span>SAFELY!</span></h4>
+            </div>
         </div>
     </div>
 </div>
+<!-- Breadcroumbs end -->
+<!-- Create New Shipment Start -->
+<div class="wshipping-content-block shipping-block">
+    <div class="container">
+        <h2 class="heading2-border mt0">Create New Shipping</h2>
+        <div class="row">
+            <div class="shipping-form-block">
+                <form asp-action="CreateShipment" asp-controller="Shipment" method="post" class="steps" accept-charset="UTF-8" novalidate="novalidate">
+                    <div asp-validation-summary="All" class="text-danger"></div>
 
+                    <!-- progressbar -->
+                    <ul id="progressbar">
+                        <li class="active">Where From</li>
+                        <li>Where Going</li>
+                        <li>What</li>
+                        <li>How</li>
+                        <li>Payment</li>
+                        <li>Review</li>
+                        <li>Complete</li>
+                    </ul>
+
+                    <!-- fieldsets Shipping From Start-->
+                    <fieldset>
+                        <h2 class="fs-title">Hello. Where are you shipping from?</h2>
+                        <h3 class="fs-subtitle">* Indicates required field </h3>
+                        <div class="shipping-form">
+                            <div class="row">
+                                <div class="col-12 col-lg-4">
+                                    <div class="form-group">
+                                        <label>Company or Name<sup>*</sup></label>
+                                        <input asp-for="Sender.SenderName" class="form-control" />
+                                        <span class="error1" style="display: none;"> <i class="error-log fa fa-exclamation-triangle"></i> </span>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-lg-4">
+                                    <div class="form-group">
+                                        <label>Contact<sup>*</sup></label>
+                                        <input asp-for="Sender.Contact" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="col-12 col-lg-4">
+                                    <div class="form-group">
+                                        <label>City<sup>*</sup></label>
+                                        <select asp-for="Sender.CityId" asp-items="Model.Cities" class="form-control">
+                                            <option value="">-- Select City --</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-12 col-lg-4">
+                                    <div class="form-group">
+                                        <label>Address<sup>*</sup></label>
+                                        <input asp-for="Sender.Address" class="form-control" placeholder="Street Address" />
+                                        <span class="error1" style="display: none;"> <i class="error-log fa fa-exclamation-triangle"></i> </span>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-lg-4">
+                                    <div class="form-group">
+                                        <label>Other Address Information</label>
+                                        <input asp-for="Sender.OtherAddress" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="col-12 col-lg-4">
+                                    <div class="form-group">
+                                        <label>Postal Code<sup>*</sup></label>
+                                        <input asp-for="Sender.PostalCode" class="form-control" />
+                                        <span class="error1" style="display: none;"> <i class="error-log fa fa-exclamation-triangle"></i> </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-12 col-lg-4">
+                                    <div class="form-group">
+                                        <label>E-mail <sup>*</sup></label>
+                                        <input asp-for="Sender.Email" type="email" class="form-control" />
+                                        <span class="error1" style="display: none;"> <i class="error-log fa fa-exclamation-triangle"></i> </span>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-lg-4">
+                                    <div class="form-group">
+                                        <label>Telephone<sup>*</sup></label>
+                                        <input asp-for="Sender.Phone" class="form-control" />
+                                        <span class="error1" style="display: none;"> <i class="error-log fa fa-exclamation-triangle"></i> </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">   
+                                <div class="col-12 col-lg-4">
+                                    <div class="form-group">
+                                        <label class="slide-label">Use this as my default address</label>
+                                        <div class="slide-redio">
+                                            <input asp-for="Sender.IsDefaultAddress" type="checkbox" id="sender-default">
+                                            <label for="sender-default"></label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="button" name="next" class="next action-button" value="Continue">
+                        <input type="reset" name="cancel" class="action-button btn-red" value="Cancel Shipment">
+                    </fieldset>
+                    <!-- fieldsets Shipping From end-->
+                    <!-- fieldsets Shipping going Start-->
+                    <fieldset>
+                        <h2 class="fs-title">Where is your shipping going?</h2>
+                        <h3 class="fs-subtitle">* Indicates required field </h3>
+                        <div class="shipping-form">
+                            <div class="row">
+                                <div class="col-12 col-lg-4">
+                                    <div class="form-group">
+                                        <label>Company or Name<sup>*</sup></label>
+                                        <input asp-for="Receiver.ReceiverName" class="form-control" />
+                                        <span class="error1" style="display: none;"> <i class="error-log fa fa-exclamation-triangle"></i> </span>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-lg-4">
+                                    <div class="form-group">
+                                        <label>Contact<sup>*</sup></label>
+                                        <input asp-for="Receiver.Contact" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="col-12 col-lg-4">
+                                    <div class="form-group">
+                                        <label>City<sup>*</sup></label>
+                                        <select asp-for="Receiver.CityId" asp-items="Model.Cities" class="form-control">
+                                            <option value="">-- Select City --</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-12 col-lg-4">
+                                    <div class="form-group">
+                                        <label>Address<sup>*</sup></label>
+                                        <input asp-for="Receiver.Address" class="form-control" placeholder="Street Address" />
+                                        <span class="error1" style="display: none;"> <i class="error-log fa fa-exclamation-triangle"></i> </span>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-lg-4">
+                                    <div class="form-group">
+                                        <label>Other Address Information</label>
+                                        <input asp-for="Receiver.OtherAddress" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="col-12 col-lg-4">
+                                    <div class="form-group">
+                                        <label>Postal Code<sup>*</sup></label>
+                                        <input asp-for="Receiver.PostalCode" class="form-control" />
+                                        <span class="error1" style="display: none;"> <i class="error-log fa fa-exclamation-triangle"></i> </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-12 col-lg-4">
+                                    <div class="form-group">
+                                        <label>E-mail <sup>*</sup></label>
+                                        <input asp-for="Receiver.Email" type="email" class="form-control" />
+                                        <span class="error1" style="display: none;"> <i class="error-log fa fa-exclamation-triangle"></i> </span>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-lg-4">
+                                    <div class="form-group">
+                                        <label>Telephone<sup>*</sup></label>
+                                        <input asp-for="Receiver.Phone" class="form-control" />
+                                        <span class="error1" style="display: none;"> <i class="error-log fa fa-exclamation-triangle"></i> </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-12 col-lg-4">
+                                    <div class="form-group">
+                                        <label class="slide-label">Use this as my default address</label>
+                                        <div class="slide-redio">
+                                            <input asp-for="Sender.IsDefaultAddress" id="sender-default" />
+                                            <label for="sender-default"></label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="button" name="previous" class="previous action-button" value="Previous">
+                        <input type="button" name="next" class="next action-button" value="Continue">
+                        <input type="reset" name="cancel" class="action-button btn-red" value="Cancel Shipment">
+                    </fieldset>
+                    <!-- fieldsets Shipping going end-->
+                    <!-- fieldsets package Start-->
+                    <fieldset>
+                        <h2 class="fs-title">What kind of packaging are you using?</h2>
+                        <h3 class="fs-subtitle">* Indicates required field </h3>
+                        <div class="shipping-form">
+                            <div class="row">
+                                <div class="col-12 col-lg-8">
+                                    <div class="row">
+                                        <div class="col-12 col-lg-6">
+                                            <div class="form-group">
+                                                <label>Packaging Type<sup>*</sup></label>
+                                                <div class="input-comment">
+                                                    <select asp-for="Shipment.ShippingPackagingId" asp-items="Model.Shipment.PackagingTypes" class="form-control">
+                                                        <option value="">-- Select Packaging --</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 col-lg-6">
+                                            <div class="form-group">
+                                                <label>Weight<sup>*</sup></label>
+                                                <div class="input-comment">
+                                                    <input asp-for="Shipment.Weight" class="form-control" />
+                                                    <span class="error1" style="display: none;"> <i class="error-log fa fa-exclamation-triangle"></i> </span>
+                                                    <span class="field-comment">kg</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-12 col-lg-6">
+                                            <div class="form-group">
+                                                <label>Length</label>
+                                                <div class="input-comment">
+                                                    <input asp-for="Shipment.Length" class="form-control" />
+                                                    <span class="field-comment">cm</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 col-lg-6">
+                                            <div class="form-group">
+                                                <label>Width</label>
+                                                <div class="input-comment">
+                                                    <input asp-for="Shipment.Width" class="form-control" />
+                                                    <span class="field-comment">cm</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-12 col-lg-6">
+                                            <div class="form-group">
+                                                <label>Height</label>
+                                                <div class="input-comment">
+                                                    <input asp-for="Shipment.Height" class="form-control" />
+                                                    <span class="field-comment">cm</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 col-lg-6">
+                                            <div class="form-group">
+                                                <label>Declared value</label>
+                                                <div class="input-comment">
+                                                    <input asp-for="Shipment.PackageValue" class="form-control" />
+                                                    <span class="field-comment">USD</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="button" name="previous" class="previous action-button" value="Previous">
+                        <input type="button" name="next" class="next action-button" value="Continue">
+                        <input type="reset" name="cancel" class="action-button btn-red" value="Cancel Shipment">
+                    </fieldset>
+                    <!-- fieldsets package end-->
+                    <!-- fieldsets shipping how Start-->
+                    <fieldset>
+                        <h2 class="fs-title">How would you like to ship?</h2>
+                        <h3 class="fs-subtitle">* Indicates required field </h3>
+                        <div class="shipping-form">
+                            <div class="row">
+                                <div class="col-12 col-lg-4">
+                                    <div class="form-group">
+                                        <label>Shipping Type<sup>*</sup></label>
+                                        <select asp-for="Shipment.ShippingTypeId" asp-items="Model.Shipment.ShippingTypes" class="form-control">
+                                            <option value="">-- Select Type --</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-lg-4">
+                                    <div class="form-group">
+                                        <label>Shipping Date<sup>*</sup></label>
+                                        <div class="datepicker-group">
+                                            <input asp-for="Shipment.ShippingDate" placeholder="Date" />
+                                            <div class="datepicker-icon"><i class="fa fa-calendar-alt"></i></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-lg-4">
+                                    <div class="form-group">
+                                        <label>Delivery Date</label>
+                                        <div class="datepicker-group">
+                                            <input asp-for="Shipment.DeliveryDate" class="form-control datetimepicker1" placeholder="Date" />
+                                            <div class="datepicker-icon"><i class="fa fa-calendar-alt"></i></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="button" name="previous" class="previous action-button" value="Previous">
+                        <input type="button" name="next" class="next action-button" value="Continue">
+                        <input type="reset" name="cancel" class="action-button btn-red" value="Cancel Shipment">
+                    </fieldset>
+                    <!-- fieldsets shipping how end-->
+                    <!-- fieldsets payment Start-->
+                    <fieldset>
+                        <h2 class="fs-title">How would like to pay?</h2>
+                        <h3 class="fs-subtitle">* Indicates required field </h3>
+                        <div class="shipping-form">
+                            <div class="form-group">
+                                <div class="row">
+                                    <div class="col-12 col-lg-4">
+                                        <label>Payment Method</label>
+                                        <select asp-for="Shipment.PaymentMethodId" asp-items="Model.Shipment.PaymentMethods" class="form-control">
+                                            <option value="">-- Select Payment Method --</option>
+                                        </select>
+                                    </div>
+                                    @if (Model.Shipment.UserSubscriptionId.HasValue)
+                                    {
+                                        <div class="col-12 col-lg-4">
+                                            <label>Subscription</label>
+                                            <input asp-for="Shipment.UserSubscriptionId" class="form-control" readonly />
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        <input type="button" name="previous" class="previous action-button" value="Previous">
+                        <input type="button" name="next" class="next action-button" value="Continue">
+                        <input type="reset" name="cancel" class="action-button btn-red" value="Cancel Shipment">
+                    </fieldset>
+                    <!-- fieldsets payment end-->
+                    <!-- fieldsets Review Start-->
+                    <fieldset>
+                        <h2 class="fs-title">Let's make sure everyting is in order</h2>
+                        <div class="shipping-form">
+                            <div class="review">
+                                <h3>Where <a href="" title="Edit" class="btn-edit">Edit</a></h3>
+                                <div class="row">
+                                    <div class="col-12 col-lg-4">
+                                        <div class="ship-address">
+                                            <h4>Ship from</h4>
+                                            <p class="review-sender"></p>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-lg-4">
+                                        <div class="ship-address">
+                                            <h4>Ship to</h4>
+                                            <p class="review-receiver"></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="review">
+                                <h3>What <a href="" title="Edit" class="btn-edit">Edit</a></h3>
+                                <h5>Package information</h5>
+                                <ul>
+                                    <li><b>Weight:</b> <span class="review-weight"></span> kg</li>
+                                    <li><b>Dimensions:</b> <span class="review-dims"></span> cm</li>
+                                    <li><b>Declared value:</b> <span class="review-value"></span> USD</li>
+                                </ul>
+                            </div>
+                            <div class="review">
+                                <h3>How <a href="" title="Edit" class="btn-edit">Edit</a></h3>
+                                <h5>Service Selection</h5>
+                                <p class="review-shiptype"></p>
+                                <h5>Arrival</h5>
+                                <p class="review-dates"></p>
+                            </div>
+                            <div class="review">
+                                <h3>Payment <a href="" title="Edit" class="btn-edit">Edit</a></h3>
+                                <p class="review-payment"></p>
+                            </div>
+                        </div>
+                        <input type="button" name="previous" class="previous action-button" value="Previous">
+                        <input type="submit" name="submit" class="submit action-button" value="Create Shipment">
+                    </fieldset>
+                    <!-- fieldsets Review end-->
+                    <!-- fieldsets complete Start-->
+                    <fieldset>
+                        <div class="shipping-form">
+                            <h1 class="tanks-message">Thank You For Create Shipping</h1>
+                        </div>
+                    </fieldset>
+                    <!-- fieldsets complete end-->
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Create New Shipment end -->
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <partial name="_ValidationScriptsPartial" />
 }
