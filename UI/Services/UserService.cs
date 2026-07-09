@@ -7,7 +7,7 @@ using UI.Endpoints;
 
 namespace UI.Services;
 
-public class UserService(GenericApiClient apiClient, HttpContextAccessor _httpContextAccessor) : IUserService
+public class UserService(GenericApiClient apiClient) : IUserService
 {
     
 
@@ -33,9 +33,11 @@ public class UserService(GenericApiClient apiClient, HttpContextAccessor _httpCo
 
     public async Task<Guid> GetLoggedInUserAsync()
     {
-        var userId = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        //var userId = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        return !string.IsNullOrEmpty(userId) ? Guid.Parse(userId) : Guid.Empty;
+        //return !string.IsNullOrEmpty(userId) ? Guid.Parse(userId) : Guid.Empty;
+        throw new NotImplementedException();
+
     }
 
     public async Task<ApiResponse<UserDto>> GetUserByEmailOrUsernameAsync(string search)

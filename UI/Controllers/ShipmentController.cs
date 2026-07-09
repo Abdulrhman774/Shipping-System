@@ -1,201 +1,185 @@
-using BL.Contract.IServices;
-using BL.Contract.IServices.Shipment;
+using BL.Common;
 using BL.DTOs.Shipment;
-using BL.DTOs.UserReceiver;
 using BL.DTOs.UserSender;
-using BL.Services;
-using BL.Services.Shipment;
+using BL.DTOs.UserReceiver;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Security.Claims;
 using UI.Models.Shipment;
+using UI.Services;
 
-namespace UI.Controllers
+namespace UI.Controllers;
+
+[Authorize]
+public class ShipmentController : Controller
 {
-    [Authorize]
-    public class ShipmentController : Controller
+    private readonly MvcShipmentService _shipmentService;
+    private readonly ILogger<ShipmentController> _logger;
+
+    public ShipmentController(MvcShipmentService shipmentService, ILogger<ShipmentController> logger)
     {
-        private readonly ICityService _cityService;
-        private readonly IShippingTypeService _shippingTypeService;
-        private readonly IPaymentMethodService _paymentMethodService;
-        private readonly IShippingPackagingService _shippingPackagingService;
-        private readonly IUserSenderService _userSenderService;
-        private readonly IUserReceiverService _userReceiverService;
-        private readonly IShipmentService _shipmentService;
+        _shipmentService = shipmentService;
+        _logger = logger;
+    }
 
-        public ShipmentController(
-            ICityService cityService,
-            IShippingTypeService shippingTypeService,
-            IPaymentMethodService paymentMethodService,
-            IShippingPackagingService shippingPackagingService,
-            IUserSenderService userSenderService,
-            IUserReceiverService userReceiverService,
-            IShipmentService shipmentService)
+    private Guid GetCurrentUserId()
+    {
+        var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier)
+            ?? User.FindFirstValue("UserId"); 
+
+        return Guid.TryParse(userIdString, out var userId) ? userId : Guid.Empty;
+    }
+
+    private async Task<bool> PopulateDropdownDataAsync(CreateShipmentViewModel model)
+    {
+        var citiesResponse = await _shipmentService.GetCitiesAsync();
+        var shippingTypesResponse = await _shipmentService.GetShippingTypesAsync();
+        var packagingResponse = await _shipmentService.GetShippingPackagingAsync();
+        var paymentMethodsResponse = await _shipmentService.GetPaymentMethodsAsync();
+
+        if (!citiesResponse.Success || !shippingTypesResponse.Success ||
+            !packagingResponse.Success || !paymentMethodsResponse.Success)
         {
-            _cityService = cityService;
-            _shippingTypeService = shippingTypeService;
-            _paymentMethodService = paymentMethodService;
-            _shippingPackagingService = shippingPackagingService;
-            _userSenderService = userSenderService;
-            _userReceiverService = userReceiverService;
-            _shipmentService = shipmentService;
+            _logger.LogWarning("Failed to load one or more dropdown sources for CreateShipment.");
+            return false;
         }
 
-        private Guid GetCurrentUserId()
+        model.Cities = citiesResponse.Data!
+            .Select(c => new SelectListItem(c.CityAname ?? c.Id.ToString(), c.Id.ToString())).ToList();
+
+        model.ShippingTypes = shippingTypesResponse.Data!
+            .Select(s => new SelectListItem(s.ShippingTypeEname, s.Id.ToString())).ToList();
+
+        model.PackagingTypes = packagingResponse.Data!
+            .Select(p => new SelectListItem(p.ShippingPackagingEname, p.Id.ToString())).ToList();
+
+        model.PaymentMethods = paymentMethodsResponse.Data!
+            .Select(p => new SelectListItem(p.MethodEname, p.Id.ToString())).ToList();
+
+        return true;
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> CreateShipment()
+    {
+        var model = new CreateShipmentViewModel();
+        var success = await PopulateDropdownDataAsync(model);
+
+        if (!success)
+            return View("Error");
+
+        return View(model);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CreateShipment(CreateShipmentViewModel model)
+    {
+        if (!ModelState.IsValid)
         {
-            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (Guid.TryParse(userIdString, out var userId))
-            {
-                return userId;
-            }
-            return Guid.Empty;
-        }
-
-        private async Task<bool> PopulateDropdownDataAsync(CreateShipmentViewModel model)
-        {
-            var citiesResult = await _cityService.GetAllAsync();
-            var shippingTypesResult = await _shippingTypeService.GetAllAsync();
-            var packagingResult = await _shippingPackagingService.GetAllAsync();
-            var paymentMethodsResult = await _paymentMethodService.GetAllAsync();
-
-            if (citiesResult.IsFailure || shippingTypesResult.IsFailure ||
-                packagingResult.IsFailure || paymentMethodsResult.IsFailure)
-            {
-                return false;
-            }
-
-            model.Cities = citiesResult.Value
-                .Select(c => new SelectListItem(c.CityAname ?? c.Id.ToString(), c.Id.ToString())).ToList();
-
-            model.ShippingTypes = shippingTypesResult.Value
-                .Select(s => new SelectListItem(s.ShippingTypeEname, s.Id.ToString())).ToList();
-
-            model.PackagingTypes = packagingResult.Value
-                .Select(p => new SelectListItem(p.ShippingPackagingEname, p.Id.ToString())).ToList();
-
-            model.PaymentMethods = paymentMethodsResult.Value
-                .Select(p => new SelectListItem(p.MethodEname, p.Id.ToString())).ToList();
-
-            return true;
-        }
-        [HttpGet]
-        public async Task<IActionResult> CreateShipment()
-        {
-            var model = new CreateShipmentViewModel();
-            var success = await PopulateDropdownDataAsync(model);
-            
-            if (!success)
-            {
+            if (!await PopulateDropdownDataAsync(model))
                 return View("Error");
-            }
 
             return View(model);
         }
 
-        [HttpPost]
-        [Authorize(Roles = "User")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateShipment(CreateShipmentViewModel model)
+        var currentUserId = GetCurrentUserId();
+
+        // 1) Resolve Sender
+        Guid senderId;
+        if (model.Sender.ExistingId.HasValue)
         {
-            if (!ModelState.IsValid)
+            senderId = model.Sender.ExistingId.Value;
+        }
+        else
+        {
+            var senderResult = await _shipmentService.CreateSenderAsync(new CreateUserSenderDto
             {
-                var success = await PopulateDropdownDataAsync(model);
-                if (!success) return View("Error");
+                UserId = currentUserId,
+                SenderName = model.Sender.Name,
+                Email = model.Sender.Email,
+                Phone = model.Sender.Phone,
+                CityId = model.Sender.CityId,
+                Address = model.Sender.Address,
+                Contact = model.Sender.Contact!,
+                OtherAddress = model.Sender.OtherAddress!,
+                PostalCode = model.Sender.PostalCode
+            });
+
+            if (!senderResult.Success)
+            {
+                ModelState.AddModelError("", senderResult.Error ?? "Failed to save sender.");
+                await PopulateDropdownDataAsync(model);
                 return View(model);
             }
 
-            var currentUserId = GetCurrentUserId();
-
-            // 1. Resolve Sender
-            Guid senderId;
-            if (model.Sender.ExistingId.HasValue)
-            {
-                senderId = model.Sender.ExistingId.Value;
-            }
-            else
-            {
-                var senderDto = new CreateUserSenderDto
-                {
-                    UserId = currentUserId,
-                    SenderName = model.Sender.Name,
-                    Email = model.Sender.Email,
-                    Phone = model.Sender.Phone,
-                    CityId = model.Sender.CityId,
-                    Address = model.Sender.Address,
-                    Contact = model.Sender.Contact!,
-                    OtherAddress = model.Sender.OtherAddress!,
-                    PostalCode = model.Sender.PostalCode
-                };
-                
-                var senderResult = await _userSenderService.CreateAsync(senderDto);
-                if (senderResult.IsFailure)
-                {
-                    return View("Error", senderResult.Errors);
-                }
-                senderId = senderResult.Value;
-            }
-
-            // 2. Resolve Receiver
-            Guid receiverId;
-            if (model.Receiver.ExistingId.HasValue)
-            {
-                receiverId = model.Receiver.ExistingId.Value;
-            }
-            else
-            {
-                var receiverDto = new CreateUserReceiverDto
-                {
-                    UserId = currentUserId,
-                    ReceiverName = model.Receiver.Name,
-                    Email = model.Receiver.Email,
-                    Phone = model.Receiver.Phone,
-                    CityId = model.Receiver.CityId,
-                    Address = model.Receiver.Address,
-                    Contact = model.Receiver.Contact!,
-                    OtherAddress = model.Receiver.OtherAddress!,
-                    PostalCode = model.Receiver.PostalCode
-                };
-
-                var receiverResult = await _userReceiverService.CreateAsync(receiverDto);
-                if (receiverResult.IsFailure)
-                {
-                    return View("Error", receiverResult.Errors);
-                }
-                receiverId = receiverResult.Value;
-            }
-
-            // 3. Create Shipment Dto
-            var shipmentDto = new CreateShipmentDto
-            {
-                ShippingDate = model.ShippingDate,
-                SenderId = senderId,
-                ReceiverId = receiverId,
-                ShippingTypeId = model.ShippingTypeId,
-                ShippingPackagingId = model.ShippingPackagingId,
-                Width = model.Width,
-                Height = model.Height,
-                Weight = model.Weight,
-                Length = model.Length,
-                PackageValue = model.PackageValue,
-                PaymentMethodId = model.PaymentMethodId,
-                UserSubscriptionId = model.UserSubscriptionId
-            };
-
-            var result = await _shipmentService.CreateShipment(shipmentDto);
-
-            if (result.IsFailure)
-            {
-                return View("Error", result.Errors);
-            }
-
-            return RedirectToAction("Confirmation", new { id = result.Value });
+            senderId = senderResult.Data;
         }
-        
-        [HttpGet]
-        public IActionResult Confirmation(Guid id)
+
+        // 2) Resolve Receiver
+        Guid receiverId;
+        if (model.Receiver.ExistingId.HasValue)
         {
-            return View(id);
+            receiverId = model.Receiver.ExistingId.Value;
         }
+        else
+        {
+            var receiverResult = await _shipmentService.CreateReceiverAsync(new CreateUserReceiverDto
+            {
+                UserId = currentUserId,
+                ReceiverName = model.Receiver.Name,
+                Email = model.Receiver.Email,
+                Phone = model.Receiver.Phone,
+                CityId = model.Receiver.CityId,
+                Address = model.Receiver.Address,
+                Contact = model.Receiver.Contact!,
+                OtherAddress = model.Receiver.OtherAddress!,
+                PostalCode = model.Receiver.PostalCode
+            });
+
+            if (!receiverResult.Success)
+            {
+                ModelState.AddModelError("", receiverResult.Error ?? "Failed to save receiver.");
+                await PopulateDropdownDataAsync(model);
+                return View(model);
+            }
+
+            receiverId = receiverResult.Data;
+        }
+
+        // 3) Create the shipment itself
+        var dto = new CreateShipmentDto
+        {
+            ShippingDate = model.ShippingDate,
+            SenderId = senderId,
+            ReceiverId = receiverId,
+            ShippingTypeId = model.ShippingTypeId,
+            ShippingPackagingId = model.ShippingPackagingId,
+            Width = model.Width,
+            Height = model.Height,
+            Weight = model.Weight,
+            Length = model.Length,
+            PackageValue = model.PackageValue,
+            PaymentMethodId = model.PaymentMethodId,
+            UserSubscriptionId = model.UserSubscriptionId
+        };
+
+        var result = await _shipmentService.CreateShipmentAsync(dto);
+
+        if (!result.Success)
+        {
+            ModelState.AddModelError("", result.Error ?? "Failed to create shipment.");
+            await PopulateDropdownDataAsync(model);
+            return View(model);
+        }
+
+        return RedirectToAction("Confirmation", new { id = result.Data });
+    }
+
+    [HttpGet]
+    public IActionResult Confirmation(Guid id)
+    {
+        return View(id);
     }
 }

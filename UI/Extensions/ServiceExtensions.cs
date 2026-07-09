@@ -86,7 +86,7 @@ public static class ServiceExtensions
         return services;
     }
 
-    public static IServiceCollection AddServices(this IServiceCollection services)
+    public static IServiceCollection AddServices(this IServiceCollection services)  
     {
         // deprecated: using generic base service for all entities, as it may not fit all cases and may cause issues with specific logic for certain entities
         //services.AddScoped(typeof(IBaseService<T, TDto, TCreateDto, TUpdateDto>), typeof(BaseService<T, TDto, TCreateDto, TUpdateDto>));
@@ -133,6 +133,7 @@ public static class ServiceExtensions
         services.AddScoped<IRefreshTokenProvider, CookieRefreshTokenProvider>();
 
 
+        services.AddScoped<MvcShipmentService>();
 
 
         // Unit of Work

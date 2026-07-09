@@ -10,7 +10,19 @@ namespace WebApi.Controllers;
 [Route("Api/Shipment")]
 public class ShipmentController : BaseController<IShipmentService, TbShipment, ShipmentDto, CreateShipmentDto, UpdateShipmentDto>
 {
-    public ShipmentController(IShipmentService service) : base(service)
+    private readonly IShipmentService _shipmentService;
+    public ShipmentController(IShipmentService service) : base(service) { _shipmentService = service; }
+
+    [HttpPost("CreateShipment")]
+    //    [Authorize(Roles = "User")]
+    [AllowAnonymous]
+    public async Task<IActionResult> CreateShipment([FromBody] CreateShipmentDto dto)
     {
+        var result = await _shipmentService.CreateShipment(dto);
+
+        if (result.IsFailure)
+            return BadRequest(result.Errors);
+
+        return Ok(result.Value);
     }
 }
