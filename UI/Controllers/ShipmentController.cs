@@ -23,12 +23,12 @@ public class ShipmentController : Controller
         _logger = logger;
     }
 
-    private Guid GetCurrentUserId()
+    private string GetCurrentUserId()
     {
         var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier)
             ?? User.FindFirstValue("UserId");
 
-        return Guid.TryParse(userIdString, out var userId) ? userId : Guid.Empty;
+        return userIdString ?? string.Empty;
     }
 
     private async Task<bool> PopulateDropdownDataAsync(ShipmentWizardViewModel model)

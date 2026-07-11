@@ -31,7 +31,7 @@ namespace UI.Areas.Admin.Controllers
                 new TbUserSender
                 {
                     Id = Guid.Parse("11111111-eeee-eeee-eeee-111111111111"),
-                    UserId = Guid.Parse("aa11bb22-33cc-44dd-55ee-66ff77aa88bb"),
+                    UserId = "aa11bb22-33cc-44dd-55ee-66ff77aa88bb",
                     SenderName = "أحمد محمد (Ahmed Mohamed)",
                     Email = "ahmed.mohamed@example.com",
                     Phone = "+201001234567",
@@ -44,7 +44,7 @@ namespace UI.Areas.Admin.Controllers
                 new TbUserSender
                 {
                     Id = Guid.Parse("22222222-ffff-ffff-ffff-222222222222"),
-                    UserId = Guid.Parse("bb22cc33-44dd-55ee-66ff-77aa88bb99cc"),
+                    UserId = "bb22cc33-44dd-55ee-66ff-77aa88bb99cc",
                     SenderName = "خالد عبدالله (Khalid Abdullah)",
                     Email = "khalid.a@example.com",
                     Phone = "+966501234567",
@@ -57,7 +57,7 @@ namespace UI.Areas.Admin.Controllers
                 new TbUserSender
                 {
                     Id = Guid.Parse("33333333-0000-0000-0000-333333333333"),
-                    UserId = Guid.Parse("cc33dd44-55ee-66ff-77aa-88bb99cc00dd"),
+                    UserId = "cc33dd44-55ee-66ff-77aa-88bb99cc00dd",
                     SenderName = "جون دو (John Doe)",
                     Email = "john.doe@example.com",
                     Phone = "+12025550143",
@@ -79,7 +79,7 @@ namespace UI.Areas.Admin.Controllers
             var sender = new TbUserSender
             {
                 Id = id,
-                UserId = Guid.Parse("aa11bb22-33cc-44dd-55ee-66ff77aa88bb"),
+                UserId = "aa11bb22-33cc-44dd-55ee-66ff77aa88bb",
                 SenderName = "أحمد محمد (Ahmed Mohamed)",
                 Email = "ahmed.mohamed@example.com",
                 Phone = "+201001234567",
@@ -126,7 +126,7 @@ namespace UI.Areas.Admin.Controllers
             // Hardcoded update model with pre-filled values
             var dto = new UpdateUserSenderDto
             {
-                UserId = Guid.Parse("aa11bb22-33cc-44dd-55ee-66ff77aa88bb"),
+                UserId = "aa11bb22-33cc-44dd-55ee-66ff77aa88bb",
                 SenderName = "أحمد محمد (Ahmed Mohamed)",
                 Email = "ahmed.mohamed@example.com",
                 Phone = "+201001234567",

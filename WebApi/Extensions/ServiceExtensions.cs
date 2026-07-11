@@ -1,14 +1,47 @@
 using BL.Contract.IServices;
+using BL.Contract.IServices.Shipment;
 using BL.Contract.IvwServices;
+using BL.DTOs.Auth;
+using BL.DTOs.Auth.Requests;
+using BL.DTOs.Carrier;
+using BL.DTOs.City;
+using BL.DTOs.Country;
+using BL.DTOs.PaymentMethod;
+using BL.DTOs.Setting;
+using BL.DTOs.Shipment;
+using BL.DTOs.ShipmentStatus;
+using BL.DTOs.ShippingPackaging;
+using BL.DTOs.ShippingType;
+using BL.DTOs.SubscriptionPackage;
+using BL.DTOs.UserReceiver;
+using BL.DTOs.UserSender;
+using BL.DTOs.UserSubscription;
 using BL.Mapping;
 using BL.Services;
+using BL.Services.Shipment;
 using BL.Services.vwServices;
+using BL.Validators.Auth;
+using BL.Validators.Carrier;
+using BL.Validators.City;
+using BL.Validators.Country;
+using BL.Validators.PaymentMethod;
+using BL.Validators.Setting;
+using BL.Validators.Shipment;
+using BL.Validators.ShipmentStatus;
+using BL.Validators.ShippingPackaging;
+using BL.Validators.ShippingType;
+using BL.Validators.SubscriptionPackage;
+using BL.Validators.UserReceiver;
+using BL.Validators.UserSender;
+using BL.Validators.UserSubscription;
 using DAL.Context;
 using DAL.Contracts;
 using DAL.Contracts.IRepositories;
 using DAL.Repositories;
 using DAL.Repositories.Generic;
 using Domain.Entities;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -19,9 +52,6 @@ using Serilog.Sinks.MSSqlServer;
 using System.Text;
 using System.Threading.RateLimiting;
 using WebApi.Services;
-using FluentValidation.AspNetCore;
-using BL.Contract.IServices.Shipment;
-using BL.Services.Shipment;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -126,6 +156,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
             services.AddScoped<IRateCalculator, RateCalculator>();
             services.AddScoped<ITrackingNumberCalculator, TrackingNumberCalculator>();
+            services.AddScoped<IDistanceService, DistanceService>();
             #endregion
 
 
@@ -139,45 +170,50 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             services.AddFluentValidationAutoValidation();
 
-            /*//services.AddScoped<IValidator<ChangePasswordRequstDto>, ChangePasswordRequestDtoValidator>();
-            //    services.AddScoped<IValidator<LoginRequestDto>, LoginRequestDtoValidator>();
-            //    services.AddScoped<IValidator<RefreshRequestDto>, RefreshRequestDtoValidator>();
-            //    services.AddScoped<IValidator<RefreshTokenRequestDto>, RefreshTokenRequestDtoValidator>();
-            //    services.AddScoped<IValidator<RegisterRequestDto>, RegisterRequestDtoValidator>();
+            services.AddScoped<IValidator<ChangePasswordRequstDto>, ChangePasswordRequestDtoValidator>();
+            services.AddScoped<IValidator<LoginRequestDto>, LoginRequestDtoValidator>();
+            services.AddScoped<IValidator<RefreshRequestDto>, RefreshRequestDtoValidator>();
+            services.AddScoped<IValidator<RefreshTokenRequestDto>, RefreshTokenRequestDtoValidator>();
+            services.AddScoped<IValidator<RegisterRequestDto>, RegisterRequestDtoValidator>();
 
-            //    services.AddScoped<IValidator<CreateCarrierDto>, CreateCarrierDtoValidator>();
-            //    services.AddScoped<IValidator<UpdateCarrierDto>, UpdateCarrierDtoValidator>();
+            services.AddScoped<IValidator<CreateCarrierDto>, CreateCarrierDtoValidator>();
+            services.AddScoped<IValidator<UpdateCarrierDto>, UpdateCarrierDtoValidator>();
 
-            //    services.AddScoped<IValidator<CreateCityDto>, CreateCityDtoValidator>();
-            //    services.AddScoped<IValidator<UpdateCityDto>, UpdateCityDtoValidator>();
+            services.AddScoped<IValidator<CreateCityDto>, CreateCityDtoValidator>();
+            services.AddScoped<IValidator<UpdateCityDto>, UpdateCityDtoValidator>();
 
-            //    services.AddScoped<IValidator<CreateCountryDto>, CreateCountryDtoValidator>();
-            //    services.AddScoped<IValidator<UpdateCountryDto>, UpdateCountryDtoValidator>();
+            services.AddScoped<IValidator<CreateCountryDto>, CreateCountryDtoValidator>();
+            services.AddScoped<IValidator<UpdateCountryDto>, UpdateCountryDtoValidator>();
 
-            //    services.AddScoped<IValidator<CreatePaymentMethodDto>, CreatePaymentMethodDtoValidator>();
-            //    services.AddScoped<IValidator<UpdatePaymentMethodDto>, UpdatePaymentMethodDtoValidator>();
+            services.AddScoped<IValidator<CreatePaymentMethodDto>, CreatePaymentMethodDtoValidator>();
+            services.AddScoped<IValidator<UpdatePaymentMethodDto>, UpdatePaymentMethodDtoValidator>();
 
-            //    services.AddScoped<IValidator<UpdateSettingDto>, UpdateSettingDtoValidator>();
+            services.AddScoped<IValidator<UpdateSettingDto>, UpdateSettingDtoValidator>();
 
-            //    services.AddScoped<IValidator<CreateShippingTypeDto>, CreateShippingTypeDtoValidator>();
-            //    services.AddScoped<IValidator<UpdateShippingTypeDto>, UpdateShippingTypeDtoValidator>();
+            services.AddScoped<IValidator<CreateShippingTypeDto>, CreateShippingTypeDtoValidator>();
+            services.AddScoped<IValidator<UpdateShippingTypeDto>, UpdateShippingTypeDtoValidator>();
 
-            //    services.AddScoped<IValidator<CreateShippmentDto>, CreateShippmentDtoValidator>();
-            //    services.AddScoped<IValidator<UpdateShippmentDto>, UpdateShippmentDtoValidator>();
+            services.AddScoped<IValidator<CreateShipmentDto>, CreateShipmentDtoValidator>();
+            services.AddScoped<IValidator<UpdateShipmentDto>, UpdateShipmentDtoValidator>();
 
-            //    services.AddScoped<IValidator<CreateShippmentStatusDto>, CreateShippmentStatusDtoValidator>();
-            //    services.AddScoped<IValidator<UpdateShippmentStatusDto>, UpdateShippmentStatusDtoValidator>();
+            services.AddScoped<IValidator<CreateShipmentStatusDto>, CreateShipmentStatusDtoValidator>();
+            services.AddScoped<IValidator<UpdateShipmentStatusDto>, UpdateShipmentStatusDtoValidator>();
 
-            //    services.AddScoped<IValidator<CreateSubscriptionPackageDto>, CreateSubscriptionPackageDtoValidator>();
-            //    services.AddScoped<IValidator<UpdateSubscriptionPackageDto>, UpdateSubscriptionPackageDtoValidator>();
+            services.AddScoped<IValidator<CreateSubscriptionPackageDto>, CreateSubscriptionPackageDtoValidator>();
+            services.AddScoped<IValidator<UpdateSubscriptionPackageDto>, UpdateSubscriptionPackageDtoValidator>();
 
-            //    services.AddScoped<IValidator<CreateUserReceiverDto>, CreateUserReceiverDtoValidator>();
-            //    services.AddScoped<IValidator<UpdateUserReceiverDto>, UpdateUserReceiverDtoValidator>();
+            services.AddScoped<IValidator<CreateUserReceiverDto>, CreateUserReceiverDtoValidator>();
+            services.AddScoped<IValidator<UpdateUserReceiverDto>, UpdateUserReceiverDtoValidator>();
 
-            //    services.AddScoped<IValidator<CreateUserSenderDto>, CreateUserSenderDtoValidator>();
-            //    services.AddScoped<IValidator<UpdateUserSenderDto>, UpdateUserSenderDtoValidator>();
+            services.AddScoped<IValidator<CreateUserSenderDto>, CreateUserSenderDtoValidator>();
+            services.AddScoped<IValidator<UpdateUserSenderDto>, UpdateUserSenderDtoValidator>();
 
-            //    services.AddScoped<IValidator<CreateUserSubscriptionDto>, CreateUserSubscriptionDtoValidator>();*/
+            services.AddScoped<IValidator<CreateUserSubscriptionDto>, CreateUserSubscriptionDtoValidator>();
+            services.AddScoped<IValidator<UpdateUserSubscriptionDto>, UpdateUserSubscriptionDtoValidator>();
+
+            services.AddScoped<IValidator<CreateShippingPackagingDto>,CreateShippingPackagingDtoValidator>();
+
+            services.AddScoped<IValidator<UpdateShippingPackagingDto>,UpdateShippingPackagingDtoValidator>();
 
             return services;
         }
@@ -204,6 +240,7 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             services.AddIdentityCore<ApplicationUser>(options =>
             {
+                options.User.RequireUniqueEmail = true;
                 options.Password.RequireDigit = true;
                 options.Password.RequiredLength = 9;
                 options.Password.RequireNonAlphanumeric = true;

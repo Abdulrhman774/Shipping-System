@@ -46,5 +46,8 @@ public partial class TbShipment : BaseEntity
 
     public virtual TbShippingPackaging? ShippingPackaging { get; set; }
 
+    public virtual TbUserSubscription? UserSubscription { get; set; }
+
     public virtual ICollection<TbShipmentStatus> TbShipmentStatuses { get; set; } = new List<TbShipmentStatus>();
+
 }

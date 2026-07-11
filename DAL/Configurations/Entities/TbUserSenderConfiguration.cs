@@ -29,6 +29,17 @@ namespace DAL.Configurations.Entities
                 .HasForeignKey(d => d.CityId)
                 .OnDelete(DeleteBehavior.ClientSetNull);
 
+
+            // ✅ Foreign key to ApplicationUser
+            builder.Property(e => e.UserId)
+                .HasMaxLength(450)
+                .IsRequired(false); // Nullable for guest users
+
+
+            builder.HasOne(d => d.User)
+                   .WithMany()  // No navigation from ApplicationUser back to TbUserSender
+                   .HasForeignKey(d => d.UserId)
+                   .OnDelete(DeleteBehavior.SetNull);// If user is deleted, keep sender data
         }
     }
 }

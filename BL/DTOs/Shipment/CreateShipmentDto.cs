@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace BL.DTOs.Shipment
 {
     public class CreateShipmentDto
@@ -12,11 +14,16 @@ namespace BL.DTOs.Shipment
         public double Weight { get; set; }
         public double Length { get; set; }
         public decimal PackageValue { get; set; }
-        public decimal ShippingRate { get; set; }
+
         public Guid? PaymentMethodId { get; set; }
         public Guid? UserSubscriptionId { get; set; }
         public Guid? ShippingPackagingId { get; set; }
-        public string? TrackingNumber { get; set; }
         public Guid? ReferenceId { get; set; }
+
+
+        [JsonIgnore]
+        public string? TrackingNumber { get; set; }
+        [JsonIgnore]
+        public decimal ShippingRate { get; set; }
     }
 }

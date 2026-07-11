@@ -6,7 +6,7 @@ namespace Domain.Entities;
 
 public partial class TbUserSender : BaseEntity
 {
-    public Guid UserId { get; set; }
+    public string? UserId { get; set; }
 
     public string SenderName { get; set; } = null!;
 
@@ -27,6 +27,6 @@ public partial class TbUserSender : BaseEntity
     public string Address { get; set; } = null!;
 
     public virtual TbCity City { get; set; } = null!;
-
+    public virtual ApplicationUser? User { get; set; }  // Nullable for guest users
     public virtual ICollection<TbShipment> TbShippments { get; set; } = new List<TbShipment>();
 }

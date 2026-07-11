@@ -2,7 +2,7 @@ namespace BL.DTOs.UserReceiver
 {
     public class CreateUserReceiverDto
     {
-        public Guid? UserId { get; set; }
+        public string? UserId { get; set; }
         public string ReceiverName { get; set; } = null!;
         public string Email { get; set; } = null!;
         public string Phone { get; set; } = null!;

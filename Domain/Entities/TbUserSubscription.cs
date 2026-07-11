@@ -12,5 +12,15 @@ public partial class TbUserSubscription : BaseEntity
 
     public DateTime SubscriptionDate { get; set; }
 
+
+    // Add tracking for subscription usage
+    public int UsedShipmentCount { get; set; }
+    public double UsedTotalWeight { get; set; }
+    public double UsedTotalDistance { get; set; }
+    public DateTime? ExpiryDate { get; set; }
+    public bool IsActive { get; set; }
+
     public virtual TbSubscriptionPackage Package { get; set; } = null!;
+    public virtual ICollection<TbShipment> Shipments { get; set; } = new List<TbShipment>();
+
 }

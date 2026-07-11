@@ -31,7 +31,7 @@ namespace UI.Areas.Admin.Controllers
                 new TbUserReceiver
                 {
                     Id = Guid.Parse("44444444-1111-1111-1111-444444444444"),
-                    UserId = Guid.Parse("dd44ee55-66ff-77aa-88bb-99cc00dd11ee"),
+                    UserId = "dd44ee55-66ff-77aa-88bb-99cc00dd11ee",
                     ReceiverName = "سارة أحمد (Sarah Ahmed)",
                     Email = "sarah.ahmed@example.com",
                     Phone = "+201009876543",
@@ -44,7 +44,7 @@ namespace UI.Areas.Admin.Controllers
                 new TbUserReceiver
                 {
                     Id = Guid.Parse("55555555-2222-2222-2222-555555555555"),
-                    UserId = Guid.Parse("ee55ff66-77aa-88bb-99cc-00dd11ee22ff"),
+                    UserId = "ee55ff66-77aa-88bb-99cc-00dd11ee22ff",
                     ReceiverName = "علي حسن (Ali Hassan)",
                     Email = "ali.hassan@example.com",
                     Phone = "+966509876543",
@@ -57,7 +57,7 @@ namespace UI.Areas.Admin.Controllers
                 new TbUserReceiver
                 {
                     Id = Guid.Parse("66666666-3333-3333-3333-666666666666"),
-                    UserId = Guid.Parse("ff66aa77-88bb-99cc-00dd-11ee22ff33aa"),
+                    UserId = "ff66aa77-88bb-99cc-00dd-11ee22ff33aa",
                     ReceiverName = "فاطمة عمر (Fatima Omar)",
                     Email = "fatima.omar@example.com",
                     Phone = "+12025550199",
@@ -79,7 +79,7 @@ namespace UI.Areas.Admin.Controllers
             var receiver = new TbUserReceiver
             {
                 Id = id,
-                UserId = Guid.Parse("dd44ee55-66ff-77aa-88bb-99cc00dd11ee"),
+                UserId = "dd44ee55-66ff-77aa-88bb-99cc00dd11ee",
                 ReceiverName = "سارة أحمد (Sarah Ahmed)",
                 Email = "sarah.ahmed@example.com",
                 Phone = "+201009876543",
@@ -125,7 +125,7 @@ namespace UI.Areas.Admin.Controllers
             // Hardcoded update model with pre-filled values
             var dto = new UpdateUserReceiverDto
             {
-                UserId = Guid.Parse("dd44ee55-66ff-77aa-88bb-99cc00dd11ee"),
+                UserId = "dd44ee55-66ff-77aa-88bb-99cc00dd11ee",
                 ReceiverName = "سارة أحمد (Sarah Ahmed)",
                 Email = "sarah.ahmed@example.com",
                 Phone = "+201009876543",

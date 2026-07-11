@@ -1,0 +1,441 @@
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Services\Shipment\RateCalculator.cs ====================
+
+// BL/Services/Shipment/RateCalculator.cs
+
+using BL.Common.Results;
+using BL.Contract.IServices;
+using BL.Contract.IServices.Shipment;
+using BL.DTOs.Shipment;
+using DAL.Contracts;
+using Domain.Entities;
+
+namespace BL.Services.Shipment;
+
+public class RateCalculator : IRateCalculator
+{
+    private readonly IGenericRepository<TbSetting> _settingRepository;
+    private readonly IGenericRepository<TbShippingType> _shippingTypeRepository;
+    private readonly IGenericRepository<TbUserSender> _senderRepository;
+    private readonly IGenericRepository<TbUserReceiver> _receiverRepository;
+    private readonly IGenericRepository<TbUserSubscription> _subscriptionRepository;
+    private readonly IGenericRepository<TbSubscriptionPackage> _packageRepository;
+
+    // Industrial standard for volumetric weight calculation (cubic centimeters / 5000 = kilograms)
+    private const double VolumetricDivisor = 5000d;
+
+    // Base distance for same city (in km)
+    private const decimal SameCityBaseDistance = 10m;
+
+    // Average distance for different cities (temporary fallback)
+    private const decimal DifferentCityFallbackDistance = 150m;
+
+    public RateCalculator(
+        IGenericRepository<TbSetting> settingRepository,
+        IGenericRepository<TbShippingType> shippingTypeRepository,
+        IGenericRepository<TbUserSender> senderRepository,
+        IGenericRepository<TbUserReceiver> receiverRepository,
+        IGenericRepository<TbUserSubscription> subscriptionRepository,
+        IGenericRepository<TbSubscriptionPackage> packageRepository)
+    {
+        _settingRepository = settingRepository;
+        _shippingTypeRepository = shippingTypeRepository;
+        _senderRepository = senderRepository;
+        _receiverRepository = receiverRepository;
+        _subscriptionRepository = subscriptionRepository;
+        _packageRepository = packageRepository;
+    }
+
+    public async Task<decimal> CalculateShippingRate(CreateShipmentDto dto)
+    {
+        // 1. Check if subscription covers this shipment
+        if (dto.UserSubscriptionId.HasValue && dto.UserSubscriptionId.Value != Guid.Empty)
+        {
+            var subscriptionResult = await TryConsumeFromSubscription(dto.UserSubscriptionId.Value, dto);
+            if (subscriptionResult)
+                return 0m; // Shipping is fully covered by subscription
+        }
+
+        // 2. Calculate standard rate
+        return await CalculateStandardRate(dto);
+    }
+
+    #region Private Helper Methods
+
+    private async Task<decimal> CalculateStandardRate(CreateShipmentDto dto)
+    {
+        // 1. Get settings
+        var settings = await _settingRepository.GetAllAsync();
+        var setting = settings.FirstOrDefault();
+
+        if (setting is null)
+            throw new InvalidOperationException("Shipping settings are not configured.");
+
+        if (!setting.KiloMeterRate.HasValue || !setting.KilooGramRate.HasValue)
+            throw new InvalidOperationException(
+                "Shipping settings are incomplete (KiloMeterRate or KilooGramRate is not set).");
+
+        var kiloMeterRate = (decimal)setting.KiloMeterRate.Value;
+        var kilooGramRate = (decimal)setting.KilooGramRate.Value;
+
+        // 2. Get shipping type
+        var shippingType = await _shippingTypeRepository.GetByIdAsync(dto.ShippingTypeId);
+        if (shippingType is null)
+            throw new InvalidOperationException($"Shipping type with ID '{dto.ShippingTypeId}' not found.");
+
+        // 3. Get sender and receiver
+        var sender = await _senderRepository.GetByIdAsync(dto.SenderId);
+        if (sender is null)
+            throw new InvalidOperationException($"Sender with ID '{dto.SenderId}' not found.");
+
+        var receiver = await _receiverRepository.GetByIdAsync(dto.ReceiverId);
+        if (receiver is null)
+            throw new InvalidOperationException($"Receiver with ID '{dto.ReceiverId}' not found.");
+
+        // 4. Calculate volumetric weight
+        var volumetricWeight = (dto.Width * dto.Height * dto.Length) / VolumetricDivisor;
+        var billableWeight = Math.Max(dto.Weight, volumetricWeight);
+
+        // 5. Calculate weight cost
+        var weightCost = (decimal)billableWeight * kilooGramRate * (decimal)shippingType.ShippingFactor;
+
+        // 6. Calculate distance cost
+        var distanceCost = await CalculateDistanceCost(sender.CityId, receiver.CityId, kiloMeterRate);
+
+        // 7. Calculate total rate
+        var totalRate = weightCost + distanceCost;
+
+        return Math.Round(totalRate, 2);
+    }
+
+    private async Task<decimal> CalculateDistanceCost(Guid senderCityId, Guid receiverCityId, decimal kiloMeterRate)
+    {
+        // TODO: Integrate with a Distance Matrix API (Google Maps, etc.)
+        // For now, use a simplified calculation
+
+        if (senderCityId == receiverCityId)
+        {
+            // Same city: base distance
+            return kiloMeterRate * SameCityBaseDistance;
+        }
+
+        // Different cities: Try to get distance from a cache or database
+        var distance = await GetDistanceBetweenCities(senderCityId, receiverCityId);
+
+        return kiloMeterRate * distance;
+    }
+
+    private async Task<decimal> GetDistanceBetweenCities(Guid senderCityId, Guid receiverCityId)
+    {
+        // TODO: Implement actual distance calculation
+        // Option 1: Call Google Maps Distance Matrix API
+        // Option 2: Query a pre-populated distance table in the database
+        // Option 3: Use a third-party service
+
+        // For now, return fallback distance
+        return DifferentCityFallbackDistance;
+    }
+
+    public async Task<bool> TryConsumeFromSubscription(Guid subscriptionId, CreateShipmentDto dto)
+    {
+        // 1. Get the user subscription with package details
+        var subscription = await _subscriptionRepository
+            .GetFirstOrDefaultAsync(s => s.Id == subscriptionId && s.IsActive);
+
+        if (subscription is null)
+            return false;
+
+        // 2. Check if subscription is expired
+        if (subscription.ExpiryDate.HasValue && subscription.ExpiryDate.Value < DateTime.UtcNow)
+            return false;
+
+        // 3. Get package details
+        var package = await _packageRepository.GetByIdAsync(subscription.PackageId);
+        if (package is null)
+            return false;
+
+        // 4. Check if shipment count quota is available
+        if (subscription.UsedShipmentCount >= package.ShipmentCount)
+            return false;
+
+        // 5. Check if weight quota is available
+        if (subscription.UsedTotalWeight + dto.Weight > package.TotalWeight)
+            return false;
+
+        // 6. Check if distance quota is available
+        var distance = await GetDistanceBetweenCities(dto.SenderId, dto.ReceiverId);
+        if (subscription.UsedTotalDistance + (double)distance > package.NumberOfKiloMeters)
+            return false;
+
+        // 7. All checks passed - update subscription usage
+        // (This will be done in the CreateShipment method to ensure atomicity)
+        return true;
+    }
+    private async Task<int> GetShipmentCountUsed(Guid subscriptionId)
+    {
+        // TODO: Implement logic to count shipments linked to this subscription
+        // For now, return 0
+        return 0;
+    }
+
+    private async Task<decimal> GetDistanceBetweenSenderAndReceiver(Guid senderId, Guid receiverId)
+    {
+        // Get sender and receiver
+        var sender = await _senderRepository.GetByIdAsync(senderId);
+        var receiver = await _receiverRepository.GetByIdAsync(receiverId);
+
+        if (sender is null || receiver is null)
+            return DifferentCityFallbackDistance;
+
+        // Get distance between cities
+        return await GetDistanceBetweenCities(sender.CityId, receiver.CityId);
+    }
+
+    public async Task UpdateSubscriptionUsage(Guid subscriptionId, CreateShipmentDto dto, decimal distance)
+    {
+        var subscription = await _subscriptionRepository.GetByIdAsync(subscriptionId);
+        if (subscription is null)
+            return;
+
+        subscription.UsedShipmentCount++;
+        subscription.UsedTotalWeight += dto.Weight;
+        subscription.UsedTotalDistance += (double)distance;
+
+        await _subscriptionRepository.UpdateAsync(subscriptionId, subscription);
+    }
+
+    #endregion
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Services\Shipment\ShippmentService.cs ====================
+
+using BL.Common.Results;
+using BL.Contract.IServices;
+using BL.Contract.IServices.Shipment;
+using BL.DTOs.Shipment;
+using BL.Mapping;
+using DAL.Contracts;
+using Domain.Entities;
+
+namespace BL.Services.Shipment;
+
+public class ShipmentService
+    : BaseService<TbShipment, ShipmentDto, CreateShipmentDto, UpdateShipmentDto>, IShipmentService
+{
+    private readonly IUserReceiverService _userReceiver;
+    private readonly IUserSenderService _userSender;
+    private readonly ITrackingNumberCalculator _trackingNumberCalculator;
+    private readonly IRateCalculator _rateCalculator;
+
+    // Add these services for validation
+    private readonly IShippingTypeService _shippingTypeService;
+    private readonly IPaymentMethodService _paymentMethodService;
+    private readonly IUserSubscriptionService _userSubscriptionService;
+    private readonly IShippingPackagingService _shippingPackagingService;
+
+    public ShipmentService(
+        IGenericRepository<TbShipment> repository,
+        IMapper mapper,
+        IUserService userService,
+        IUserReceiverService userReceiver,
+        IUserSenderService userSender,
+        ITrackingNumberCalculator trackingNumberCalculator,
+        IRateCalculator rateCalculator,
+        IUnitOfWork unitOfWork,
+        IShippingTypeService shippingTypeService,
+        IPaymentMethodService paymentMethodService,
+        IUserSubscriptionService userSubscriptionService,
+        IShippingPackagingService shippingPackagingService)
+        : base(unitOfWork, mapper, userService)
+    {
+        _userReceiver = userReceiver;
+        _userSender = userSender;
+        _trackingNumberCalculator = trackingNumberCalculator;
+        _rateCalculator = rateCalculator;
+        _shippingTypeService = shippingTypeService;
+        _paymentMethodService = paymentMethodService;
+        _userSubscriptionService = userSubscriptionService;
+        _shippingPackagingService = shippingPackagingService;
+    }
+
+    public async Task<Result<Guid>> CreateShipment(CreateShipmentDto dto)
+    {
+        await _unitOfWork.BeginTransactionAsync();
+
+        try
+        {
+            // 1. Validate all references
+            var validationResult = await ValidateShipmentReferencesAsync(dto);
+            if (validationResult.IsFailure)
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                return validationResult.Errors.ToList();
+            }
+
+            // 2. Validate sender and receiver
+            var senderReceiverValidation = await ValidateSenderAndReceiverAsync(dto);
+            if (senderReceiverValidation.IsFailure)
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                return senderReceiverValidation.Errors.ToList();
+            }
+
+            // 3. Generate tracking number
+            dto.TrackingNumber = await _trackingNumberCalculator.GenerateTrackingNumber();
+
+            // 4. Calculate shipping rate
+            dto.ShippingRate = await _rateCalculator.CalculateShippingRate(dto);
+
+
+
+            // 5. Create the shipment
+            var result = await CreateAsync(dto);
+
+            if (result.IsFailure)
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                return result;
+            }
+
+            await _unitOfWork.CommitTransactionAsync();
+            return result;
+        }
+        catch
+        {
+            await _unitOfWork.RollbackTransactionAsync();
+            throw;
+        }
+    }
+
+    #region Private Methods
+
+    private async Task<Result> ValidateShipmentReferencesAsync(CreateShipmentDto dto)
+    {
+        var errors = new List<Error>();
+
+        // Validate ShippingTypeId
+        if (dto.ShippingTypeId == Guid.Empty)
+            errors.Add(Error.Validation("ShippingType.Required", "Shipping type is required."));
+        else
+        {
+            var shippingType = await _shippingTypeService.GetByIdAsync(dto.ShippingTypeId);
+            if (shippingType.IsFailure || shippingType.Value is null)
+                errors.Add(Error.NotFound("ShippingType.NotFound", "Shipping type was not found."));
+        }
+
+        // Validate PaymentMethodId (optional)
+        if (dto.PaymentMethodId.HasValue && dto.PaymentMethodId.Value != Guid.Empty)
+        {
+            var paymentMethod = await _paymentMethodService.GetByIdAsync(dto.PaymentMethodId.Value);
+            if (paymentMethod.IsFailure || paymentMethod.Value is null)
+                errors.Add(Error.NotFound("PaymentMethod.NotFound", "Payment method was not found."));
+        }
+
+        // Validate UserSubscriptionId (optional)
+        if (dto.UserSubscriptionId.HasValue && dto.UserSubscriptionId.Value != Guid.Empty)
+        {
+            var subscription = await _userSubscriptionService.GetByIdAsync(dto.UserSubscriptionId.Value);
+            if (subscription.IsFailure || subscription.Value is null)
+                errors.Add(Error.NotFound("UserSubscription.NotFound", "User subscription was not found."));
+        }
+
+        // Validate ShippingPackagingId (optional)
+        if (dto.ShippingPackagingId.HasValue && dto.ShippingPackagingId.Value != Guid.Empty)
+        {
+            var packaging = await _shippingPackagingService.GetByIdAsync(dto.ShippingPackagingId.Value);
+            if (packaging.IsFailure || packaging.Value is null)
+                errors.Add(Error.NotFound("ShippingPackaging.NotFound", "Shipping packaging was not found."));
+        }
+
+        // Validate ReferenceId (optional - might be a parent shipment)
+        if (dto.ReferenceId.HasValue && dto.ReferenceId.Value != Guid.Empty)
+        {
+            // You can check if this reference exists in the database
+            // But you need to be careful about circular references
+            var referenceShipment = await GetByIdAsync(dto.ReferenceId.Value);
+            if (referenceShipment.IsFailure || referenceShipment.Value is null)
+                errors.Add(Error.NotFound("ReferenceShipment.NotFound", "Reference shipment was not found."));
+        }
+
+        if (errors.Any())
+            return Result.Failure(errors);
+
+        return Result.Success();
+    }
+
+    private async Task<Result> ValidateSenderAndReceiverAsync(CreateShipmentDto dto)
+    {
+        // Validate SenderId
+        if (dto.SenderId == Guid.Empty)
+            return Error.Validation("Sender.Required", "Sender is required.");
+
+        var sender = await _userSender.GetByIdAsync(dto.SenderId);
+        if (sender is null || sender.IsFailure)
+            return Error.NotFound("Sender.NotFound", "Sender was not found.");
+
+        // Validate ReceiverId
+        if (dto.ReceiverId == Guid.Empty)
+            return Error.Validation("Receiver.Required", "Receiver is required.");
+
+        var receiver = await _userReceiver.GetByIdAsync(dto.ReceiverId);
+        if (receiver is null || receiver.IsFailure)
+            return Error.NotFound("Receiver.NotFound", "Receiver was not found.");
+
+        // Optional: Check if sender and receiver are the same
+        if (dto.SenderId == dto.ReceiverId)
+            return Error.Validation("SameSenderReceiver", "Sender and receiver cannot be the same person.");
+
+        // Optional: Check if sender and receiver are in the same country
+        // You could add more business rules here
+
+        return Result.Success();
+    }
+
+    #endregion
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Services\Shipment\TrackingNumberCalculator.cs ====================
+
+using BL.Contract.IServices.Shipment;
+using DAL.Contracts;
+using Domain.Entities;
+
+namespace BL.Services.Shipment;
+
+public class TrackingNumberCalculator : ITrackingNumberCalculator
+{
+    private readonly IGenericRepository<TbShipment> _shipmentRepository;
+    private const int MaxRetries = 5;
+
+    public TrackingNumberCalculator(IGenericRepository<TbShipment> shipmentRepository)
+    {
+        _shipmentRepository = shipmentRepository;
+    }
+
+    public async Task<string> GenerateTrackingNumber()
+    {
+        for (int attempt = 0; attempt < MaxRetries; attempt++)
+        {
+            var candidate = BuildCandidate();
+
+            var exists = await _shipmentRepository
+                .ExistsAsync(s => s.TrackingNumber == candidate);
+
+            if (!exists)
+                return candidate;
+        }
+
+        throw new InvalidOperationException(
+            $"Failed to generate a unique tracking number after {MaxRetries} attempts.");
+    }
+
+    private static string BuildCandidate()
+    {
+        // Generate a tracking number in the format "EG" + number digits
+        var random = Random.Shared.Next(100_000_000, 999_999_999);
+        return $"EG{random}";
+    }
+}

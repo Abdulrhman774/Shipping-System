@@ -46,5 +46,10 @@ public class TbShipmentConfiguration : BaseEntityConfiguration<TbShipment>
         builder.HasOne(d => d.ShippingPackaging)
                .WithMany(p => p.TbShipments)
                .HasForeignKey(d => d.ShippingPackagingId);
+
+        builder.HasOne(d => d.UserSubscription)
+            .WithMany(p => p.Shipments)
+            .HasForeignKey(d => d.UserSubscriptionId)
+            .OnDelete(DeleteBehavior.SetNull);  // If subscription is deleted, keep shipment
     }
 }

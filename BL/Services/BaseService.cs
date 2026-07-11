@@ -46,7 +46,7 @@ public class BaseService<T, TDto, TCreateDto, TUpdateDto> : IBaseService<T, TDto
         return _mapper.Map<T, TDto>(entity);
     }
 
-    public async Task<Result> AddAsync(TCreateDto dto)
+    public virtual async Task<Result> AddAsync(TCreateDto dto)
     {
         var entity = _mapper.Map<TCreateDto, T>(dto);
 
@@ -62,7 +62,7 @@ public class BaseService<T, TDto, TCreateDto, TUpdateDto> : IBaseService<T, TDto
         return Result.Success();
     }
 
-    public async Task<Result> UpdateAsync(Guid id, TUpdateDto dto)
+    public virtual async Task<Result> UpdateAsync(Guid id, TUpdateDto dto)
     {
         var entity = _mapper.Map<TUpdateDto, T>(dto);
 
@@ -79,7 +79,7 @@ public class BaseService<T, TDto, TCreateDto, TUpdateDto> : IBaseService<T, TDto
         return Result.Success();
     }
 
-    public async Task<Result> DeleteAsync(Guid id)
+    public virtual async Task<Result> DeleteAsync(Guid id)
     {
         var deleted = await _repository.DeleteAsync(
             id,
@@ -93,7 +93,7 @@ public class BaseService<T, TDto, TCreateDto, TUpdateDto> : IBaseService<T, TDto
         return Result.Success();
     }
 
-    public async Task<Result> ChangeStatusAsync(Guid id, enEntityState status = enEntityState.Active)
+    public virtual async Task<Result> ChangeStatusAsync(Guid id, enEntityState status = enEntityState.Active)
     {
         var changed = await _repository.ChangeStatusAsync(
             id,
@@ -108,7 +108,7 @@ public class BaseService<T, TDto, TCreateDto, TUpdateDto> : IBaseService<T, TDto
         return Result.Success();
     }
 
-    public async Task<Result<Guid>> CreateAsync(TCreateDto dto)
+    public virtual async Task<Result<Guid>> CreateAsync(TCreateDto dto)
     {
         var entity = _mapper.Map<TCreateDto, T>(dto);
 

@@ -1,0 +1,3424 @@
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Common\Results\enErrorKind.cs ====================
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace BL.Common.Results;
+
+public enum enErrorKind
+{
+    Failure,
+    Validation,
+    NotFound,
+    Conflict,
+    Unauthorized,
+    Forbidden,
+    Unexpected
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Common\Results\Error.cs ====================
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace BL.Common.Results;
+
+public sealed record Error(string Code, string Description, enErrorKind Type)
+{
+    public static Error Failure(
+        string code,
+        string description)
+        => new(code, description, enErrorKind.Failure);
+
+    public static Error Validation(
+        string code,
+        string description)
+        => new(code, description, enErrorKind.Validation);
+
+    public static Error NotFound(
+        string code,
+        string description)
+        => new(code, description, enErrorKind.NotFound);
+
+    public static Error Conflict(
+        string code,
+        string description)
+        => new(code, description, enErrorKind.Conflict);
+
+    public static Error Unauthorized(
+        string code,
+        string description)
+        => new(code, description, enErrorKind.Unauthorized);
+
+    public static Error Forbidden(
+        string code,
+        string description)
+        => new(code, description, enErrorKind.Forbidden);
+
+    public static Error Unexpected(
+        string code,
+        string description)
+        => new(code, description, enErrorKind.Unexpected);
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Common\Results\IdentityResultExtensions.cs ====================
+
+using Microsoft.AspNetCore.Identity;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace BL.Common.Results;
+
+public static class IdentityResultExtensions
+{
+    public static List<Error> ToErrors(this IdentityResult result)
+    {
+        return result.Errors
+            .Select(e => Error.Validation(
+                e.Code,
+                e.Description))
+            .ToList();
+    }
+
+    public static Result ToResult(this IdentityResult result)
+    {
+        return result.Succeeded
+            ? Result.Success()
+            : Result.Failure(result.ToErrors());
+    }
+
+    public static Result<T> ToFailureResult<T>(this IdentityResult result)
+    {
+        return result.ToErrors();
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Common\Results\IResult.cs ====================
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace BL.Common.Results;
+
+public interface IResult
+{
+    bool IsSuccess { get; }
+
+    IReadOnlyList<Error> Errors { get; }
+}
+
+public interface IResult<out T> : IResult
+{
+    T Value { get; }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Common\Results\Result.cs ====================
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace BL.Common.Results;
+
+public class Result<T> : IResult<T>
+{
+    private readonly T? _value;
+
+    private readonly List<Error> _errors = [];
+
+    public bool IsSuccess { get; }
+
+    public bool IsFailure => !IsSuccess;
+
+    public T Value =>
+        IsSuccess
+            ? _value!
+            : throw new InvalidOperationException("No value exists.");
+
+    public IReadOnlyList<Error> Errors => _errors;
+
+    public Error? FirstError => _errors.FirstOrDefault();
+
+    private Result(T value)
+    {
+        IsSuccess = true;
+        _value = value;
+    }
+
+    private Result(IEnumerable<Error> errors)
+    {
+        ArgumentNullException.ThrowIfNull(errors);
+
+        if (!errors.Any())
+            throw new ArgumentException(
+                "Failure must contain at least one error.");
+
+        IsSuccess = false;
+        _errors.AddRange(errors);
+    }
+
+    public static Result<T> Success(T value)
+        => new(value);
+
+    public static Result<T> Failure(params Error[] errors)
+        => new(errors);
+
+    // implicit operators
+
+    public static implicit operator Result<T>(T value)
+        => Success(value);
+
+    public static implicit operator Result<T>(Error error)
+        => Failure(error);
+
+    public static implicit operator Result<T>(List<Error> errors)
+        => new(errors);
+
+}
+
+public class Result : IResult
+{
+    private readonly List<Error> _errors = [];
+
+    public bool IsSuccess { get; }
+
+    public bool IsFailure => !IsSuccess;
+
+    public IReadOnlyList<Error> Errors => _errors;
+
+    public Error? FirstError => _errors.FirstOrDefault();
+
+    private Result()
+    {
+        IsSuccess = true;
+    }
+
+    private Result(IEnumerable<Error> errors)
+    {
+        ArgumentNullException.ThrowIfNull(errors);
+
+        if (!errors.Any())
+            throw new ArgumentException(
+                "Failure result must contain at least one error.",
+                nameof(errors));
+
+        IsSuccess = false;
+        _errors.AddRange(errors);
+    }
+
+    #region Factory Methods
+
+    public static Result Success()
+        => new();
+
+    public static Result Failure(params Error[] errors)
+        => new(errors);
+
+    public static Result Failure(IEnumerable<Error> errors)
+        => new(errors);
+
+    #endregion
+
+    #region Implicit Operators
+
+    public static implicit operator Result(Error error)
+        => Failure(error);
+
+    public static implicit operator Result(List<Error> errors)
+        => Failure(errors);
+
+    public static implicit operator Result(Error[] errors)
+        => Failure(errors);
+
+    #endregion
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Common\ApiResponse.cs ====================
+
+using Microsoft.AspNetCore.Http;
+
+namespace BL.Common;
+
+public class ApiResponse<T> : ApiResponse
+{
+    public T? Data { get; set; }
+
+    private static ApiResponse<T> Create(
+        bool success,
+        int statusCode,
+        string? error = null,
+        T? data = default)
+    {
+        return new ApiResponse<T>
+        {
+            Success = success,
+            StatusCode = statusCode,
+            Error = error,
+            Data = data
+        };
+    }
+
+    public static ApiResponse<T> Ok(T data)
+        => Create(true, 200, data: data);
+
+    public static new ApiResponse<T> BadRequest(string error)
+        => Create(false, 400, error);
+
+    public static new ApiResponse<T> Unauthorized(string error)
+        => Create(false, 401, error);
+
+    public static new ApiResponse<T> Forbidden(string error)
+        => Create(false, 403, error);
+
+    public static new ApiResponse<T> NotFound(string error)
+        => Create(false, 404, error);
+
+    public static new ApiResponse<T> Conflict(string error)
+        => Create(false, 409, error);
+
+    public static new ApiResponse<T> InternalServerError(string error)
+        => Create(false, 500, error);
+
+
+}
+
+public class ApiResponse
+{
+    public bool Success { get; set; }
+
+    public int StatusCode { get; set; }
+
+    public string? Error { get; set; }
+
+    public static ApiResponse Succeded() => new()
+    {
+        Success = true,
+        StatusCode = StatusCodes.Status200OK
+    };
+
+    public static ApiResponse Created() => new()
+    {
+        Success = true,
+        StatusCode = StatusCodes.Status201Created
+    };
+
+    public static ApiResponse BadRequest(string error) => new()
+    {
+        Success = false,
+        StatusCode = StatusCodes.Status400BadRequest,
+        Error = error
+    };
+
+    public static ApiResponse Unauthorized(string error) => new()
+    {
+        Success = false,
+        StatusCode = StatusCodes.Status401Unauthorized,
+        Error = error
+    };
+
+    public static ApiResponse Forbidden(string error) => new()
+    {
+        Success = false,
+        StatusCode = StatusCodes.Status403Forbidden,
+        Error = error
+    };
+
+    public static ApiResponse NotFound(string error) => new()
+    {
+        Success = false,
+        StatusCode = StatusCodes.Status404NotFound,
+        Error = error
+    };
+
+    public static ApiResponse Conflict(string error) => new()
+    {
+        Success = false,
+        StatusCode = StatusCodes.Status409Conflict,
+        Error = error
+    };
+
+    public static ApiResponse InternalServerError(string error) => new()
+    {
+        Success = false,
+        StatusCode = StatusCodes.Status500InternalServerError,
+        Error = error
+    };
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Contract\IServices\Shipment\IRateCalculator.cs ====================
+
+using BL.DTOs.Shipment;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace BL.Contract.IServices.Shipment;
+
+public interface IRateCalculator
+{
+    Task<decimal> CalculateShippingRate(CreateShipmentDto createShipmentDto);
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Contract\IServices\Shipment\IShippmentService.cs ====================
+
+using Domain.Entities;
+using BL.DTOs.Shipment;
+using BL.Common.Results;
+
+namespace BL.Contract.IServices.Shipment;
+
+public interface IShipmentService 
+    : IBaseService<TbShipment, ShipmentDto, CreateShipmentDto, UpdateShipmentDto>
+{
+    Task<Result<Guid>> CreateShipment(CreateShipmentDto dto);
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Contract\IServices\Shipment\ITrackingNumberCalculator.cs ====================
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace BL.Contract.IServices.Shipment;
+
+public interface ITrackingNumberCalculator
+{
+    Task<string> GenerateTrackingNumber();
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Contract\IServices\IAuthService.cs ====================
+
+using BL.Common.Results;
+using BL.DTOs.Auth.Requests;
+using BL.DTOs.Auth.Responses;
+
+namespace BL.Contract.IServices;
+
+public interface IAuthService
+{
+    Task<Result<TokenResponseDto>> LoginAsync(LoginRequestDto dto);
+    Task<Result<RegisterResponseDto>> RegisterAsync(RegisterRequestDto dto);
+    Task<Result> LogoutAsync(string userId);
+    Task<Result> ChangePasswordAsync(string Username, ChangePasswordRequstDto dto);
+    Task<Result> ResetPasswordAsync(string Username);
+    Task<Result<IEnumerable<string>>> GetRolesAsync(string userId);
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Contract\IServices\ICarrierService.cs ====================
+
+using Domain.Entities;
+using BL.DTOs.Carrier;
+
+namespace BL.Contract.IServices;
+
+public interface ICarrierService 
+    : IBaseService<TbCarrier, CarrierDto, CreateCarrierDto, UpdateCarrierDto> { }
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Contract\IServices\ICityService.cs ====================
+
+using BL.DTOs.City;
+using BL.DTOs.Country;
+using Domain.Entities;
+
+namespace BL.Contract.IServices;
+
+public interface ICityService 
+    : IBaseService<TbCity, CityDto, CreateCityDto, UpdateCityDto> {
+    Task<List<CityDto>> GetAllByCountryId(Guid CountryId);
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Contract\IServices\ICountryService.cs ====================
+
+using Domain.Entities;
+using BL.DTOs.Country;
+
+namespace BL.Contract.IServices;
+
+public interface ICountryService 
+    : IBaseService<TbCountry, CountryDto, CreateCountryDto, UpdateCountryDto> { }
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Contract\IServices\IPaymentMethodService.cs ====================
+
+using Domain.Entities;
+using BL.DTOs.PaymentMethod;
+
+namespace BL.Contract.IServices;
+
+public interface IPaymentMethodService 
+    : IBaseService<TbPaymentMethod, PaymentMethodDto, CreatePaymentMethodDto, UpdatePaymentMethodDto> { }
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Contract\IServices\IRefreshTokenService.cs ====================
+
+using BL.DTOs.RefreshToken;
+using Domain.Entities;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace BL.Contract.IServices;
+
+public interface IRefreshTokenService
+{
+    Task<string?> GetRefreshTokenByUserIdAsync(string userId);
+    public Task<RefreshTokenDto?> GetTokenAsync(string token);
+    Task<bool> RevokeTokensAsync(string userId);
+    Task<bool> SaveTokenAsync(string userId, string token, DateTime expires);
+    Task<bool> RevokeTokenAsync(string userId, string token);
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Contract\IServices\ISettingService.cs ====================
+
+using BL.DTOs.Setting;
+using Domain.Entities;
+
+namespace BL.Contract.IServices;
+
+public interface ISettingService : IBaseService<TbSetting, SettingDto, CreateSettingDto, UpdateSettingDto> { }
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Contract\IServices\IShippingPackagingService.cs ====================
+
+using BL.DTOs.ShippingPackaging;
+using Domain.Entities;
+
+namespace BL.Contract.IServices;
+
+public interface IShippingPackagingService
+    : IBaseService<TbShippingPackaging, ShippingPackagingDto, CreateShippingPackagingDto, UpdateShippingPackagingDto>
+{ }
+
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Contract\IServices\IShippingTypeService.cs ====================
+
+using Domain.Entities;
+using BL.DTOs.ShippingType;
+
+namespace BL.Contract.IServices;
+
+public interface IShippingTypeService 
+    : IBaseService<TbShippingType, ShippingTypeDto, CreateShippingTypeDto, UpdateShippingTypeDto> { }
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Contract\IServices\IShippmentStatusService.cs ====================
+
+using Domain.Entities;
+using BL.DTOs.ShippingPackaging;
+using BL.DTOs.ShipmentStatus;
+
+namespace BL.Contract.IServices;
+
+public interface IShipmentStatusService 
+    : IBaseService<TbShipmentStatus, ShipmentStatusDto, CreateShipmentStatusDto, UpdateShipmentStatusDto> { }
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Contract\IServices\ISubscriptionPackageService.cs ====================
+
+using Domain.Entities;
+using BL.DTOs.SubscriptionPackage;
+
+namespace BL.Contract.IServices;
+
+public interface ISubscriptionPackageService 
+    : IBaseService<TbSubscriptionPackage, SubscriptionPackageDto, CreateSubscriptionPackageDto, UpdateSubscriptionPackageDto> { }
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Contract\IServices\IUserReceiverService.cs ====================
+
+using Domain.Entities;
+using BL.DTOs.UserReceiver;
+
+namespace BL.Contract.IServices;
+
+public interface IUserReceiverService 
+    : IBaseService<TbUserReceiver, UserReceiverDto, CreateUserReceiverDto, UpdateUserReceiverDto> { }
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Contract\IServices\IUserSenderService.cs ====================
+
+using Domain.Entities;
+using BL.DTOs.UserSender;
+
+namespace BL.Contract.IServices;
+
+public interface IUserSenderService 
+    : IBaseService<TbUserSender, UserSenderDto, CreateUserSenderDto, UpdateUserSenderDto> { }
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Contract\IServices\IUserService.cs ====================
+
+using BL.Common.Results;
+using BL.DTOs.Auth;
+using BL.DTOs.User;
+
+
+namespace BL.Contract.IServices;
+
+public interface IUserService
+{
+    Task<Result> DeleteAccountAsync(string userId);
+
+    Task<Result<IEnumerable<UserDto>>> GetAllUsersAsync();
+
+    Task<Result<UserDto>> GetByIdAsync(string id);
+
+    Task<Result> UpdateAsync(string updatedUserId, UpdateUserDto dto);
+
+    Task<Guid> GetLoggedInUserAsync();
+
+    Task<Result<UserDto>> GetUserByEmailOrUsernameAsync(string emailOrUsername);
+}
+
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Contract\IServices\IUserSubscriptionService.cs ====================
+
+using Domain.Entities;
+using BL.DTOs.UserSubscription;
+
+namespace BL.Contract.IServices;
+
+public interface IUserSubscriptionService 
+    : IBaseService<TbUserSubscription, UserSubscriptionDto, CreateUserSubscriptionDto, UpdateUserSubscriptionDto> { }
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Contract\IvwServices\IVwCitiesCountriesService.cs ====================
+
+using BL.DTOs.Views;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace BL.Contract.IvwServices;
+
+public interface IVwCitiesCountriesService
+{
+    Task<List<VwCitiesCountriesDto>> GetAllAsync();
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Contract\IBaseService.cs ====================
+
+using BL.Common.Results;
+using Domain.Shared;
+namespace BL.Contract;
+
+public interface IBaseService<T, TDto, TCreateDto, TUpdateDto> where T : BaseEntity
+{
+    Task<Result<IEnumerable<TDto>>> GetAllAsync();
+    Task<Result<TDto>> GetByIdAsync(Guid id);
+    Task<Result> AddAsync(TCreateDto dto);
+    Task<Result<Guid>> CreateAsync(TCreateDto dto);
+    Task<Result> UpdateAsync(Guid id, TUpdateDto dto);
+    Task<Result> DeleteAsync(Guid id);
+    Task<Result> ChangeStatusAsync(Guid id, enEntityState status = enEntityState.Active);
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\DTOs\Auth\Requests\ChangePasswordRequstDto.cs ====================
+
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace BL.DTOs.Auth.Requests
+{
+    public class ChangePasswordRequstDto
+    {
+        public Guid UserId { get; set;}
+        public string CurrentPassword { get; set; } = null!;
+        public string NewPassword { get; set; } = null!;
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\DTOs\Auth\Requests\LoginRequestDto.cs ====================
+
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace BL.DTOs.Auth.Requests;
+
+public class LoginRequestDto
+{
+    public string UsernameOrEmail { get; set; } = null!;
+    public string Password { get; set; } = null!;
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\DTOs\Auth\Requests\RefreshRequestDto.cs ====================
+
+//using System;
+//using System.Collections.Generic;
+//using System.Linq;
+//using System.Text;
+//using System.Threading.Tasks;
+
+//namespace BL.DTOs.Auth;
+
+//public class RefreshRequestDto
+//{
+//    public string RefreshToken { get; set; } = null!;
+//}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\DTOs\Auth\Requests\RefreshTokenRequestDto.cs ====================
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace BL.DTOs.Auth.Requests;
+
+/// <summary>
+/// Sent by any caller (MVC, React, Flutter, Postman, �) when they need
+/// to exchange a RefreshToken for new tokens.
+/// The API has zero knowledge of where the caller stored the token.
+/// </summary>
+public sealed class RefreshTokenRequestDto
+{
+    /// <summary>The opaque RefreshToken string previously issued by the API.</summary>
+    public string RefreshToken { get; set; } = string.Empty;
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\DTOs\Auth\Requests\RegisterRequestDto.cs ====================
+
+namespace BL.DTOs.Auth.Requests
+{
+    public class RegisterRequestDto
+    {
+        public string FirstName { get; set; } = null!;
+        public string SecondName { get; set; } = null!;
+        public string? ThirdName { get; set; }
+        public string LastName { get; set; } = null!;
+        public string Email { get; set; } = null!;
+        public string UserName { get; set; } = null!;
+        public string PhoneNumber { get; set; } = null!;
+        public string Password { get; set; } = null!;
+        public DateOnly DateOfBirth { get; set; }
+        public enGender Gender { get; set; }
+        public string ImageUrl { get; set; } = null!;
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\DTOs\Auth\Requests\RegisterResponseData.cs ====================
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace BL.DTOs.Auth.Requests;
+
+public class _RegisterResponseData
+{
+    public bool Success { get; set; }
+    public string Message { get; set; } = null!;
+    public string UserId { get; set; } = null!;
+    //public List<string>? Errors { get; set; }
+
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\DTOs\Auth\Responses\RefreshAccessTokenResponseDto.cs ====================
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace BL.DTOs.Auth.Responses;
+
+/// <summary>
+/// Returned by POST /Api/Auth/Refresh-AccessToken.
+/// Only a new AccessToken is issued; the RefreshToken is NOT rotated.
+/// Used by the MVC app after an app-restart wipes the Session.
+/// </summary>
+public sealed class RefreshAccessTokenResponseDto
+{
+    public string   AccessToken { get; set; } = string.Empty;
+    public DateTime ExpiresAt   { get; set; }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\DTOs\Auth\Responses\RefreshTokenResponseDto.cs ====================
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace BL.DTOs.Auth.Responses;
+
+/// <summary>
+/// Returned by POST /Api/Auth/RefreshToken.
+/// Contains both a new AccessToken and a rotated RefreshToken so the
+/// caller can update whatever storage mechanism it uses.
+/// </summary>
+public sealed class RefreshTokenResponseDto
+{
+    public string AccessToken { get; set; } = string.Empty;
+    public string RefreshToken { get; set; } = string.Empty;
+    public DateTime ExpiresAt { get; set; }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\DTOs\Auth\Responses\RegisterResponseDto.cs ====================
+
+namespace BL.DTOs.Auth.Responses;
+
+public class 
+    RegisterResponseDto
+{
+    public Guid UserId { get; set; }
+    public string Email { get; set; } = null!;
+    public string UserName { get; set; } = null!;
+}
+
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\DTOs\Auth\Responses\TokenResponseDto.cs ====================
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace BL.DTOs.Auth.Responses;
+
+public class TokenResponseDto
+{
+    public Guid UserId { get; set; }
+    public string AccessToken { get; set; } = null!;
+    public string RefreshToken { get; set; } = null!;
+    public string Email { get; set; } = null!;
+    public DateTime ExpiresAt { get; set; } 
+
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\DTOs\Base\BaseDto.cs ====================
+
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace BL.DTOs.Base
+{
+    public class BaseDto
+    {
+        public Guid Id { get; set; }
+        public enEntityState CurrentState { get; set; }
+        public DateTime CreatedDate { get; set; }
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\DTOs\Carrier\CarrierDto.cs ====================
+
+using BL.DTOs.Base;
+
+namespace BL.DTOs.Carrier
+{
+    public class CarrierDto : BaseDto
+    {
+        public string CarrierName { get; set; } = null!;
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\DTOs\Carrier\CreateCarrierDto.cs ====================
+
+namespace BL.DTOs.Carrier
+{
+    public class CreateCarrierDto
+    {
+        public string CarrierName { get; set; } = null!;
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\DTOs\Carrier\UpdateCarrierDto.cs ====================
+
+namespace BL.DTOs.Carrier
+{
+    public class UpdateCarrierDto
+    {
+        public string CarrierName { get; set; } = null!;
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\DTOs\City\CityDto.cs ====================
+
+using BL.DTOs.Base;
+
+namespace BL.DTOs.City
+{
+    public class CityDto : BaseDto
+    {
+        public string? CityAname { get; set; }
+        public string? CityEname { get; set; }
+        public Guid CountryId { get; set; }
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\DTOs\City\CreateCityDto.cs ====================
+
+namespace BL.DTOs.City
+{
+    public class CreateCityDto
+    {
+        public string? CityAname { get; set; }
+        public string? CityEname { get; set; }
+        public Guid CountryId { get; set; }
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\DTOs\City\UpdateCityDto.cs ====================
+
+namespace BL.DTOs.City
+{
+    public class UpdateCityDto
+    {
+        public string? CityAname { get; set; }
+        public string? CityEname { get; set; }
+        public Guid CountryId { get; set; }
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\DTOs\Country\CountryDto.cs ====================
+
+using BL.DTOs.Base;
+
+namespace BL.DTOs.Country
+{
+    public class CountryDto : BaseDto
+    {
+        public string? CountryAname { get; set; }
+        public string? CountryEname { get; set; }
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\DTOs\Country\CreateCountryDto.cs ====================
+
+namespace BL.DTOs.Country
+{
+    public class CreateCountryDto
+    {
+        public string? CountryAname { get; set; }
+        public string? CountryEname { get; set; }
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\DTOs\Country\UpdateCountryDto.cs ====================
+
+namespace BL.DTOs.Country
+{
+    public class UpdateCountryDto
+    {
+        public string? CountryAname { get; set; }
+        public string? CountryEname { get; set; }
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\DTOs\Log\CreateLogDto.cs ====================
+
+namespace BL.DTOs.Log
+{
+    public class CreateLogDto
+    {
+        public string? Message { get; set; }
+        public string? MessageTemplate { get; set; }
+        public string? Level { get; set; }
+        public DateTime? TimeStamp { get; set; }
+        public string? Exception { get; set; }
+        public string? Properties { get; set; }
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\DTOs\Log\LogDto.cs ====================
+
+using BL.DTOs.Base;
+
+namespace BL.DTOs.Log
+{
+    public class LogDto : BaseDto
+    {
+        public string? Message { get; set; }
+        public string? MessageTemplate { get; set; }
+        public string? Level { get; set; }
+        public DateTime? TimeStamp { get; set; }
+        public string? Exception { get; set; }
+        public string? Properties { get; set; }
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\DTOs\Log\UpdateLogDto.cs ====================
+
+namespace BL.DTOs.Log
+{
+    public class UpdateLogDto
+    {
+        public string? Message { get; set; }
+        public string? MessageTemplate { get; set; }
+        public string? Level { get; set; }
+        public DateTime? TimeStamp { get; set; }
+        public string? Exception { get; set; }
+        public string? Properties { get; set; }
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\DTOs\PaymentMethod\CreatePaymentMethodDto.cs ====================
+
+namespace BL.DTOs.PaymentMethod
+{
+    public class CreatePaymentMethodDto
+    {
+        public string? MethdAname { get; set; }
+        public string? MethodEname { get; set; }
+        public double? Commission { get; set; }
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\DTOs\PaymentMethod\PaymentMethodDto.cs ====================
+
+using BL.DTOs.Base;
+
+namespace BL.DTOs.PaymentMethod
+{
+    public class PaymentMethodDto : BaseDto
+    {
+        public string? MethdAname { get; set; }
+        public string? MethodEname { get; set; }
+        public double? Commission { get; set; }
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\DTOs\PaymentMethod\UpdatePaymentMethodDto.cs ====================
+
+namespace BL.DTOs.PaymentMethod
+{
+    public class UpdatePaymentMethodDto
+    {
+        public string? MethdAname { get; set; }
+        public string? MethodEname { get; set; }
+        public double? Commission { get; set; }
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\DTOs\RefreshToken\RefreshTokenDto.cs ====================
+
+using BL.DTOs.Base;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace BL.DTOs.RefreshToken;
+
+public class RefreshTokenDto : BaseDto
+{
+    public string Token { get; set; } = null!;
+    public string UserId { get; set; } = null!;
+    public DateTime Expires { get; set; }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\DTOs\Setting\CreateSettingDto.cs ====================
+
+namespace BL.DTOs.Setting
+{
+    public class CreateSettingDto
+    {
+        public double? KiloMeterRate { get; set; }
+        public double? KilooGramRate { get; set; }
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\DTOs\Setting\SettingDto.cs ====================
+
+using BL.DTOs.Base;
+
+namespace BL.DTOs.Setting
+{
+    public class SettingDto : BaseDto
+    {
+        public double? KiloMeterRate { get; set; }
+        public double? KilooGramRate { get; set; }
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\DTOs\Setting\UpdateSettingDto.cs ====================
+
+namespace BL.DTOs.Setting
+{
+    public class UpdateSettingDto
+    {
+        public double? KiloMeterRate { get; set; }
+        public double? KilooGramRate { get; set; }
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\DTOs\Shipment\CreateShipmentDto.cs ====================
+
+namespace BL.DTOs.Shipment
+{
+    public class CreateShipmentDto
+    {
+        public DateTime ShippingDate { get; set; }
+        public DateTime? DeliveryDate { get; set; }
+        public Guid SenderId { get; set; }
+        public Guid ReceiverId { get; set; }
+        public Guid ShippingTypeId { get; set; }
+        public double Width { get; set; }
+        public double Height { get; set; }
+        public double Weight { get; set; }
+        public double Length { get; set; }
+        public decimal PackageValue { get; set; }
+        public decimal ShippingRate { get; set; }
+        public Guid? PaymentMethodId { get; set; }
+        public Guid? UserSubscriptionId { get; set; }
+        public Guid? ShippingPackagingId { get; set; }
+        public string? TrackingNumber { get; set; }
+        public Guid? ReferenceId { get; set; }
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\DTOs\Shipment\ShipmentDto.cs ====================
+
+using BL.DTOs.Base;
+
+namespace BL.DTOs.Shipment
+{
+    public class ShipmentDto : BaseDto
+    {
+        public DateTime ShippingDate { get; set; }
+        public DateTime? DeliveryDate { get; set; }
+        public Guid SenderId { get; set; }
+        public Guid ReceiverId { get; set; }
+        public Guid ShippingTypeId { get; set; }
+        public double Width { get; set; }
+        public double Height { get; set; }
+        public double Weight { get; set; }
+        public double Length { get; set; }
+        public decimal PackageValue { get; set; }
+        public decimal ShippingRate { get; set; }
+        public Guid? PaymentMethodId { get; set; }
+        public Guid? UserSubscriptionId { get; set; }
+        public Guid? ShippingPackagingId { get; set; }
+        public string? TrackingNumber { get; set; }
+        public Guid? ReferenceId { get; set; }
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\DTOs\Shipment\UpdateShipmentDto.cs ====================
+
+namespace BL.DTOs.Shipment
+{
+    public class UpdateShipmentDto
+    {
+        public DateTime ShippingDate { get; set; }
+        public DateTime? DeliveryDate { get; set; }
+        public Guid SenderId { get; set; }
+        public Guid ReceiverId { get; set; }
+        public Guid ShippingTypeId { get; set; }
+        public double Width { get; set; }
+        public double Height { get; set; }
+        public double Weight { get; set; }
+        public double Length { get; set; }
+        public decimal PackageValue { get; set; }
+        public decimal ShippingRate { get; set; }
+        public Guid? PaymentMethodId { get; set; }
+        public Guid? UserSubscriptionId { get; set; }
+        public Guid? ShippingPackagingId { get; set; }
+        public string? TrackingNumber { get; set; }
+        public Guid? ReferenceId { get; set; }
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\DTOs\ShipmentStatus\CreateShipmentStatusDto.cs ====================
+
+namespace BL.DTOs.ShipmentStatus
+{
+    public class CreateShipmentStatusDto
+    {
+        public Guid? ShipmentId { get; set; }
+        public string? Notes { get; set; }
+        public Guid CarrierId { get; set; }
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\DTOs\ShipmentStatus\ShipmentStatusDto.cs ====================
+
+using BL.DTOs.Base;
+
+namespace BL.DTOs.ShipmentStatus;
+
+public class ShipmentStatusDto : BaseDto
+{
+    public Guid? ShipmentId { get; set; }
+    public string? Notes { get; set; }
+    public Guid CarrierId { get; set; }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\DTOs\ShipmentStatus\UpdateShipmentStatusDto.cs ====================
+
+namespace BL.DTOs.ShipmentStatus
+{
+    public class UpdateShipmentStatusDto
+    {
+        public Guid? ShipmentId { get; set; }
+        public string? Notes { get; set; }
+        public Guid CarrierId { get; set; }
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\DTOs\ShippingPackaging\CreateShippingPackagingDto.cs ====================
+
+namespace BL.DTOs.ShippingPackaging
+{
+    public class CreateShippingPackagingDto
+    {
+        public string? ShippingPackagingAname { get; set; }
+        public string? ShippingPackagingEname { get; set; }
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\DTOs\ShippingPackaging\ShippingPackagingDto.cs ====================
+
+using BL.DTOs.Base;
+
+namespace BL.DTOs.ShippingPackaging;
+
+public class ShippingPackagingDto : BaseDto
+{
+    public string? ShippingPackagingAname { get; set; }
+    public string? ShippingPackagingEname { get; set; }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\DTOs\ShippingPackaging\UpdateShippingPackagingDto.cs ====================
+
+namespace BL.DTOs.ShippingPackaging;
+
+public class UpdateShippingPackagingDto
+{
+    public string? ShippingPackagingAname { get; set; }
+    public string? ShippingPackagingEname { get; set; }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\DTOs\ShippingType\CreateShippingTypeDto.cs ====================
+
+namespace BL.DTOs.ShippingType
+{
+    public class CreateShippingTypeDto
+    {
+        public string? ShippingTypeAname { get; set; }
+        public string? ShippingTypeEname { get; set; }
+        public double ShippingFactor { get; set; }
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\DTOs\ShippingType\ShippingTypeDto.cs ====================
+
+using BL.DTOs.Base;
+
+namespace BL.DTOs.ShippingType
+{
+    public class ShippingTypeDto : BaseDto
+    {
+        public string? ShippingTypeAname { get; set; }
+        public string? ShippingTypeEname { get; set; }
+        public double ShippingFactor { get; set; }
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\DTOs\ShippingType\UpdateShippingTypeDto.cs ====================
+
+namespace BL.DTOs.ShippingType
+{
+    public class UpdateShippingTypeDto
+    {
+        public string? ShippingTypeAname { get; set; }
+        public string? ShippingTypeEname { get; set; }
+        public double ShippingFactor { get; set; }
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\DTOs\SubscriptionPackage\CreateSubscriptionPackageDto.cs ====================
+
+namespace BL.DTOs.SubscriptionPackage
+{
+    public class CreateSubscriptionPackageDto
+    {
+        public string PackageName { get; set; } = null!;
+        public int ShipimentCount { get; set; }
+        public double NumberOfKiloMeters { get; set; }
+        public double TotalWeight { get; set; }
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\DTOs\SubscriptionPackage\SubscriptionPackageDto.cs ====================
+
+using BL.DTOs.Base;
+
+namespace BL.DTOs.SubscriptionPackage
+{
+    public class SubscriptionPackageDto : BaseDto
+    {
+        public string PackageName { get; set; } = null!;
+        public int ShipimentCount { get; set; }
+        public double NumberOfKiloMeters { get; set; }
+        public double TotalWeight { get; set; }
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\DTOs\SubscriptionPackage\UpdateSubscriptionPackageDto.cs ====================
+
+namespace BL.DTOs.SubscriptionPackage
+{
+    public class UpdateSubscriptionPackageDto
+    {
+        public string PackageName { get; set; } = null!;
+        public int ShipimentCount { get; set; }
+        public double NumberOfKiloMeters { get; set; }
+        public double TotalWeight { get; set; }
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\DTOs\User\UpdateUserDto.cs ====================
+
+namespace BL.DTOs.User;
+
+public class UpdateUserDto
+{
+    public string FirstName { get; set; } = null!;
+    public string SecondName { get; set; } = null!;
+    public string? ThirdName { get; set; }
+    public string LastName { get; set; } = null!;
+
+    public DateOnly DateOfBirth { get; set; }
+
+    public enGender Gender { get; set; }
+
+    public string? ImageUrl { get; set; }
+
+    public string? PhoneNumber { get; set; }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\DTOs\User\UserDTO.cs ====================
+
+namespace BL.DTOs.User;
+
+public class UserDto
+{
+    public Guid Id { get; set; }
+    public string FirstName { get; set; } = null!;
+    public string SecondName { get; set; } = null!;
+    public string? ThirdName { get; set; }
+    public string LastName { get; set; } = null!;
+    public DateOnly? DateOfBirth { get; set; }
+    public string? PhoneNumber { get; set; }
+    public string Email { get; set; } = null!;
+    public enGender Gender { get; set; }
+    public string ImageUrl { get; set; } = null!;
+    
+    public byte Age
+    {
+        get
+        {
+            if (DateOfBirth is null)
+                return 0;
+
+            var today = DateOnly.FromDateTime(DateTime.Today);
+
+            var age = today.Year - DateOfBirth.Value.Year;
+
+            if (today < DateOfBirth.Value.AddYears(age))
+                age--;
+
+            return (byte)age;
+        }
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\DTOs\UserReceiver\CreateUserReceiverDto.cs ====================
+
+namespace BL.DTOs.UserReceiver
+{
+    public class CreateUserReceiverDto
+    {
+        public Guid? UserId { get; set; }
+        public string ReceiverName { get; set; } = null!;
+        public string Email { get; set; } = null!;
+        public string Phone { get; set; } = null!;
+        public string PostalCode { get; set; } = null!;
+        public string Contact { get; set; } = null!;
+        public string? OtherAddress { get; set; }
+        public bool IsDefaultAddress { get; set; }
+        public Guid CityId { get; set; }
+        public string Address { get; set; } = null!;
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\DTOs\UserReceiver\UpdateUserReceiverDto.cs ====================
+
+namespace BL.DTOs.UserReceiver
+{
+    public class UpdateUserReceiverDto
+    {
+        public Guid? UserId { get; set; }
+        public string ReceiverName { get; set; } = null!;
+        public string Email { get; set; } = null!;
+        public string Phone { get; set; } = null!;
+        public string PostalCode { get; set; } = null!;
+        public string Contact { get; set; } = null!;
+        public string OtherAddress { get; set; } = null!;
+        public bool IsDefaultAddress { get; set; }
+        public Guid CityId { get; set; }
+        public string Address { get; set; } = null!;
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\DTOs\UserReceiver\UserReceiverDto.cs ====================
+
+using BL.DTOs.Base;
+
+namespace BL.DTOs.UserReceiver
+{
+    public class UserReceiverDto : BaseDto
+    {
+        public Guid? UserId { get; set; }
+        public string ReceiverName { get; set; } = null!;
+        public string Email { get; set; } = null!;
+        public string Phone { get; set; } = null!;
+        public string PostalCode { get; set; } = null!;
+        public string Contact { get; set; } = null!;
+        public string OtherAddress { get; set; } = null!;
+        public bool IsDefaultAddress { get; set; }
+        public Guid CityId { get; set; }
+        public string Address { get; set; } = null!;
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\DTOs\UserSender\CreateUserSenderDto.cs ====================
+
+namespace BL.DTOs.UserSender
+{
+    public class CreateUserSenderDto
+    {
+        public Guid UserId { get; set; }
+        public string SenderName { get; set; } = null!;
+        public string Email { get; set; } = null!;
+        public string Phone { get; set; } = null!;
+        public string PostalCode { get; set; } = null!;
+        public string Contact { get; set; } = null!;
+        public string? OtherAddress { get; set; }
+        public bool IsDefaultAddress { get; set; }
+        public Guid CityId { get; set; }
+        public string Address { get; set; } = null!;
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\DTOs\UserSender\UpdateUserSenderDto.cs ====================
+
+namespace BL.DTOs.UserSender
+{
+    public class UpdateUserSenderDto
+    {
+        public Guid UserId { get; set; }
+        public string SenderName { get; set; } = null!;
+        public string Email { get; set; } = null!;
+        public string Phone { get; set; } = null!;
+        public string PostalCode { get; set; } = null!;
+        public string Contact { get; set; } = null!;
+        public string OtherAddress { get; set; } = null!;
+        public bool IsDefaultAddress { get; set; }
+        public Guid CityId { get; set; }
+        public string Address { get; set; } = null!;
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\DTOs\UserSender\UserSenderDto.cs ====================
+
+using BL.DTOs.Base;
+
+namespace BL.DTOs.UserSender
+{
+    public class UserSenderDto : BaseDto
+    {
+        public Guid UserId { get; set; }
+        public string SenderName { get; set; } = null!;
+        public string Email { get; set; } = null!;
+        public string Phone { get; set; } = null!;
+        public string PostalCode { get; set; } = null!;
+        public string Contact { get; set; } = null!;
+        public string OtherAddress { get; set; } = null!;
+        public bool IsDefaultAddress { get; set; }
+        public Guid CityId { get; set; }
+        public string Address { get; set; } = null!;
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\DTOs\UserSubscription\CreateUserSubscriptionDto.cs ====================
+
+namespace BL.DTOs.UserSubscription
+{
+    public class CreateUserSubscriptionDto
+    {
+        public Guid UserId { get; set; }
+        public Guid PackageId { get; set; }
+        public DateTime SubscriptionDate { get; set; }
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\DTOs\UserSubscription\UpdateUserSubscriptionDto.cs ====================
+
+namespace BL.DTOs.UserSubscription
+{
+    public class UpdateUserSubscriptionDto
+    {
+        public Guid UserId { get; set; }
+        public Guid PackageId { get; set; }
+        public DateTime SubscriptionDate { get; set; }
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\DTOs\UserSubscription\UserSubscriptionDto.cs ====================
+
+using BL.DTOs.Base;
+
+namespace BL.DTOs.UserSubscription
+{
+    public class UserSubscriptionDto : BaseDto
+    {
+        public Guid UserId { get; set; }
+        public Guid PackageId { get; set; }
+        public DateTime SubscriptionDate { get; set; }
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\DTOs\Views\VwCitiesCountriesDto.cs ====================
+
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace BL.DTOs.Views
+{
+    public class VwCitiesCountriesDto
+    {
+        public string? CityAname { get; set; }
+
+        public string? CityEname { get; set; }
+
+        public string? CountryAname { get; set; }
+
+        public string? CountryEname { get; set; }
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Mapping\AutoMapper.cs ====================
+
+namespace BL.Mapping
+{
+    public class AutoMapper : IMapper
+    {
+        private readonly global::AutoMapper.IMapper _mapper;
+
+        public AutoMapper(global::AutoMapper.IMapper mapper)
+        {
+            _mapper = mapper;
+        }
+
+        public List<TDestination> MapList<TSource, TDestination>(IEnumerable<TSource> source)
+        {
+            return _mapper.Map<List<TDestination>>(source);
+        }
+
+        public TDestination Map<TSource, TDestination>(TSource source)
+        {
+            return _mapper.Map<TSource, TDestination>(source);
+        }
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Mapping\IMapper.cs ====================
+
+namespace BL.Mapping
+{
+    public interface IMapper
+    {
+        TDestination Map<TSource, TDestination>(TSource source);
+        List<TDestination> MapList<TSource, TDestination>(IEnumerable<TSource> source); 
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Mapping\MappingProfile.cs ====================
+
+using AutoMapper;
+using Domain.Entities;
+using BL.DTOs.Carrier;
+using BL.DTOs.City;
+using BL.DTOs.Country;
+using BL.DTOs.Log;
+using BL.DTOs.PaymentMethod;
+using BL.DTOs.Setting;
+using BL.DTOs.ShippingType;
+using BL.DTOs.Shipment;
+using BL.DTOs.ShippingPackaging;
+using BL.DTOs.SubscriptionPackage;
+using BL.DTOs.UserReceiver;
+using BL.DTOs.UserSender;
+using BL.DTOs.UserSubscription;
+using Domain.Entities.Views;
+using BL.DTOs.Views;
+using BL.DTOs.RefreshToken;
+using BL.DTOs.ShipmentStatus;
+
+namespace BL.Mapping
+{
+    public class MappingProfile : Profile
+    {
+        public MappingProfile()
+        {
+
+            // Log
+            CreateMap<Log, LogDto>();
+            CreateMap<CreateLogDto, Log>();
+            CreateMap<UpdateLogDto, Log>();
+
+            // TbCarrier
+            CreateMap<TbCarrier, CarrierDto>();
+            CreateMap<CreateCarrierDto, TbCarrier>();
+            CreateMap<UpdateCarrierDto, TbCarrier>();
+
+            // TbCity
+            CreateMap<TbCity, CityDto>();
+            CreateMap<CreateCityDto, TbCity>();
+            CreateMap<UpdateCityDto, TbCity>();
+
+            // TbCountry
+            CreateMap<TbCountry, CountryDto>();
+            CreateMap<CreateCountryDto, TbCountry>();
+            CreateMap<UpdateCountryDto, TbCountry>();
+
+            // TbPaymentMethod
+            CreateMap<TbPaymentMethod, PaymentMethodDto>();
+            CreateMap<CreatePaymentMethodDto, TbPaymentMethod>();
+            CreateMap<UpdatePaymentMethodDto, TbPaymentMethod>();
+
+            // TbSetting
+            CreateMap<TbSetting, SettingDto>();
+            CreateMap<CreateSettingDto, TbSetting>();
+            CreateMap<UpdateSettingDto, TbSetting>();
+
+            // TbShippingType
+            CreateMap<TbShippingType, ShippingTypeDto>();
+            CreateMap<CreateShippingTypeDto, TbShippingType>();
+            CreateMap<UpdateShippingTypeDto, TbShippingType>();
+
+            // TbShipment
+            CreateMap<TbShipment, ShipmentDto>();
+            CreateMap<CreateShipmentDto, TbShipment>();
+            CreateMap<UpdateShipmentDto, TbShipment>();
+
+            // TbShipmentStatus
+            CreateMap<TbShipmentStatus, ShipmentStatusDto>();
+            CreateMap<CreateShipmentStatusDto, TbShipmentStatus>();
+            CreateMap<UpdateShipmentStatusDto, TbShipmentStatus>();
+
+            // TbSubscriptionPackage
+            CreateMap<TbSubscriptionPackage, SubscriptionPackageDto>();
+            CreateMap<CreateSubscriptionPackageDto, TbSubscriptionPackage>();
+            CreateMap<UpdateSubscriptionPackageDto, TbSubscriptionPackage>();
+
+            // TbUserReceiver
+            CreateMap<TbUserReceiver, UserReceiverDto>();
+            CreateMap<CreateUserReceiverDto, TbUserReceiver>();
+            CreateMap<UpdateUserReceiverDto, TbUserReceiver>();
+
+            // TbUserSender
+            CreateMap<TbUserSender, UserSenderDto>();
+            CreateMap<CreateUserSenderDto, TbUserSender>();
+            CreateMap<UpdateUserSenderDto, TbUserSender>();
+
+            // TbUserSubscription
+            CreateMap<TbUserSubscription, UserSubscriptionDto>();
+            CreateMap<CreateUserSubscriptionDto, TbUserSubscription>();
+            CreateMap<UpdateUserSubscriptionDto, TbUserSubscription>();
+
+            // TbShippingPackaging
+            CreateMap<TbShippingPackaging, ShippingPackagingDto>();
+            CreateMap<CreateShippingPackagingDto, TbShippingPackaging>();
+            CreateMap<UpdateShippingPackagingDto, TbShippingPackaging>();
+
+            // TbRefreshToken
+            CreateMap<TbRefreshToken, RefreshTokenDto>().ReverseMap();
+
+
+            // Views
+            CreateMap<VwCitiesCountries, VwCitiesCountriesDto>();
+            
+        }
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\obj\Debug\net10.0\.NETCoreApp,Version=v10.0.AssemblyAttributes.cs ====================
+
+// <autogenerated />
+using System;
+using System.Reflection;
+[assembly: global::System.Runtime.Versioning.TargetFrameworkAttribute(".NETCoreApp,Version=v10.0", FrameworkDisplayName = ".NET 10.0")]
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\obj\Debug\net10.0\BL.AssemblyInfo.cs ====================
+
+//------------------------------------------------------------------------------
+// <auto-generated>
+//     This code was generated by a tool.
+//     Runtime Version:4.0.30319.42000
+//
+//     Changes to this file may cause incorrect behavior and will be lost if
+//     the code is regenerated.
+// </auto-generated>
+//------------------------------------------------------------------------------
+
+using System;
+using System.Reflection;
+
+[assembly: System.Reflection.AssemblyCompanyAttribute("BL")]
+[assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
+[assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5d02f3b3c050f0329f84235dc61f9a49da691064")]
+[assembly: System.Reflection.AssemblyProductAttribute("BL")]
+[assembly: System.Reflection.AssemblyTitleAttribute("BL")]
+[assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
+
+// Generated by the MSBuild WriteCodeFragment class.
+
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\obj\Debug\net10.0\BL.GlobalUsings.g.cs ====================
+
+// <auto-generated/>
+global using System;
+global using System.Collections.Generic;
+global using System.IO;
+global using System.Linq;
+global using System.Net.Http;
+global using System.Threading;
+global using System.Threading.Tasks;
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\obj\Debug\net8.0\.NETCoreApp,Version=v8.0.AssemblyAttributes.cs ====================
+
+// <autogenerated />
+using System;
+using System.Reflection;
+[assembly: global::System.Runtime.Versioning.TargetFrameworkAttribute(".NETCoreApp,Version=v8.0", FrameworkDisplayName = ".NET 8.0")]
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\obj\Debug\net8.0\BL.AssemblyInfo.cs ====================
+
+//------------------------------------------------------------------------------
+// <auto-generated>
+//     This code was generated by a tool.
+//
+//     Changes to this file may cause incorrect behavior and will be lost if
+//     the code is regenerated.
+// </auto-generated>
+//------------------------------------------------------------------------------
+
+using System;
+using System.Reflection;
+
+[assembly: System.Reflection.AssemblyCompanyAttribute("BL")]
+[assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
+[assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c0002817d9cfb9e1689d86318d887acef92f67a9")]
+[assembly: System.Reflection.AssemblyProductAttribute("BL")]
+[assembly: System.Reflection.AssemblyTitleAttribute("BL")]
+[assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
+
+// Generated by the MSBuild WriteCodeFragment class.
+
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\obj\Debug\net8.0\BL.GlobalUsings.g.cs ====================
+
+// <auto-generated/>
+global using System;
+global using System.Collections.Generic;
+global using System.IO;
+global using System.Linq;
+global using System.Net.Http;
+global using System.Threading;
+global using System.Threading.Tasks;
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Services\Shipment\RateCalculator.cs ====================
+
+using BL.Contract.IServices.Shipment;
+using BL.DTOs.Shipment;
+using DAL.Contracts;
+using Domain.Entities;
+
+namespace BL.Services.Shipment;
+
+public class RateCalculator : IRateCalculator
+{
+    private readonly IGenericRepository<TbSetting> _settingRepository;
+    private readonly IGenericRepository<TbShippingType> _shippingTypeRepository;
+    private readonly IGenericRepository<TbUserSender> _senderRepository;
+    private readonly IGenericRepository<TbUserReceiver> _receiverRepository;
+    private readonly IGenericRepository<TbUserSubscription> _subscriptionRepository;
+
+    // industrial standard for volumetric weight calculation (cubic centimeters / 5000 = kilograms)
+    private const double VolumetricDivisor = 5000d; 
+
+    public RateCalculator(
+        IGenericRepository<TbSetting> settingRepository,
+        IGenericRepository<TbShippingType> shippingTypeRepository,
+        IGenericRepository<TbUserSender> senderRepository,
+        IGenericRepository<TbUserReceiver> receiverRepository,
+        IGenericRepository<TbUserSubscription> subscriptionRepository)
+    {
+        _settingRepository = settingRepository;
+        _shippingTypeRepository = shippingTypeRepository;
+        _senderRepository = senderRepository;
+        _receiverRepository = receiverRepository;
+        _subscriptionRepository = subscriptionRepository;
+    }
+
+    public async Task<decimal> CalculateShippingRate(CreateShipmentDto dto)
+    {
+        // If the subscription covers the shipment, return 0 as the shipping rate.
+        // Otherwise, fall back to standard rate calculation.
+        if (dto.UserSubscriptionId is Guid subscriptionId && subscriptionId != Guid.Empty)
+        {
+            var coveredByPackage = await TryConsumeFromSubscription(subscriptionId, dto);
+            if (coveredByPackage)
+                return 0m; // Shipping is covered by the subscription package
+        }
+
+        // 2) Standard calculation (without subscription, or subscription has exhausted its quota)
+        return await CalculateStandardRate(dto);
+    }
+
+
+
+    #region Private Helper Methods
+    private async Task<decimal> CalculateStandardRate(CreateShipmentDto dto)
+    {
+        var setting = (await _settingRepository.GetAllAsync()).FirstOrDefault()
+            ?? throw new InvalidOperationException("Shipping settings are not configured.");
+
+        if (setting.KiloMeterRate is null || setting.KilooGramRate is null)
+            throw new InvalidOperationException(
+                "Shipping settings are incomplete (KiloMeterRate or KilooGramRate is not set).");
+
+        var kiloMeterRate = (decimal)setting.KiloMeterRate.Value;
+        var kilooGramRate = (decimal)setting.KilooGramRate.Value;
+
+        var shippingType = await _shippingTypeRepository.GetByIdAsync(dto.ShippingTypeId)
+            ?? throw new InvalidOperationException("Invalid shipping type.");
+
+        var sender = await _senderRepository.GetByIdAsync(dto.SenderId)
+            ?? throw new InvalidOperationException("Sender not found.");
+
+        var receiver = await _receiverRepository.GetByIdAsync(dto.ReceiverId)
+            ?? throw new InvalidOperationException("Receiver not found.");
+
+        // ?????? ?????? ??????? ???? double (?? ???????? double ?????)
+        // for example, if the package is 50cm x 40cm x 30cm, the volumetric weight is:
+        // (50 * 40 * 30) / 5000 = 12 kg
+        var volumetricWeight = (dto.Width * dto.Height * dto.Length) / VolumetricDivisor;
+        var billableWeight = Math.Max(dto.Weight, volumetricWeight);
+
+
+        var weightCost = (decimal)billableWeight * kilooGramRate * (decimal)shippingType.ShippingFactor;
+
+        var distanceCost = CalculateDistanceCost(sender.CityId, receiver.CityId, kiloMeterRate);
+
+        var totalRate = weightCost + distanceCost;
+
+        return Math.Round(totalRate, 2);
+    }
+
+    private decimal CalculateDistanceCost(Guid senderCityId, Guid receiverCityId, decimal kiloMeterRate)
+    {
+        // TODO: ????? ???? ?????? ????? ??? ????? (Distance Matrix) ????? ????
+        // ??????: ???? ???? ????? ??? ??? ??????? / ????? ??????
+        if (senderCityId == receiverCityId)
+            return kiloMeterRate * 10; // ????? ???????? ???? ??? ??????? (10 ??)
+
+        return kiloMeterRate * 150; // ????? ???????? ??? ??????? ?????? (150 ??)
+    }
+
+    private async Task<bool> TryConsumeFromSubscription(Guid subscriptionId, CreateShipmentDto dto)
+    {
+        var subscription = await _subscriptionRepository.GetByIdAsync(subscriptionId);
+        if (subscription is null)
+            return false;
+
+        // ???? ???? ?????? ???????? (PackageId) ???? ???? ?????? ???????
+        // (ShipmentCount, TotalWeight, NumberOfKiloMeters) ???????? ????????? ??????
+        // ??? ?????? ?? ??? ????????. ????? ???? ??? ???? ???? ????????? ?????.
+
+        throw new NotImplementedException(
+            "Subscription consumption logic needs package quota tracking details.");
+    }
+
+    #endregion
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Services\Shipment\ShippmentService.cs ====================
+
+using BL.Common.Results;
+using BL.Contract.IServices;
+using BL.Contract.IServices.Shipment;
+using BL.DTOs.Shipment;
+using BL.Mapping;
+using DAL.Contracts;
+using DAL.Repositories.Generic;
+using Domain.Entities;
+
+namespace BL.Services.Shipment;
+
+public class ShipmentService 
+    : BaseService<TbShipment, ShipmentDto, CreateShipmentDto, UpdateShipmentDto>, IShipmentService
+{
+
+    private readonly IUserReceiverService _userReceiver;
+    private readonly IUserSenderService _userSender;
+    private readonly ITrackingNumberCalculator _trackingNumberCalculator;
+    private readonly IRateCalculator _rateCalculator;
+
+    public ShipmentService(IGenericRepository<TbShipment> repository, IMapper mapper, IUserService userService,
+        IUserReceiverService userReceiver, IUserSenderService userSender, 
+        ITrackingNumberCalculator trackingNumberCalculator, IRateCalculator rateCalculator, IUnitOfWork unitOfWork)
+        : base(unitOfWork, mapper, userService)
+    {
+        _userReceiver = userReceiver;
+        _userSender = userSender;
+        _trackingNumberCalculator = trackingNumberCalculator;
+        _rateCalculator = rateCalculator;
+    }
+
+    public async Task<Result<Guid>> CreateShipment(CreateShipmentDto dto)
+    {
+        await _unitOfWork.BeginTransactionAsync();
+
+        try
+        {
+            var validation = await ValidateSenderAndReceiverAsync(dto);
+            if (validation.IsFailure)
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                return validation.Errors.ToList();
+            }
+
+            dto.TrackingNumber = await _trackingNumberCalculator.GenerateTrackingNumber();
+            dto.ShippingRate = await _rateCalculator.CalculateShippingRate(dto);
+
+            var result = await CreateAsync(dto);
+
+            if (result.IsFailure)
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                return result;
+            }
+
+            await _unitOfWork.CommitTransactionAsync();
+            return result;
+        }
+        catch
+        {
+            await _unitOfWork.RollbackTransactionAsync();
+            throw; // أو ترجع Error.Failure عام حسب استراتيجية التعامل مع الأخطاء عندك
+        }
+    }
+
+
+
+
+    #region Private Methods
+    private async Task<Result> ValidateSenderAndReceiverAsync(CreateShipmentDto dto)
+    {
+        if (dto.ReceiverId == Guid.Empty)
+            return Error.Validation("Receiver.Required", "Receiver is required.");
+    
+        var receiver = await _userReceiver.GetByIdAsync(dto.ReceiverId);
+        if (receiver is null)
+            return Error.NotFound("Receiver.NotFound", "Receiver was not found.");
+    
+        if (dto.SenderId == Guid.Empty)
+            return Error.Validation("Sender.Required", "Sender is required.");
+    
+        var sender = await _userSender.GetByIdAsync(dto.SenderId);
+        if (sender is null)
+            return Error.NotFound("Sender.NotFound", "Sender was not found.");
+    
+        return Result.Success();
+    }
+    
+    #endregion
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Services\Shipment\TrackingNumberCalculator.cs ====================
+
+using BL.Contract.IServices.Shipment;
+using DAL.Contracts;
+using Domain.Entities;
+
+namespace BL.Services.Shipment;
+
+public class TrackingNumberCalculator : ITrackingNumberCalculator
+{
+    private readonly IGenericRepository<TbShipment> _shipmentRepository;
+    private const int MaxRetries = 5;
+
+    public TrackingNumberCalculator(IGenericRepository<TbShipment> shipmentRepository)
+    {
+        _shipmentRepository = shipmentRepository;
+    }
+
+    public async Task<string> GenerateTrackingNumber()
+    {
+        for (int attempt = 0; attempt < MaxRetries; attempt++)
+        {
+            var candidate = BuildCandidate();
+
+            var exists = await _shipmentRepository
+                .ExistsAsync(s => s.TrackingNumber == candidate);
+
+            if (!exists)
+                return candidate;
+        }
+
+        throw new InvalidOperationException(
+            $"Failed to generate a unique tracking number after {MaxRetries} attempts.");
+    }
+
+    private static string BuildCandidate()
+    {
+        // Generate a tracking number in the format "EG" + number digits
+        var random = Random.Shared.Next(100_000_000, 999_999_999);
+        return $"EG{random}";
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Services\vwServices\VwCitiesCountriesService.cs ====================
+
+using BL.Contract.IvwServices;
+using BL.DTOs.Views;
+using BL.Mapping;
+using DAL.Contracts;
+using DAL.Repositories.View;
+using Domain.Entities.Views;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Text;
+
+namespace BL.Services.vwServices
+{
+    public class VwCitiesCountriesService : IVwCitiesCountriesService
+    {
+        private readonly IViewRepository<VwCitiesCountries> _repository;
+        private readonly IMapper _mapper;
+        public VwCitiesCountriesService(IViewRepository<VwCitiesCountries> repository, IMapper mapper)
+        {
+            _repository = repository;
+            _mapper = mapper;
+        }
+
+        public async Task<List<VwCitiesCountriesDto>> GetAllAsync()
+        {
+            var data = await _repository.GetAllAsync();
+
+            return _mapper.MapList<VwCitiesCountries, VwCitiesCountriesDto>(data);
+        }
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Services\BaseService.cs ====================
+
+using BL.Common.Results;
+using BL.Contract;
+using BL.Contract.IServices;
+using BL.Mapping;
+using DAL.Contracts;
+using Domain.Shared;
+
+namespace BL.Services;
+public class BaseService<T, TDto, TCreateDto, TUpdateDto> : IBaseService<T, TDto, TCreateDto, TUpdateDto> where T : BaseEntity
+{
+    protected readonly IGenericRepository<T> _repository;
+    protected readonly IMapper _mapper;
+    protected readonly IUserService _userService;
+    protected readonly IUnitOfWork _unitOfWork;
+    public BaseService(IGenericRepository<T> repository, IMapper mapper, IUserService userService)
+    {
+        _repository = repository;
+        _mapper = mapper;
+        _userService = userService;
+        _unitOfWork = new UnsupportedUnitOfWork();
+    }
+
+    public BaseService(IUnitOfWork unitOfWork, IMapper mapper, IUserService userService)
+    {
+        _mapper = mapper;
+        _userService = userService;
+        _repository = unitOfWork.Repository<T>();
+        _unitOfWork = unitOfWork;
+    }
+
+    public async Task<Result<IEnumerable<TDto>>> GetAllAsync()
+    {
+        var list = await _repository.GetAllAsync();
+        return _mapper.MapList<T, TDto>(list);
+    }
+
+    public async Task<Result<TDto>> GetByIdAsync(Guid id)
+    {
+        var entity = await _repository.GetByIdAsync(id);
+
+        if (entity is null)
+            return Error.NotFound(
+                $"{typeof(T).Name}.NotFound",
+                $"{typeof(T).Name} was not found.");
+
+        return _mapper.Map<T, TDto>(entity);
+    }
+
+    public async Task<Result> AddAsync(TCreateDto dto)
+    {
+        var entity = _mapper.Map<TCreateDto, T>(dto);
+
+        entity.CreatedBy = await _userService.GetLoggedInUserAsync();
+
+        var added = await _repository.AddAsync(entity);
+
+        if (!added)
+            return Error.Unexpected(
+                $"{typeof(T).Name}.CreateFailed",
+                $"Failed to create {typeof(T).Name}.");
+
+        return Result.Success();
+    }
+
+    public async Task<Result> UpdateAsync(Guid id, TUpdateDto dto)
+    {
+        var entity = _mapper.Map<TUpdateDto, T>(dto);
+
+        entity.Id = id;
+        entity.UpdatedBy = await _userService.GetLoggedInUserAsync();
+
+        var updated = await _repository.UpdateAsync(id, entity);
+
+        if (!updated)
+            return Error.NotFound(
+                $"{typeof(T).Name}.NotFound",
+                $"{typeof(T).Name} was not found.");
+
+        return Result.Success();
+    }
+
+    public async Task<Result> DeleteAsync(Guid id)
+    {
+        var deleted = await _repository.DeleteAsync(
+            id,
+            await _userService.GetLoggedInUserAsync());
+
+        if (!deleted)
+            return Error.NotFound(
+                $"{typeof(T).Name}.NotFound",
+                $"{typeof(T).Name} was not found.");
+
+        return Result.Success();
+    }
+
+    public async Task<Result> ChangeStatusAsync(Guid id, enEntityState status = enEntityState.Active)
+    {
+        var changed = await _repository.ChangeStatusAsync(
+            id,
+            await _userService.GetLoggedInUserAsync(),
+            status);
+
+        if (!changed)
+            return Error.NotFound(
+                $"{typeof(T).Name}.NotFound",
+                $"{typeof(T).Name} was not found.");
+
+        return Result.Success();
+    }
+
+    public async Task<Result<Guid>> CreateAsync(TCreateDto dto)
+    {
+        var entity = _mapper.Map<TCreateDto, T>(dto);
+
+        entity.CreatedBy = await _userService.GetLoggedInUserAsync();
+
+        var added = await _repository.AddAsync(entity);
+
+        if (!added)
+        {
+            return Error.Unexpected(
+                $"{typeof(T).Name}.CreateFailed",
+                $"Failed to create {typeof(T).Name}.");
+        }
+
+        return Result<Guid>.Success(entity.Id);
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Services\CarrierService.cs ====================
+
+using Domain.Entities;
+using BL.DTOs.Carrier;
+using BL.Contract.IServices;
+using DAL.Contracts;
+using BL.Mapping;
+
+namespace BL.Services;
+
+public class CarrierService 
+    : BaseService<TbCarrier, CarrierDto, CreateCarrierDto, UpdateCarrierDto>, ICarrierService
+{
+    public CarrierService(IGenericRepository<TbCarrier> repository, IMapper mapper, IUserService userService)
+        : base(repository, mapper, userService) { }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Services\CityService.cs ====================
+
+using Domain.Entities;
+using BL.DTOs.City;
+using BL.Contract.IServices;
+using DAL.Contracts;
+using BL.Mapping;
+
+namespace BL.Services;
+
+public class CityService 
+    : BaseService<TbCity, CityDto, CreateCityDto, UpdateCityDto>, ICityService
+{
+    public CityService(IGenericRepository<TbCity> repository, IMapper mapper, IUserService userService) 
+        : base(repository, mapper, userService) { }
+
+    public async Task<List<CityDto>> GetAllByCountryId(Guid CountryId)
+    {
+        var cities = await _repository.GetListAsync(e => e.CountryId == CountryId);
+
+        return _mapper.MapList<TbCity, CityDto>(cities);
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Services\CountryService.cs ====================
+
+using Domain.Entities;
+using BL.DTOs.Country;
+using BL.Contract.IServices;
+using DAL.Contracts;
+using BL.Mapping;
+
+namespace BL.Services;
+
+public class CountryService 
+    : BaseService<TbCountry, CountryDto, CreateCountryDto, UpdateCountryDto>, ICountryService
+{
+    public CountryService(IGenericRepository<TbCountry> repository, IMapper mapper, IUserService userService)
+        : base(repository, mapper, userService)
+    {
+
+    }
+
+
+
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Services\PaymentMethodService.cs ====================
+
+using Domain.Entities;
+using BL.DTOs.PaymentMethod;
+using BL.Contract.IServices;
+using DAL.Contracts;
+using BL.Mapping;
+
+namespace BL.Services;
+
+public class PaymentMethodService 
+    : BaseService<TbPaymentMethod, PaymentMethodDto, CreatePaymentMethodDto, UpdatePaymentMethodDto>, IPaymentMethodService
+{
+    public PaymentMethodService(IGenericRepository<TbPaymentMethod> repository, IMapper mapper, IUserService userService)
+        : base(repository, mapper, userService) { }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Services\RefreshTokenService.cs ====================
+
+using BL.Contract.IServices;
+using BL.DTOs.RefreshToken;
+using BL.Mapping;
+using DAL.Contracts;
+using Domain.Entities;
+
+namespace BL.Services;
+
+public class RefreshTokenService : IRefreshTokenService
+{
+    private readonly IMapper _mapper;
+    private readonly IGenericRepository<TbRefreshToken> _refreshRepo;
+
+    public RefreshTokenService(IGenericRepository<TbRefreshToken> refreshRepo, IMapper mapper)
+    {
+        _refreshRepo = refreshRepo; 
+        _mapper = mapper;
+    }
+
+    public async Task<RefreshTokenDto?> GetTokenAsync(string token)
+    {
+        var refreshToken = await _refreshRepo.GetFirstOrDefaultAsync(rt => rt.Token == token);
+
+        if (refreshToken == null)
+            return null;
+
+
+        return _mapper.Map<TbRefreshToken, RefreshTokenDto>(refreshToken);
+    }
+
+    public async Task<string?> GetRefreshTokenByUserIdAsync(string userId)
+    {
+        return (await _refreshRepo.GetFirstOrDefaultAsync(rt => rt.UserId == userId)).Token;
+    }
+
+    public async Task<bool> SaveTokenAsync(string userId, string token, DateTime expires)
+    {
+        var entity = new TbRefreshToken
+        {
+            Token = token,
+            UserId = userId,
+            Expires = expires,
+            CreatedDate = DateTime.UtcNow,
+            CurrentState = enEntityState.Active
+        };
+        return await _refreshRepo.AddAsync(entity);
+    }
+
+    public async Task<bool> RevokeTokensAsync(string userId)
+    {
+        var tokenList = await  _refreshRepo.GetListAsync(rt => rt.UserId == userId);
+
+        foreach (var token in tokenList)
+        {
+            if (token.CurrentState is enEntityState.Active)
+                await _refreshRepo.ChangeStatusAsync(token.Id, Guid.Parse(userId), enEntityState.Inactive);
+
+        }
+
+        return true;
+    }
+
+    public async Task<bool> RevokeTokenAsync(string userId, string token)
+    {
+        var RevokedToken = await _refreshRepo.GetFirstOrDefaultAsync(rt => rt.UserId == userId && rt.Token == token);
+
+        if (RevokedToken.CurrentState is not enEntityState.Active) return false;
+
+        return await _refreshRepo.ChangeStatusAsync(RevokedToken.Id, Guid.Parse(userId), enEntityState.Inactive);
+    }
+    
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Services\SettingService.cs ====================
+
+using BL.Contract.IServices;
+using BL.DTOs.Setting;
+using BL.DTOs.ShippingType;
+using BL.Mapping;
+using DAL.Contracts;
+using Domain.Entities;
+
+namespace BL.Services;
+
+public class SettingService
+    : BaseService<TbSetting, SettingDto, CreateSettingDto, UpdateSettingDto>, ISettingService
+{
+    public SettingService(IGenericRepository<TbSetting> repository, IMapper mapper, IUserService userService)
+        : base(repository, mapper, userService) { }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Services\ShippingPackagingService.cs ====================
+
+using BL.Contract.IServices;
+using BL.DTOs.ShippingPackaging;
+using BL.DTOs.ShippingType;
+using BL.Mapping;
+using DAL.Contracts;
+using Domain.Entities;
+
+namespace BL.Services;
+
+
+
+
+public class ShippingPackagingService
+    : BaseService<TbShippingPackaging, ShippingPackagingDto, CreateShippingPackagingDto, UpdateShippingPackagingDto>, IShippingPackagingService
+{
+    public ShippingPackagingService(IGenericRepository<TbShippingPackaging> repository, IMapper mapper, IUserService userService)
+        : base(repository, mapper, userService) { }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Services\ShippingTypeService.cs ====================
+
+using Domain.Entities;
+using BL.DTOs.ShippingType;
+using BL.Contract.IServices;
+using DAL.Contracts;
+using BL.Mapping;
+
+namespace BL.Services;
+
+public class ShippingTypeService 
+    : BaseService<TbShippingType, ShippingTypeDto, CreateShippingTypeDto, UpdateShippingTypeDto>, IShippingTypeService
+{
+    public ShippingTypeService(IGenericRepository<TbShippingType> repository, IMapper mapper, IUserService userService)
+        : base(repository, mapper, userService) { }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Services\ShippmentStatusService.cs ====================
+
+using Domain.Entities;
+using BL.DTOs.ShippingPackaging;
+using BL.Contract.IServices;
+using DAL.Contracts;
+using BL.Mapping;
+using BL.DTOs.ShipmentStatus;
+
+namespace BL.Services;
+
+public class ShipmentStatusService 
+    : BaseService<TbShipmentStatus, ShipmentStatusDto, CreateShipmentStatusDto, UpdateShipmentStatusDto>, IShipmentStatusService
+{
+    public ShipmentStatusService(IGenericRepository<TbShipmentStatus> repository, IMapper mapper, IUserService userService)
+        : base(repository, mapper, userService) { }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Services\SubscriptionPackageService.cs ====================
+
+using Domain.Entities;
+using BL.DTOs.SubscriptionPackage;
+using BL.Contract.IServices;
+using DAL.Contracts;
+using BL.Mapping;
+
+namespace BL.Services;
+
+public class SubscriptionPackageService 
+    : BaseService<TbSubscriptionPackage, SubscriptionPackageDto, CreateSubscriptionPackageDto, UpdateSubscriptionPackageDto>, ISubscriptionPackageService
+{
+    public SubscriptionPackageService(IGenericRepository<TbSubscriptionPackage> repository, IMapper mapper, IUserService userService)
+        : base(repository, mapper, userService) { }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Services\UnsupportedUnitOfWork.cs ====================
+
+using DAL.Contracts;
+using Domain.Shared;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace BL.Services;
+
+/// <summary>
+/// Null Object implementation used when a Service is constructed without a real IUnitOfWork
+/// (i.e. via the Repository-only constructor). Any attempt to use transactional
+/// features in this state throws a clear, descriptive exception instead of a NullReferenceException.
+/// </summary>
+internal sealed class UnsupportedUnitOfWork : IUnitOfWork
+{
+    private const string Message =
+        "This service was constructed with a Repository directly (no IUnitOfWork). " +
+        "Transactional operations are not supported in this mode.";
+
+    public Task BeginTransactionAsync(CancellationToken cancellationToken = default) =>
+        throw new InvalidOperationException(Message);
+
+    public Task CommitTransactionAsync(CancellationToken cancellationToken = default) =>
+        throw new InvalidOperationException(Message);
+
+    public Task RollbackTransactionAsync(CancellationToken cancellationToken = default) =>
+        throw new InvalidOperationException(Message);
+
+    public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default) =>
+        throw new InvalidOperationException(Message);
+
+    public IGenericRepository<TEntity> Repository<TEntity>() where TEntity : BaseEntity =>
+        throw new InvalidOperationException(Message);
+
+    public Task ExecuteInTransactionAsync(Func<Task> operation, CancellationToken cancellationToken = default) =>
+            throw new InvalidOperationException(Message);
+
+    public Task<TResult> ExecuteInTransactionAsync<TResult>(
+        Func<Task<TResult>> operation, CancellationToken cancellationToken = default) =>
+        throw new InvalidOperationException(Message);
+
+    public ValueTask DisposeAsync() => ValueTask.CompletedTask;
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Services\UserReceiverService.cs ====================
+
+using Domain.Entities;
+using BL.DTOs.UserReceiver;
+using BL.Contract.IServices;
+using DAL.Contracts;
+using BL.Mapping;
+
+namespace BL.Services;
+
+public class UserReceiverService 
+    : BaseService<TbUserReceiver, UserReceiverDto, CreateUserReceiverDto, UpdateUserReceiverDto>, IUserReceiverService
+{
+    public UserReceiverService(IGenericRepository<TbUserReceiver> repository, IMapper mapper, IUserService userService)
+        : base(repository, mapper, userService) { }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Services\UserSenderService.cs ====================
+
+using Domain.Entities;
+using BL.DTOs.UserSender;
+using BL.Contract.IServices;
+using DAL.Contracts;
+using BL.Mapping;
+
+namespace BL.Services;
+
+public class UserSenderService 
+    : BaseService<TbUserSender, UserSenderDto, CreateUserSenderDto, UpdateUserSenderDto>, IUserSenderService
+{
+    public UserSenderService(IGenericRepository<TbUserSender> repository, IMapper mapper, IUserService userService)
+        : base(repository, mapper, userService) { }
+
+
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Services\UserSubscriptionService.cs ====================
+
+using Domain.Entities;
+using BL.DTOs.UserSubscription;
+using BL.Contract.IServices;
+using DAL.Contracts;
+using BL.Mapping;
+
+namespace BL.Services;
+
+public class UserSubscriptionService 
+    : BaseService<TbUserSubscription, UserSubscriptionDto, CreateUserSubscriptionDto, UpdateUserSubscriptionDto>, IUserSubscriptionService
+{
+    public UserSubscriptionService(IGenericRepository<TbUserSubscription> repository, IMapper mapper, IUserService userService)
+        : base(repository, mapper, userService) { }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Validators\Auth\ChangePasswordRequestDtoValidator.cs ====================
+
+using FluentValidation;
+using BL.DTOs.Auth.Requests;
+using System;
+
+namespace BL.Validators.Auth;
+
+public class ChangePasswordRequestDtoValidator : AbstractValidator<ChangePasswordRequstDto>
+{
+    public ChangePasswordRequestDtoValidator()
+    {
+        RuleFor(x => x.UserId)
+            .NotEmpty().WithMessage("User ID is required.")
+            .Must(id => id != Guid.Empty).WithMessage("User ID must be valid.");
+
+        RuleFor(x => x.CurrentPassword)
+            .NotEmpty().WithMessage("Current password is required.")
+            .MinimumLength(9).WithMessage("Password must be at least 9 characters.")
+            .Matches("[A-Z]").WithMessage("Must contain uppercase.")
+            .Matches("[a-z]").WithMessage("Must contain lowercase.")
+            .Matches("[0-9]").WithMessage("Must contain digit.")
+            .Matches("[^a-zA-Z0-9]").WithMessage("Must contain special character.");
+
+        RuleFor(x => x.NewPassword)
+            .NotEmpty().WithMessage("New password is required.")
+            .MinimumLength(9).WithMessage("Password must be at least 9 characters.")
+            .Matches("[A-Z]").WithMessage("Must contain uppercase.")
+            .Matches("[a-z]").WithMessage("Must contain lowercase.")
+            .Matches("[0-9]").WithMessage("Must contain digit.")
+            .Matches("[^a-zA-Z0-9]").WithMessage("Must contain special character.");
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Validators\Auth\LoginRequestDtoValidator.cs ====================
+
+using FluentValidation;
+using BL.DTOs.Auth.Requests;
+
+namespace BL.Validators.Auth;
+
+public class LoginRequestDtoValidator : AbstractValidator<LoginRequestDto>
+{
+    public LoginRequestDtoValidator()
+    {
+        RuleFor(x => x.UsernameOrEmail)
+            .NotEmpty().WithMessage("Username or Email is required.")
+            .MaximumLength(256).WithMessage("Username or Email must not exceed 256 characters.");
+
+        RuleFor(x => x.Password)
+            .NotEmpty().WithMessage("Password is required.")
+            .MinimumLength(9).WithMessage("Password must be at least 9 characters.")
+            .Matches("[A-Z]").WithMessage("Must contain uppercase.")
+            .Matches("[a-z]").WithMessage("Must contain lowercase.")
+            .Matches("[0-9]").WithMessage("Must contain digit.")
+            .Matches("[^a-zA-Z0-9]").WithMessage("Must contain special character.");
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Validators\Auth\RefreshRequestDtoValidator.cs ====================
+
+using FluentValidation;
+using BL.DTOs.Auth;
+
+namespace BL.DTOs.Auth
+{
+    // Declared here because the original file C:\Users\seif\source\repos\Shipping-System\BL\DTOs\Auth\Requests\RefreshRequestDto.cs
+    // is entirely commented out, but we are instructed not to modify existing files and verify 0 build errors.
+    public class RefreshRequestDto
+    {
+        public string RefreshToken { get; set; } = null!;
+    }
+}
+
+namespace BL.Validators.Auth
+{
+    public class RefreshRequestDtoValidator : AbstractValidator<RefreshRequestDto>
+    {
+        public RefreshRequestDtoValidator()
+        {
+            RuleFor(x => x.RefreshToken)
+                .NotEmpty().WithMessage("Refresh token is required.");
+        }
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Validators\Auth\RefreshTokenRequestDtoValidator.cs ====================
+
+using FluentValidation;
+using BL.DTOs.Auth.Requests;
+
+namespace BL.Validators.Auth;
+
+public class RefreshTokenRequestDtoValidator : AbstractValidator<RefreshTokenRequestDto>
+{
+    public RefreshTokenRequestDtoValidator()
+    {
+        RuleFor(x => x.RefreshToken)
+            .NotEmpty().WithMessage("Refresh token is required.");
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Validators\Auth\RegisterRequestDtoValidator.cs ====================
+
+using FluentValidation;
+using BL.DTOs.Auth.Requests;
+using System;
+
+namespace BL.Validators.Auth;
+
+public class RegisterRequestDtoValidator : AbstractValidator<RegisterRequestDto>
+{
+    public RegisterRequestDtoValidator()
+    {
+        RuleFor(x => x.FirstName)
+            .NotEmpty().WithMessage("First name is required.")
+            .MaximumLength(150).WithMessage("First name must not exceed 150 characters.");
+
+        RuleFor(x => x.SecondName)
+            .MaximumLength(150).WithMessage("Second name must not exceed 150 characters.");
+
+        RuleFor(x => x.ThirdName)
+            .MaximumLength(150).WithMessage("Third name must not exceed 150 characters.");
+
+        RuleFor(x => x.LastName)
+            .NotEmpty().WithMessage("Last name is required.")
+            .MaximumLength(150).WithMessage("Last name must not exceed 150 characters.");
+
+        RuleFor(x => x.Email)
+            .NotEmpty().WithMessage("Email is required.")
+            .MaximumLength(256).WithMessage("Email must not exceed 256 characters.")
+            .EmailAddress().WithMessage("A valid email address is required.");
+
+        RuleFor(x => x.UserName)
+            .NotEmpty().WithMessage("Username is required.")
+            .MaximumLength(256).WithMessage("Username must not exceed 256 characters.");
+
+        RuleFor(x => x.PhoneNumber)
+            .NotEmpty().WithMessage("Phone number is required.")
+            .MaximumLength(20).WithMessage("Phone number must not exceed 20 characters.");
+
+        RuleFor(x => x.Password)
+            .NotEmpty().WithMessage("Password is required.")
+            .MinimumLength(9).WithMessage("Password must be at least 9 characters.")
+            .Matches("[A-Z]").WithMessage("Must contain uppercase.")
+            .Matches("[a-z]").WithMessage("Must contain lowercase.")
+            .Matches("[0-9]").WithMessage("Must contain digit.")
+            .Matches("[^a-zA-Z0-9]").WithMessage("Must contain special character.");
+
+        RuleFor(x => x.DateOfBirth)
+            .NotEmpty().WithMessage("Date of birth is required.")
+            .LessThan(DateOnly.FromDateTime(DateTime.Today)).WithMessage("Date of birth must be in the past.");
+
+        RuleFor(x => x.Gender)
+            .NotEmpty().WithMessage("Gender is required.")
+            .IsInEnum().WithMessage("Gender must be a valid option.");
+
+        RuleFor(x => x.ImageUrl)
+            .NotEmpty().WithMessage("Image URL is required.")
+            .MaximumLength(800).WithMessage("Image URL must not exceed 800 characters.");
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Validators\Carrier\CreateCarrierDtoValidator.cs ====================
+
+using FluentValidation;
+using BL.DTOs.Carrier;
+
+namespace BL.Validators.Carrier;
+
+public class CreateCarrierDtoValidator : AbstractValidator<CreateCarrierDto>
+{
+    public CreateCarrierDtoValidator()
+    {
+        RuleFor(x => x.CarrierName)
+            .NotEmpty().WithMessage("Carrier name is required.")
+            .MaximumLength(200).WithMessage("Carrier name must not exceed 200 characters.");
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Validators\Carrier\UpdateCarrierDtoValidator.cs ====================
+
+using FluentValidation;
+using BL.DTOs.Carrier;
+
+namespace BL.Validators.Carrier;
+
+public class UpdateCarrierDtoValidator : AbstractValidator<UpdateCarrierDto>
+{
+    public UpdateCarrierDtoValidator()
+    {
+        RuleFor(x => x.CarrierName)
+            .NotEmpty().WithMessage("Carrier name is required.")
+            .MaximumLength(200).WithMessage("Carrier name must not exceed 200 characters.");
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Validators\City\CreateCityDtoValidator.cs ====================
+
+using FluentValidation;
+using BL.DTOs.City;
+using System;
+
+namespace BL.Validators.City;
+
+public class CreateCityDtoValidator : AbstractValidator<CreateCityDto>
+{
+    public CreateCityDtoValidator()
+    {
+        RuleFor(x => x.CityAname)
+            .MaximumLength(10).WithMessage("اسم المدينة يجب أن لا يتجاوز 10 أحرف.");
+
+        RuleFor(x => x.CityEname)
+            .MaximumLength(10).WithMessage("City name must not exceed 10 characters.");
+
+        RuleFor(x => x.CountryId)
+            .NotEmpty().WithMessage("Country is required.")
+            .Must(id => id != Guid.Empty).WithMessage("Country is required.");
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Validators\City\UpdateCityDtoValidator.cs ====================
+
+using FluentValidation;
+using BL.DTOs.City;
+using System;
+
+namespace BL.Validators.City;
+
+public class UpdateCityDtoValidator : AbstractValidator<UpdateCityDto>
+{
+    public UpdateCityDtoValidator()
+    {
+        RuleFor(x => x.CityAname)
+            .MaximumLength(10).WithMessage("اسم المدينة يجب أن لا يتجاوز 10 أحرف.");
+
+        RuleFor(x => x.CityEname)
+            .MaximumLength(10).WithMessage("City name must not exceed 10 characters.");
+
+        RuleFor(x => x.CountryId)
+            .NotEmpty().WithMessage("Country is required.")
+            .Must(id => id != Guid.Empty).WithMessage("Country is required.");
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Validators\Country\CreateCountryDtoValidator.cs ====================
+
+using FluentValidation;
+using BL.DTOs.Country;
+
+namespace BL.Validators.Country;
+
+public class CreateCountryDtoValidator : AbstractValidator<CreateCountryDto>
+{
+    public CreateCountryDtoValidator()
+    {
+        RuleFor(x => x.CountryAname)
+            .MaximumLength(200).WithMessage("اسم الدولة يجب أن لا يتجاوز 200 حرف.");
+
+        RuleFor(x => x.CountryEname)
+            .MaximumLength(200).WithMessage("Country name must not exceed 200 characters.");
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Validators\Country\UpdateCountryDtoValidator.cs ====================
+
+using FluentValidation;
+using BL.DTOs.Country;
+
+namespace BL.Validators.Country;
+
+public class UpdateCountryDtoValidator : AbstractValidator<UpdateCountryDto>
+{
+    public UpdateCountryDtoValidator()
+    {
+        RuleFor(x => x.CountryAname)
+            .MaximumLength(200).WithMessage("اسم الدولة يجب أن لا يتجاوز 200 حرف.");
+
+        RuleFor(x => x.CountryEname)
+            .MaximumLength(200).WithMessage("Country name must not exceed 200 characters.");
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Validators\PaymentMethod\CreatePaymentMethodDtoValidator.cs ====================
+
+using FluentValidation;
+using BL.DTOs.PaymentMethod;
+
+namespace BL.Validators.PaymentMethod;
+
+public class CreatePaymentMethodDtoValidator : AbstractValidator<CreatePaymentMethodDto>
+{
+    public CreatePaymentMethodDtoValidator()
+    {
+        RuleFor(x => x.MethdAname)
+            .MaximumLength(200).WithMessage("اسم طريقة الدفع يجب أن لا يتجاوز 200 حرف.");
+
+        RuleFor(x => x.MethodEname)
+            .MaximumLength(200).WithMessage("Payment method name must not exceed 200 characters.");
+
+        RuleFor(x => x.Commission)
+            .GreaterThan(0).When(x => x.Commission.HasValue).WithMessage("Commission must be greater than 0.");
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Validators\PaymentMethod\UpdatePaymentMethodDtoValidator.cs ====================
+
+using FluentValidation;
+using BL.DTOs.PaymentMethod;
+
+namespace BL.Validators.PaymentMethod;
+
+public class UpdatePaymentMethodDtoValidator : AbstractValidator<UpdatePaymentMethodDto>
+{
+    public UpdatePaymentMethodDtoValidator()
+    {
+        RuleFor(x => x.MethdAname)
+            .MaximumLength(200).WithMessage("اسم طريقة الدفع يجب أن لا يتجاوز 200 حرف.");
+
+        RuleFor(x => x.MethodEname)
+            .MaximumLength(200).WithMessage("Payment method name must not exceed 200 characters.");
+
+        RuleFor(x => x.Commission)
+            .GreaterThan(0).When(x => x.Commission.HasValue).WithMessage("Commission must be greater than 0.");
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Validators\Setting\UpdateSettingDtoValidator.cs ====================
+
+using FluentValidation;
+using BL.DTOs.Setting;
+
+namespace BL.Validators.Setting;
+
+public class UpdateSettingDtoValidator : AbstractValidator<UpdateSettingDto>
+{
+    public UpdateSettingDtoValidator()
+    {
+        RuleFor(x => x.KiloMeterRate)
+            .GreaterThan(0).When(x => x.KiloMeterRate.HasValue).WithMessage("Kilo meter rate must be greater than 0.");
+
+        RuleFor(x => x.KilooGramRate)
+            .GreaterThan(0).When(x => x.KilooGramRate.HasValue).WithMessage("Kilogram rate must be greater than 0.");
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Validators\Shipment\CreateShipmentDtoValidator.cs ====================
+
+using FluentValidation;
+using BL.DTOs.Shipment;
+
+namespace BL.Validators.Shipment;
+
+public class CreateShipmentDtoValidator : AbstractValidator<CreateShipmentDto>
+{
+    public CreateShipmentDtoValidator()
+    {
+        RuleFor(x => x.ShippingDate).NotEmpty().WithMessage("Shipping date is required.");
+        RuleFor(x => x.SenderId).NotEmpty().WithMessage("Sender is required.");
+        RuleFor(x => x.ReceiverId).NotEmpty().WithMessage("Receiver is required.");
+        RuleFor(x => x.ShippingTypeId).NotEmpty().WithMessage("Shipping type is required.");
+        
+        RuleFor(x => x.Width).NotEmpty().GreaterThan(0).WithMessage("Width must be greater than 0.");
+        RuleFor(x => x.Height).NotEmpty().GreaterThan(0).WithMessage("Height must be greater than 0.");
+        RuleFor(x => x.Weight).NotEmpty().GreaterThan(0).WithMessage("Weight must be greater than 0.");
+        RuleFor(x => x.Length).NotEmpty().GreaterThan(0).WithMessage("Length must be greater than 0.");
+        
+        RuleFor(x => x.PackageValue).NotEmpty().GreaterThan(0).WithMessage("Package value must be greater than 0.");
+        RuleFor(x => x.ShippingRate).NotEmpty().GreaterThan(0).WithMessage("Shipping rate must be greater than 0.");
+        RuleFor(x => x.DeliveryDate)
+            .GreaterThanOrEqualTo(DateTime.Today)
+            .When(x => x.DeliveryDate.HasValue)
+            .WithMessage("Delivery date cannot be in the past.");
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Validators\Shipment\UpdateShippmentDtoValidator.cs ====================
+
+using FluentValidation;
+using BL.DTOs.Shipment;
+
+namespace BL.Validators.Shipment;
+
+public class UpdateShipmentDtoValidator : AbstractValidator<UpdateShipmentDto>
+{
+    public UpdateShipmentDtoValidator()
+    {
+        RuleFor(x => x.ShippingDate).NotEmpty().WithMessage("Shipping date is required.");
+        RuleFor(x => x.ReceiverId).NotEmpty().WithMessage("Receiver is required.");
+        RuleFor(x => x.ShippingTypeId).NotEmpty().WithMessage("Shipping type is required.");
+        RuleFor(x => x.SenderId).NotEmpty().WithMessage("Sender is required.");
+        
+        RuleFor(x => x.Width).NotEmpty().GreaterThan(0).WithMessage("Width must be greater than 0.");
+        RuleFor(x => x.Height).NotEmpty().GreaterThan(0).WithMessage("Height must be greater than 0.");
+        RuleFor(x => x.Weight).NotEmpty().GreaterThan(0).WithMessage("Weight must be greater than 0.");
+        RuleFor(x => x.Length).NotEmpty().GreaterThan(0).WithMessage("Length must be greater than 0.");
+        
+        RuleFor(x => x.PackageValue).NotEmpty().GreaterThan(0).WithMessage("Package value must be greater than 0.");
+        RuleFor(x => x.ShippingRate).NotEmpty().GreaterThan(0).WithMessage("Shipping rate must be greater than 0.");
+        RuleFor(x => x.DeliveryDate)
+            .GreaterThanOrEqualTo(DateTime.Today)
+            .When(x => x.DeliveryDate.HasValue)
+            .WithMessage("Delivery date cannot be in the past."); 
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Validators\ShipmentStatus\CreateShippmentStatusDtoValidator.cs ====================
+
+using FluentValidation;
+using BL.DTOs.ShipmentStatus;
+
+namespace BL.Validators.ShipmentStatus;
+
+public class CreateShipmentStatusDtoValidator : AbstractValidator<CreateShipmentStatusDto>
+{
+    public CreateShipmentStatusDtoValidator()
+    {
+        RuleFor(x => x.CarrierId).NotEmpty().WithMessage("Carrier is required.");
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Validators\ShipmentStatus\UpdateShippmentStatusDtoValidator.cs ====================
+
+using FluentValidation;
+using BL.DTOs.ShipmentStatus;
+
+namespace BL.Validators.ShipmentStatus;
+
+public class UpdateShipmentStatusDtoValidator : AbstractValidator<UpdateShipmentStatusDto>
+{
+    public UpdateShipmentStatusDtoValidator()
+    {
+        RuleFor(x => x.CarrierId).NotEmpty().WithMessage("Carrier is required.");
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Validators\ShippingPackaging\CreateShippingPackagingDtoValidator.cs ====================
+
+using FluentValidation;
+using BL.DTOs.ShippingPackaging;
+
+namespace BL.Validators.ShippingPackaging;
+
+public class CreateShippingPackagingDtoValidator : AbstractValidator<CreateShippingPackagingDto>
+{
+    public CreateShippingPackagingDtoValidator()
+    {
+        RuleFor(x => x.ShippingPackagingAname)
+            .NotEmpty()
+            .WithMessage("إسم الشحن والتغليف مطلوب.")
+            .MaximumLength(100);
+
+        RuleFor(x => x.ShippingPackagingEname)
+            .NotEmpty()
+            .WithMessage("Shipping Packaging Name is required.")
+            .MaximumLength(100);
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Validators\ShippingPackaging\UpdateShippingPackagingDtoValidator.cs ====================
+
+using FluentValidation;
+using BL.DTOs.ShippingPackaging;
+
+namespace BL.Validators.ShippingPackaging;
+
+public class UpdateShippingPackagingDtoValidator : AbstractValidator<UpdateShippingPackagingDto>
+{
+    public UpdateShippingPackagingDtoValidator()
+    {
+        RuleFor(x => x.ShippingPackagingAname)
+            .MaximumLength(100)
+            .When(x => !string.IsNullOrWhiteSpace(x.ShippingPackagingAname));
+
+        RuleFor(x => x.ShippingPackagingEname)
+            .MaximumLength(100)
+            .When(x => !string.IsNullOrWhiteSpace(x.ShippingPackagingEname));
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Validators\ShippingType\CreateShippingTypeDtoValidator.cs ====================
+
+using FluentValidation;
+using BL.DTOs.ShippingType;
+
+namespace BL.Validators.ShippingType;
+
+public class CreateShippingTypeDtoValidator : AbstractValidator<CreateShippingTypeDto>
+{
+    public CreateShippingTypeDtoValidator()
+    {
+        RuleFor(x => x.ShippingTypeAname)
+            .MaximumLength(200).WithMessage("اسم نوع الشحن يجب أن لا يتجاوز 200 حرف.");
+
+        RuleFor(x => x.ShippingTypeEname)
+            .MaximumLength(200).WithMessage("Shipping type name must not exceed 200 characters.");
+
+        RuleFor(x => x.ShippingFactor)
+            .NotEmpty().WithMessage("Shipping factor is required.")
+            .GreaterThan(0).WithMessage("Shipping factor must be greater than 0.");
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Validators\ShippingType\UpdateShippingTypeDtoValidator.cs ====================
+
+using FluentValidation;
+using BL.DTOs.ShippingType;
+
+namespace BL.Validators.ShippingType;
+
+public class UpdateShippingTypeDtoValidator : AbstractValidator<UpdateShippingTypeDto>
+{
+    public UpdateShippingTypeDtoValidator()
+    {
+        RuleFor(x => x.ShippingTypeAname)
+            .MaximumLength(200).WithMessage("اسم نوع الشحن يجب أن لا يتجاوز 200 حرف.");
+
+        RuleFor(x => x.ShippingTypeEname)
+            .MaximumLength(200).WithMessage("Shipping type name must not exceed 200 characters.");
+
+        RuleFor(x => x.ShippingFactor)
+            .NotEmpty().WithMessage("Shipping factor is required.")
+            .GreaterThan(0).WithMessage("Shipping factor must be greater than 0.");
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Validators\SubscriptionPackage\CreateSubscriptionPackageDtoValidator.cs ====================
+
+using FluentValidation;
+using BL.DTOs.SubscriptionPackage;
+
+namespace BL.Validators.SubscriptionPackage;
+
+public class CreateSubscriptionPackageDtoValidator : AbstractValidator<CreateSubscriptionPackageDto>
+{
+    public CreateSubscriptionPackageDtoValidator()
+    {
+        RuleFor(x => x.PackageName).NotEmpty().WithMessage("Package name is required.")
+            .MaximumLength(200).WithMessage("Package name must not exceed 200 characters.");
+
+        RuleFor(x => x.ShipimentCount).NotEmpty().GreaterThan(0).WithMessage("Shipment count must be greater than 0.");
+        RuleFor(x => x.NumberOfKiloMeters).NotEmpty().GreaterThan(0).WithMessage("Number of kilometers must be greater than 0.");
+        RuleFor(x => x.TotalWeight).NotEmpty().GreaterThan(0).WithMessage("Total weight must be greater than 0.");
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Validators\SubscriptionPackage\UpdateSubscriptionPackageDtoValidator.cs ====================
+
+using FluentValidation;
+using BL.DTOs.SubscriptionPackage;
+
+namespace BL.Validators.SubscriptionPackage;
+
+public class UpdateSubscriptionPackageDtoValidator : AbstractValidator<UpdateSubscriptionPackageDto>
+{
+    public UpdateSubscriptionPackageDtoValidator()
+    {
+        RuleFor(x => x.PackageName).NotEmpty().WithMessage("Package name is required.")
+            .MaximumLength(200).WithMessage("Package name must not exceed 200 characters.");
+
+        RuleFor(x => x.ShipimentCount).NotEmpty().GreaterThan(0).WithMessage("Shipment count must be greater than 0.");
+        RuleFor(x => x.NumberOfKiloMeters).NotEmpty().GreaterThan(0).WithMessage("Number of kilometers must be greater than 0.");
+        RuleFor(x => x.TotalWeight).NotEmpty().GreaterThan(0).WithMessage("Total weight must be greater than 0.");
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Validators\UserReceiver\CreateUserReceiverDtoValidator.cs ====================
+
+using FluentValidation;
+using BL.DTOs.UserReceiver;
+
+namespace BL.Validators.UserReceiver;
+
+public class CreateUserReceiverDtoValidator : AbstractValidator<CreateUserReceiverDto>
+{
+    public CreateUserReceiverDtoValidator()
+    {
+        RuleFor(x => x.ReceiverName).NotEmpty().WithMessage("Receiver name is required.")
+            .MaximumLength(200).WithMessage("Receiver name must not exceed 200 characters.");
+
+        RuleFor(x => x.Email).NotEmpty().WithMessage("Email is required.")
+            .MaximumLength(200).WithMessage("Email must not exceed 200 characters.")
+            .EmailAddress().WithMessage("A valid email address is required.");
+
+        RuleFor(x => x.Phone).NotEmpty().WithMessage("Phone is required.")
+            .MaximumLength(200).WithMessage("Phone must not exceed 200 characters.");
+
+        RuleFor(x => x.Address).NotEmpty().WithMessage("Address is required.")
+            .MaximumLength(500).WithMessage("Address must not exceed 500 characters.");
+
+        RuleFor(x => x.PostalCode)
+            .NotEmpty().WithMessage("Postal code is required.")
+            .MaximumLength(200).WithMessage("Postal code must not exceed 200 characters.");
+
+        RuleFor(x => x.Contact)
+            .NotEmpty().WithMessage("Contact is required.")
+            .MaximumLength(200).WithMessage("Contact must not exceed 200 characters.");
+
+        RuleFor(x => x.OtherAddress)
+            .MaximumLength(500).WithMessage("Other address must not exceed 500 characters.");
+
+        //RuleFor(x => x.UserId).NotEmpty().WithMessage("User is required.");
+        RuleFor(x => x.CityId).NotEmpty().WithMessage("City is required.");
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Validators\UserReceiver\UpdateUserReceiverDtoValidator.cs ====================
+
+using FluentValidation;
+using BL.DTOs.UserReceiver;
+
+namespace BL.Validators.UserReceiver;
+
+public class UpdateUserReceiverDtoValidator : AbstractValidator<UpdateUserReceiverDto>
+{
+    public UpdateUserReceiverDtoValidator()
+    {
+        RuleFor(x => x.ReceiverName).NotEmpty().WithMessage("Receiver name is required.")
+            .MaximumLength(200).WithMessage("Receiver name must not exceed 200 characters.");
+
+        RuleFor(x => x.Email).NotEmpty().WithMessage("Email is required.")
+            .MaximumLength(200).WithMessage("Email must not exceed 200 characters.")
+            .EmailAddress().WithMessage("A valid email address is required.");
+
+        RuleFor(x => x.Phone).NotEmpty().WithMessage("Phone is required.")
+            .MaximumLength(200).WithMessage("Phone must not exceed 200 characters.");
+
+        RuleFor(x => x.Address).NotEmpty().WithMessage("Address is required.")
+            .MaximumLength(500).WithMessage("Address must not exceed 500 characters.");
+
+        RuleFor(x => x.PostalCode)
+            .NotEmpty().WithMessage("Postal code is required.")
+            .MaximumLength(200).WithMessage("Postal code must not exceed 200 characters.");
+
+        RuleFor(x => x.Contact)
+            .NotEmpty().WithMessage("Contact is required.")
+            .MaximumLength(200).WithMessage("Contact must not exceed 200 characters.");
+
+        RuleFor(x => x.OtherAddress)
+            .MaximumLength(500).WithMessage("Other address must not exceed 500 characters.");
+
+        //RuleFor(x => x.UserId).NotEmpty().WithMessage("User is required.");
+        RuleFor(x => x.CityId).NotEmpty().WithMessage("City is required.");
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Validators\UserSender\CreateUserSenderDtoValidator.cs ====================
+
+using FluentValidation;
+using BL.DTOs.UserSender;
+
+namespace BL.Validators.UserSender;
+
+public class CreateUserSenderDtoValidator : AbstractValidator<CreateUserSenderDto>
+{
+    public CreateUserSenderDtoValidator()
+    {
+        RuleFor(x => x.SenderName).NotEmpty().WithMessage("Sender name is required.")
+            .MaximumLength(200).WithMessage("Sender name must not exceed 200 characters.");
+
+        RuleFor(x => x.Email).NotEmpty().WithMessage("Email is required.")
+            .MaximumLength(200).WithMessage("Email must not exceed 200 characters.")
+            .EmailAddress().WithMessage("A valid email address is required.");
+
+        RuleFor(x => x.Phone).NotEmpty().WithMessage("Phone is required.")
+            .MaximumLength(200).WithMessage("Phone must not exceed 200 characters.");
+
+        RuleFor(x => x.Address).NotEmpty().WithMessage("Address is required.")
+            .MaximumLength(500).WithMessage("Address must not exceed 500 characters.");
+
+        RuleFor(x => x.PostalCode)
+            .NotEmpty().WithMessage("Postal code is required.")
+            .MaximumLength(200).WithMessage("Postal code must not exceed 200 characters.");
+
+        RuleFor(x => x.Contact)
+            .NotEmpty().WithMessage("Contact is required.")
+            .MaximumLength(200).WithMessage("Contact must not exceed 200 characters.");
+
+        RuleFor(x => x.OtherAddress)
+            .MaximumLength(500).WithMessage("Other address must not exceed 500 characters.");
+
+
+        //RuleFor(x => x.UserId).NotEmpty().WithMessage("User is required.");
+        RuleFor(x => x.CityId).NotEmpty().WithMessage("City is required.");
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Validators\UserSender\UpdateUserSenderDtoValidator.cs ====================
+
+using FluentValidation;
+using BL.DTOs.UserSender;
+
+namespace BL.Validators.UserSender;
+
+public class UpdateUserSenderDtoValidator : AbstractValidator<UpdateUserSenderDto>
+{
+    public UpdateUserSenderDtoValidator()
+    {
+        RuleFor(x => x.SenderName).NotEmpty().WithMessage("Sender name is required.")
+            .MaximumLength(200).WithMessage("Sender name must not exceed 200 characters.");
+
+        RuleFor(x => x.Email).NotEmpty().WithMessage("Email is required.")
+            .MaximumLength(200).WithMessage("Email must not exceed 200 characters.")
+            .EmailAddress().WithMessage("A valid email address is required.");
+
+        RuleFor(x => x.Phone).NotEmpty().WithMessage("Phone is required.")
+            .MaximumLength(200).WithMessage("Phone must not exceed 200 characters.");
+
+        RuleFor(x => x.Address).NotEmpty().WithMessage("Address is required.")
+            .MaximumLength(500).WithMessage("Address must not exceed 500 characters.");
+
+        RuleFor(x => x.PostalCode)
+            .NotEmpty().WithMessage("Postal code is required.")
+            .MaximumLength(200).WithMessage("Postal code must not exceed 200 characters.");
+
+        RuleFor(x => x.Contact)
+            .NotEmpty().WithMessage("Contact is required.")
+            .MaximumLength(200).WithMessage("Contact must not exceed 200 characters.");
+
+        RuleFor(x => x.OtherAddress)
+            .MaximumLength(500).WithMessage("Other address must not exceed 500 characters.");
+
+        //RuleFor(x => x.UserId).NotEmpty().WithMessage("User is required.");
+        RuleFor(x => x.CityId).NotEmpty().WithMessage("City is required.");
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Validators\UserSubscription\CreateUserSubscriptionDtoValidator.cs ====================
+
+using FluentValidation;
+using BL.DTOs.UserSubscription;
+
+namespace BL.Validators.UserSubscription;
+
+public class CreateUserSubscriptionDtoValidator : AbstractValidator<CreateUserSubscriptionDto>
+{
+    public CreateUserSubscriptionDtoValidator()
+    {
+        RuleFor(x => x.UserId).NotEmpty().WithMessage("User is required.");
+        RuleFor(x => x.PackageId).NotEmpty().WithMessage("Package is required.");
+        RuleFor(x => x.SubscriptionDate).NotEmpty().WithMessage("Subscription date is required.");
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\BL\Validators\UserSubscription\UpdateUserSubscriptionDtoValidator.cs ====================
+
+using BL.DTOs.UserSubscription;
+using FluentValidation;
+
+namespace BL.Validators.UserSubscription;
+
+public class UpdateUserSubscriptionDtoValidator : AbstractValidator<UpdateUserSubscriptionDto>
+{
+    public UpdateUserSubscriptionDtoValidator()
+    {
+        RuleFor(x => x.UserId).NotEmpty().WithMessage("User is required.");
+        RuleFor(x => x.PackageId).NotEmpty().WithMessage("Package is required.");
+        RuleFor(x => x.SubscriptionDate).NotEmpty().WithMessage("Subscription date is required.");
+    }
+}

@@ -14,6 +14,19 @@ namespace DAL.Configurations.Entities
             builder.Property(e => e.PackageId).IsRequired();
             builder.Property(e => e.SubscriptionDate).HasColumnType("datetime").IsRequired();
 
+            builder.Property(e => e.UsedShipmentCount).HasDefaultValue(0).IsRequired();
+            builder.Property(e => e.UsedTotalWeight).HasColumnType("float").HasDefaultValue(0).IsRequired();
+            builder.Property(e => e.UsedTotalDistance).HasColumnType("float").HasDefaultValue(0).IsRequired();
+            builder.Property(e => e.ExpiryDate).HasColumnType("datetime");
+            builder.Property(e => e.IsActive).HasDefaultValue(true).IsRequired();
+            builder.HasIndex(e => e.UserId);
+
+            builder.HasOne(d => d.Package)
+                   .WithMany(p => p.TbUserSubscriptions)
+                   .HasForeignKey(d => d.PackageId)
+                   .OnDelete(DeleteBehavior.ClientSetNull);
+
+
             builder.HasOne(d => d.Package)
                    .WithMany(p => p.TbUserSubscriptions)
                    .HasForeignKey(d => d.PackageId)

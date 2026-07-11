@@ -9,10 +9,10 @@ public class CreateCityDtoValidator : AbstractValidator<CreateCityDto>
     public CreateCityDtoValidator()
     {
         RuleFor(x => x.CityAname)
-            .MaximumLength(10).WithMessage("اسم المدينة يجب أن لا يتجاوز 10 أحرف.");
+            .MaximumLength(100).WithMessage("اسم المدينة يجب أن لا يتجاوز 100 حرف.");
 
         RuleFor(x => x.CityEname)
-            .MaximumLength(10).WithMessage("City name must not exceed 10 characters.");
+            .MaximumLength(100).WithMessage("City name must not exceed 100 characters.");
 
         RuleFor(x => x.CountryId)
             .NotEmpty().WithMessage("Country is required.")

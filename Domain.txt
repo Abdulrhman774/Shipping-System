@@ -1,0 +1,799 @@
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\Domain\Entities\Views\VwCitiesCountries.cs ====================
+
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Domain.Entities.Views
+{
+    public class VwCitiesCountries
+    {
+        public string? CityAname { get; set; }
+
+        public string? CityEname { get; set; }
+
+        public string? CountryAname { get; set; }
+
+        public string? CountryEname { get; set; }
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\Domain\Entities\ApplicationUser.cs ====================
+
+using Microsoft.AspNetCore.Identity;
+
+namespace Domain.Entities
+{
+    public class ApplicationUser : IdentityUser
+    {
+        public string FirstName { get; set; } = null!;
+        public string SecondName { get; set; } = null!;
+        public string? ThirdName { get; set; }
+        public string LastName { get; set; } = null!;
+        public DateOnly DateOfBirth { get; set; }
+        public enGender Gender { get; set; }
+        public string ImageUrl { get; set; } = null!;
+
+        public virtual ICollection<TbRefreshToken> RefreshTokens { get; set; }
+            = new HashSet<TbRefreshToken>();
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\Domain\Entities\Log.cs ====================
+
+using System;
+using System.Collections.Generic;
+
+namespace Domain.Entities;
+
+public partial class Log
+{
+    public int Id { get; set; }
+
+    public string? Message { get; set; }
+
+    public string? MessageTemplate { get; set; }
+
+    public string? Level { get; set; }
+
+    public DateTime? TimeStamp { get; set; }
+
+    public string? Exception { get; set; }
+
+    public string? Properties { get; set; }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\Domain\Entities\TbCarrier.cs ====================
+
+using Domain.Shared;
+using System;
+using System.Collections.Generic;
+
+namespace Domain.Entities;
+
+public partial class TbCarrier : BaseEntity
+{
+    public string CarrierName { get; set; } = null!;
+
+    public virtual ICollection<TbShipmentStatus> TbShippmentStatuses { get; set; } = new List<TbShipmentStatus>();
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\Domain\Entities\TbCity.cs ====================
+
+using Domain.Shared;
+using System;
+using System.Collections.Generic;
+
+namespace Domain.Entities;
+
+public partial class TbCity : BaseEntity
+{
+    public string? CityAname { get; set; }
+
+    public string? CityEname { get; set; }
+
+    public Guid CountryId { get; set; }
+
+    public virtual TbCountry Country { get; set; } = null!;
+
+    public virtual ICollection<TbUserReceiver> TbUserReceivers { get; set; } = new List<TbUserReceiver>();
+
+    public virtual ICollection<TbUserSender> TbUserSenders { get; set; } = new List<TbUserSender>();
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\Domain\Entities\TbCountry.cs ====================
+
+using Domain.Shared;
+using System;
+using System.Collections.Generic;
+
+namespace Domain.Entities;
+
+public partial class TbCountry : BaseEntity
+{
+    public string? CountryAname { get; set; }
+
+    public string? CountryEname { get; set; }
+
+    public virtual ICollection<TbCity> TbCities { get; set; } = new List<TbCity>();
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\Domain\Entities\TbPaymentMethod.cs ====================
+
+using Domain.Shared;
+using System;
+using System.Collections.Generic;
+
+namespace Domain.Entities;
+
+public partial class TbPaymentMethod : BaseEntity
+{
+    public string? MethdAname { get; set; }
+
+    public string? MethodEname { get; set; }
+
+    public double? Commission { get; set; }
+
+    public virtual ICollection<TbShipment> TbShippments { get; set; } = new List<TbShipment>();
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\Domain\Entities\TbRefreshToken.cs ====================
+
+using Domain.Shared;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Domain.Entities
+{
+    public class TbRefreshToken : BaseEntity
+    {
+        public string Token { get; set; } = null!;
+        public string UserId { get; set; } = null!;
+        public DateTime Expires { get; set; }
+        public DateTime? RevokedDate { get; set; }
+        public virtual ApplicationUser User { get; set; } = null!;
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\Domain\Entities\TbSetting.cs ====================
+
+using Domain.Shared;
+
+namespace Domain.Entities;
+
+public partial class TbSetting : BaseEntity
+{
+    public double? KiloMeterRate { get; set; }
+
+    public double? KilooGramRate { get; set; }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\Domain\Entities\TbShipment.cs ====================
+
+using Domain.Shared;
+
+namespace Domain.Entities;
+
+public partial class TbShipment : BaseEntity
+{
+    public DateTime ShippingDate { get; set; }
+
+    public DateTime? DeliveryDate { get; set; }
+
+    public Guid SenderId { get; set; }
+
+    public Guid ReceiverId { get; set; }
+
+    public Guid ShippingTypeId { get; set; }
+
+    public Guid? ShippingPackagingId { get; set; }
+
+    public double Width { get; set; }
+
+    public double Height { get; set; }
+
+    public double Weight { get; set; }
+
+    public double Length { get; set; }
+
+    public decimal PackageValue { get; set; }
+
+    public decimal ShippingRate { get; set; }
+
+    public Guid? PaymentMethodId { get; set; }
+
+    public Guid? UserSubscriptionId { get; set; }
+
+    public string? TrackingNumber { get; set; }
+
+    public Guid? ReferenceId { get; set; }
+
+    public virtual TbPaymentMethod? PaymentMethod { get; set; }
+
+    public virtual TbUserReceiver Receiver { get; set; } = null!;
+
+    public virtual TbUserSender Sender { get; set; } = null!;
+
+    public virtual TbShippingType ShippingType { get; set; } = null!;
+
+    public virtual TbShippingPackaging? ShippingPackaging { get; set; }
+
+    public virtual ICollection<TbShipmentStatus> TbShipmentStatuses { get; set; } = new List<TbShipmentStatus>();
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\Domain\Entities\TbShipmentStatus.cs ====================
+
+using Domain.Shared;
+using System;
+using System.Collections.Generic;
+
+namespace Domain.Entities;
+
+public partial class TbShipmentStatus : BaseEntity
+{
+    public Guid? ShipmentId { get; set; }
+
+    public string? Notes { get; set; }
+
+    public Guid CarrierId { get; set; }
+
+    public virtual TbCarrier Carrier { get; set; } = null!;
+
+    public virtual TbShipment? Shippment { get; set; }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\Domain\Entities\TbShippingPackaging.cs ====================
+
+using Domain.Shared;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Domain.Entities;
+
+public partial class TbShippingPackaging : BaseEntity
+{
+    public string ShippingPackagingAname { get; set; } = null!;
+
+    public string ShippingPackagingEname { get; set; } = null!;
+
+    public virtual ICollection<TbShipment> TbShipments { get; set; } = new List<TbShipment>();
+}
+
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\Domain\Entities\TbShippingType.cs ====================
+
+using Domain.Shared;
+using System;
+using System.Collections.Generic;
+
+namespace Domain.Entities;
+
+public partial class TbShippingType : BaseEntity
+{
+    public string? ShippingTypeAname { get; set; }
+
+    public string? ShippingTypeEname { get; set; }
+
+    public double ShippingFactor { get; set; }
+
+    public virtual ICollection<TbShipment> TbShipments { get; set; } = new List<TbShipment>();
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\Domain\Entities\TbSubscriptionPackage.cs ====================
+
+using Domain.Shared;
+using System;
+using System.Collections.Generic;
+
+namespace Domain.Entities;
+
+public partial class TbSubscriptionPackage : BaseEntity
+{
+    public string PackageName { get; set; } = null!;
+
+    public int ShipmentCount { get; set; }
+
+    public double NumberOfKiloMeters { get; set; }
+
+    public double TotalWeight { get; set; }
+
+    public virtual ICollection<TbUserSubscription> TbUserSubscriptions { get; set; } = new List<TbUserSubscription>();
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\Domain\Entities\TbUserReceiver.cs ====================
+
+using Domain.Shared;
+using System;
+using System.Collections.Generic;
+
+namespace Domain.Entities;
+
+public partial class TbUserReceiver : BaseEntity
+{
+    public Guid UserId { get; set; }
+
+    public string ReceiverName { get; set; } = null!;
+
+    public string Email { get; set; } = null!;
+
+    public string Phone { get; set; } = null!;
+
+    public string PostalCode { get; set; } = null!;
+
+    public string Contact { get; set; } = null!;
+
+    public string OtherAddress { get; set; } = null!;
+
+    public bool IsDefaultAddress { get; set; }
+
+    public Guid CityId { get; set; }
+
+    public string Address { get; set; } = null!;
+
+    public virtual TbCity City { get; set; } = null!;
+
+    public virtual ICollection<TbShipment> TbShippments { get; set; } = new List<TbShipment>();
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\Domain\Entities\TbUserSender.cs ====================
+
+using Domain.Shared;
+using System;
+using System.Collections.Generic;
+
+namespace Domain.Entities;
+
+public partial class TbUserSender : BaseEntity
+{
+    public Guid UserId { get; set; }
+
+    public string SenderName { get; set; } = null!;
+
+    public string Email { get; set; } = null!;
+
+    public string Phone { get; set; } = null!;
+
+    public string PostalCode { get; set; } = null!;
+
+    public string Contact { get; set; } = null!;
+
+    public string OtherAddress { get; set; } = null!;
+
+    public bool IsDefaultAddress { get; set; }
+
+    public Guid CityId { get; set; }
+
+    public string Address { get; set; } = null!;
+
+    public virtual TbCity City { get; set; } = null!;
+
+    public virtual ICollection<TbShipment> TbShippments { get; set; } = new List<TbShipment>();
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\Domain\Entities\TbUserSubscription.cs ====================
+
+using Domain.Shared;
+using System;
+using System.Collections.Generic;
+
+namespace Domain.Entities;
+
+public partial class TbUserSubscription : BaseEntity
+{
+    public Guid UserId { get; set; }
+
+    public Guid PackageId { get; set; }
+
+    public DateTime SubscriptionDate { get; set; }
+
+    public virtual TbSubscriptionPackage Package { get; set; } = null!;
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\Domain\Enums\enEntityState.cs ====================
+
+public enum enEntityState : byte
+{
+    Active = 1,
+    Inactive = 2,
+    Deleted = 3
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\Domain\Enums\enGender.cs ====================
+
+public enum enGender : byte
+{
+    Male = 1,
+    Female = 2,
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\Domain\obj\Debug\net10.0\.NETCoreApp,Version=v10.0.AssemblyAttributes.cs ====================
+
+// <autogenerated />
+using System;
+using System.Reflection;
+[assembly: global::System.Runtime.Versioning.TargetFrameworkAttribute(".NETCoreApp,Version=v10.0", FrameworkDisplayName = ".NET 10.0")]
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\Domain\obj\Debug\net10.0\Domain.AssemblyInfo.cs ====================
+
+//------------------------------------------------------------------------------
+// <auto-generated>
+//     This code was generated by a tool.
+//     Runtime Version:4.0.30319.42000
+//
+//     Changes to this file may cause incorrect behavior and will be lost if
+//     the code is regenerated.
+// </auto-generated>
+//------------------------------------------------------------------------------
+
+using System;
+using System.Reflection;
+
+[assembly: System.Reflection.AssemblyCompanyAttribute("Domain")]
+[assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
+[assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5d02f3b3c050f0329f84235dc61f9a49da691064")]
+[assembly: System.Reflection.AssemblyProductAttribute("Domain")]
+[assembly: System.Reflection.AssemblyTitleAttribute("Domain")]
+[assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
+
+// Generated by the MSBuild WriteCodeFragment class.
+
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\Domain\obj\Debug\net10.0\Domain.GlobalUsings.g.cs ====================
+
+// <auto-generated/>
+global using System;
+global using System.Collections.Generic;
+global using System.IO;
+global using System.Linq;
+global using System.Net.Http;
+global using System.Threading;
+global using System.Threading.Tasks;
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\Domain\obj\Debug\net8.0\.NETCoreApp,Version=v8.0.AssemblyAttributes.cs ====================
+
+// <autogenerated />
+using System;
+using System.Reflection;
+[assembly: global::System.Runtime.Versioning.TargetFrameworkAttribute(".NETCoreApp,Version=v8.0", FrameworkDisplayName = ".NET 8.0")]
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\Domain\obj\Debug\net8.0\Domain.AssemblyInfo.cs ====================
+
+//------------------------------------------------------------------------------
+// <auto-generated>
+//     This code was generated by a tool.
+//
+//     Changes to this file may cause incorrect behavior and will be lost if
+//     the code is regenerated.
+// </auto-generated>
+//------------------------------------------------------------------------------
+
+using System;
+using System.Reflection;
+
+[assembly: System.Reflection.AssemblyCompanyAttribute("Domain")]
+[assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
+[assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c0002817d9cfb9e1689d86318d887acef92f67a9")]
+[assembly: System.Reflection.AssemblyProductAttribute("Domain")]
+[assembly: System.Reflection.AssemblyTitleAttribute("Domain")]
+[assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
+
+// Generated by the MSBuild WriteCodeFragment class.
+
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\Domain\obj\Debug\net8.0\Domain.GlobalUsings.g.cs ====================
+
+// <auto-generated/>
+global using System;
+global using System.Collections.Generic;
+global using System.IO;
+global using System.Linq;
+global using System.Net.Http;
+global using System.Threading;
+global using System.Threading.Tasks;
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\Domain\Shared\Results\enErrorKind.cs ====================
+
+namespace Domain.Shared.Results;
+
+public enum enErrorKind
+{
+    Failure,
+    Validation,
+    NotFound,
+    Conflict,
+    Unauthorized,
+    Forbidden,
+    Unexpected
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\Domain\Shared\Results\Error.cs ====================
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Domain.Shared.Results;
+
+public sealed record Error(string Code, string Description, enErrorKind Type)
+{
+    public static Error Failure(
+        string code,
+        string description)
+        => new(code, description, enErrorKind.Failure);
+
+    public static Error Validation(
+        string code,
+        string description)
+        => new(code, description, enErrorKind.Validation);
+
+    public static Error NotFound(
+        string code,
+        string description)
+        => new(code, description, enErrorKind.NotFound);
+
+    public static Error Conflict(
+        string code,
+        string description)
+        => new(code, description, enErrorKind.Conflict);
+
+    public static Error Unauthorized(
+        string code,
+        string description)
+        => new(code, description, enErrorKind.Unauthorized);
+
+    public static Error Forbidden(
+        string code,
+        string description)
+        => new(code, description, enErrorKind.Forbidden);
+
+    public static Error Unexpected(
+        string code,
+        string description)
+        => new(code, description, enErrorKind.Unexpected);
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\Domain\Shared\Results\IdentityResultExtensions.cs ====================
+
+using Microsoft.AspNetCore.Identity;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Domain.Shared.Results;
+
+public static class IdentityResultExtensions
+{
+    public static List<Error> ToErrors(this IdentityResult result)
+    {
+        return result.Errors
+            .Select(e => Error.Validation(
+                e.Code,
+                e.Description))
+            .ToList();
+    }
+
+    public static Result ToResult(this IdentityResult result)
+    {
+        return result.Succeeded
+            ? Result.Success()
+            : Result.Failure(result.ToErrors());
+    }
+
+    public static Result<T> ToFailureResult<T>(this IdentityResult result)
+    {
+        return result.ToErrors();
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\Domain\Shared\Results\IResult.cs ====================
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Domain.Shared.Results;
+
+public interface IResult
+{
+    bool IsSuccess { get; }
+
+    IReadOnlyList<Error> Errors { get; }
+}
+
+public interface IResult<out T> : IResult
+{
+    T Value { get; }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\Domain\Shared\Results\Result.cs ====================
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Domain.Shared.Results;
+
+public class Result<T> : IResult<T>
+{
+    private readonly T? _value;
+
+    private readonly List<Error> _errors = [];
+
+    public bool IsSuccess { get; }
+
+    public bool IsFailure => !IsSuccess;
+
+    public T Value =>
+        IsSuccess
+            ? _value!
+            : throw new InvalidOperationException("No value exists.");
+
+    public IReadOnlyList<Error> Errors => _errors;
+
+    public Error? FirstError => _errors.FirstOrDefault();
+
+    private Result(T value)
+    {
+        IsSuccess = true;
+        _value = value;
+    }
+
+    private Result(IEnumerable<Error> errors)
+    {
+        ArgumentNullException.ThrowIfNull(errors);
+
+        if (!errors.Any())
+            throw new ArgumentException(
+                "Failure must contain at least one error.");
+
+        IsSuccess = false;
+        _errors.AddRange(errors);
+    }
+
+    public static Result<T> Success(T value)
+        => new(value);
+
+    public static Result<T> Failure(params Error[] errors)
+        => new(errors);
+
+    // implicit operators
+
+    public static implicit operator Result<T>(T value)
+        => Success(value);
+
+    public static implicit operator Result<T>(Error error)
+        => Failure(error);
+
+    public static implicit operator Result<T>(List<Error> errors)
+        => new(errors);
+
+}
+
+public class Result : IResult
+{
+    private readonly List<Error> _errors = [];
+
+    public bool IsSuccess { get; }
+
+    public bool IsFailure => !IsSuccess;
+
+    public IReadOnlyList<Error> Errors => _errors;
+
+    public Error? FirstError => _errors.FirstOrDefault();
+
+    private Result()
+    {
+        IsSuccess = true;
+    }
+
+    private Result(IEnumerable<Error> errors)
+    {
+        ArgumentNullException.ThrowIfNull(errors);
+
+        if (!errors.Any())
+            throw new ArgumentException(
+                "Failure result must contain at least one error.",
+                nameof(errors));
+
+        IsSuccess = false;
+        _errors.AddRange(errors);
+    }
+
+    #region Factory Methods
+
+    public static Result Success()
+        => new();
+
+    public static Result Failure(params Error[] errors)
+        => new(errors);
+
+    public static Result Failure(IEnumerable<Error> errors)
+        => new(errors);
+
+    #endregion
+
+    #region Implicit Operators
+
+    public static implicit operator Result(Error error)
+        => Failure(error);
+
+    public static implicit operator Result(List<Error> errors)
+        => Failure(errors);
+
+    public static implicit operator Result(Error[] errors)
+        => Failure(errors);
+
+    #endregion
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\Domain\Shared\BaseEntity.cs ====================
+
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Domain.Shared
+{
+    public abstract class BaseEntity
+    {
+        public Guid Id { get; set; }
+
+        public Guid? UpdatedBy { get; set; }
+
+        public enEntityState CurrentState { get; set; }
+
+        public DateTime CreatedDate { get; set; } 
+
+        public Guid CreatedBy { get; set; }
+
+        public DateTime? UpdatedDate { get; set; }
+    }
+}

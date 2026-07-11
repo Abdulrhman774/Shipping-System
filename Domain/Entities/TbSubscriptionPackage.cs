@@ -14,5 +14,11 @@ public partial class TbSubscriptionPackage : BaseEntity
 
     public double TotalWeight { get; set; }
 
+    public decimal Price { get; set; }  // Subscription price
+
+    public int DurationDays { get; set; } // Default 30 days
+
+
+
     public virtual ICollection<TbUserSubscription> TbUserSubscriptions { get; set; } = new List<TbUserSubscription>();
 }

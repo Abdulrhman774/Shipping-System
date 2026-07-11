@@ -12,7 +12,8 @@ namespace Domain.Entities
         public enGender Gender { get; set; }
         public string ImageUrl { get; set; } = null!;
 
-        public virtual ICollection<TbRefreshToken> RefreshTokens { get; set; }
-            = new HashSet<TbRefreshToken>();
+        public virtual ICollection<TbRefreshToken> RefreshTokens { get; set; } = new HashSet<TbRefreshToken>();
+        public virtual ICollection<TbUserSender>? Senders { get; set; }
+        public virtual ICollection<TbUserReceiver>? Receivers { get; set; }
     }
 }
