@@ -26,7 +26,7 @@ public class UserSenderService
 
 
     // Override CreateAsync with the same logic
-    public override async Task<Result<Guid>> CreateAsync(CreateUserSenderDto dto)
+    public override async Task<Result<Guid>> AddAsync(CreateUserSenderDto dto)
     {
         // 1. Validate City exists
         var cityExists = await _cityService.GetByIdAsync(dto.CityId);
@@ -50,7 +50,7 @@ public class UserSenderService
         }
 
         // 5. Proceed with base creation
-        return await base.CreateAsync(dto);
+        return await base.AddAsync(dto);
     }
 
     // Override UpdateAsync to handle email/phone changes and default address logic

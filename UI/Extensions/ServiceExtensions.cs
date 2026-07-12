@@ -120,8 +120,6 @@ public static class ServiceExtensions
         services.AddScoped<IUserSubscriptionService, UserSubscriptionService>();
         services.AddScoped<IShippingPackagingService, ShippingPackagingService>();
 
-        services.AddScoped<IRateCalculator, RateCalculator>();
-        services.AddScoped<ITrackingNumberCalculator, TrackingNumberCalculator>();
         #endregion
 
         // Add service to can call api endpoint
@@ -131,6 +129,9 @@ public static class ServiceExtensions
         services.AddScoped<ITokenProvider, SessionTokenProvider>();
         services.AddScoped<ITokenRefreshService, TokenRefreshService>();
         services.AddScoped<IRefreshTokenProvider, CookieRefreshTokenProvider>();
+        services.AddScoped<IDistanceService, DistanceService>();
+        services.AddScoped<IRateCalculator, RateCalculator>();
+        services.AddScoped<ITrackingNumberCalculator, TrackingNumberCalculator>();
 
 
         services.AddScoped<MvcShipmentService>();

@@ -109,7 +109,7 @@ public class ShipmentService
             dto.ShippingRate = rateResult.Value;
 
             // 7. Create the shipment
-            var result = await CreateAsync(dto);
+            var result = await AddAsync(dto);
             if (result.IsFailure)
             {
                 await _unitOfWork.RollbackTransactionAsync();

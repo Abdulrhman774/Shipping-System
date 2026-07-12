@@ -36,7 +36,7 @@ public abstract class BaseController<TService, T, TDto, TCreateDto, TUpdateDto> 
     [HttpPost]
     public virtual async Task<IActionResult> Create([FromBody] TCreateDto dto)
     {
-        var result = await _service.CreateAsync(dto);
+        var result = await _service.AddAsync(dto);
         return result.ToActionResult(this);
     }
 

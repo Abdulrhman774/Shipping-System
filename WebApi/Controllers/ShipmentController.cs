@@ -25,4 +25,16 @@ public class ShipmentController : BaseController<IShipmentService, TbShipment, S
 
         return Ok(result.Value);
     }
+
+
+    [HttpGet("GetAllShipments")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetAllShipments()
+    {
+        var result = await _shipmentService.GetAllAsync();
+        if (result.IsFailure)
+            return NotFound(result.Errors);
+        return Ok(result.Value);
+    }
+
 }
