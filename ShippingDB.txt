@@ -1,0 +1,1035 @@
+USE [master]
+GO
+ Object  Database [ShippingDB]    Script Date 7122026 100157 AM 
+CREATE DATABASE [ShippingDB]
+ CONTAINMENT = NONE
+ ON  PRIMARY 
+( NAME = N'ShippingDB', FILENAME = N'DMain ProgramsMSSQL17.SQLEXPRESSMSSQLDATAShippingDB.mdf' , SIZE = 139264KB , MAXSIZE = UNLIMITED, FILEGROWTH = 65536KB )
+ LOG ON 
+( NAME = N'ShippingDB_log', FILENAME = N'DMain ProgramsMSSQL17.SQLEXPRESSMSSQLDATAShippingDB_log.ldf' , SIZE = 8192KB , MAXSIZE = 2048GB , FILEGROWTH = 65536KB )
+ WITH CATALOG_COLLATION = DATABASE_DEFAULT, LEDGER = OFF
+GO
+ALTER DATABASE [ShippingDB] SET COMPATIBILITY_LEVEL = 170
+GO
+IF (1 = FULLTEXTSERVICEPROPERTY('IsFullTextInstalled'))
+begin
+EXEC [ShippingDB].[dbo].[sp_fulltext_database] @action = 'enable'
+end
+GO
+ALTER DATABASE [ShippingDB] SET ANSI_NULL_DEFAULT OFF 
+GO
+ALTER DATABASE [ShippingDB] SET ANSI_NULLS OFF 
+GO
+ALTER DATABASE [ShippingDB] SET ANSI_PADDING OFF 
+GO
+ALTER DATABASE [ShippingDB] SET ANSI_WARNINGS OFF 
+GO
+ALTER DATABASE [ShippingDB] SET ARITHABORT OFF 
+GO
+ALTER DATABASE [ShippingDB] SET AUTO_CLOSE ON 
+GO
+ALTER DATABASE [ShippingDB] SET AUTO_SHRINK OFF 
+GO
+ALTER DATABASE [ShippingDB] SET AUTO_UPDATE_STATISTICS ON 
+GO
+ALTER DATABASE [ShippingDB] SET CURSOR_CLOSE_ON_COMMIT OFF 
+GO
+ALTER DATABASE [ShippingDB] SET CURSOR_DEFAULT  GLOBAL 
+GO
+ALTER DATABASE [ShippingDB] SET CONCAT_NULL_YIELDS_NULL OFF 
+GO
+ALTER DATABASE [ShippingDB] SET NUMERIC_ROUNDABORT OFF 
+GO
+ALTER DATABASE [ShippingDB] SET QUOTED_IDENTIFIER OFF 
+GO
+ALTER DATABASE [ShippingDB] SET RECURSIVE_TRIGGERS OFF 
+GO
+ALTER DATABASE [ShippingDB] SET  ENABLE_BROKER 
+GO
+ALTER DATABASE [ShippingDB] SET AUTO_UPDATE_STATISTICS_ASYNC OFF 
+GO
+ALTER DATABASE [ShippingDB] SET DATE_CORRELATION_OPTIMIZATION OFF 
+GO
+ALTER DATABASE [ShippingDB] SET TRUSTWORTHY OFF 
+GO
+ALTER DATABASE [ShippingDB] SET ALLOW_SNAPSHOT_ISOLATION OFF 
+GO
+ALTER DATABASE [ShippingDB] SET PARAMETERIZATION SIMPLE 
+GO
+ALTER DATABASE [ShippingDB] SET READ_COMMITTED_SNAPSHOT ON 
+GO
+ALTER DATABASE [ShippingDB] SET HONOR_BROKER_PRIORITY OFF 
+GO
+ALTER DATABASE [ShippingDB] SET RECOVERY SIMPLE 
+GO
+ALTER DATABASE [ShippingDB] SET  MULTI_USER 
+GO
+ALTER DATABASE [ShippingDB] SET PAGE_VERIFY CHECKSUM  
+GO
+ALTER DATABASE [ShippingDB] SET DB_CHAINING OFF 
+GO
+ALTER DATABASE [ShippingDB] SET FILESTREAM( NON_TRANSACTED_ACCESS = OFF ) 
+GO
+ALTER DATABASE [ShippingDB] SET TARGET_RECOVERY_TIME = 60 SECONDS 
+GO
+ALTER DATABASE [ShippingDB] SET DELAYED_DURABILITY = DISABLED 
+GO
+ALTER DATABASE [ShippingDB] SET OPTIMIZED_LOCKING = OFF 
+GO
+ALTER DATABASE [ShippingDB] SET ACCELERATED_DATABASE_RECOVERY = OFF  
+GO
+ALTER DATABASE [ShippingDB] SET QUERY_STORE = ON
+GO
+ALTER DATABASE [ShippingDB] SET QUERY_STORE (OPERATION_MODE = READ_WRITE, CLEANUP_POLICY = (STALE_QUERY_THRESHOLD_DAYS = 30), DATA_FLUSH_INTERVAL_SECONDS = 900, INTERVAL_LENGTH_MINUTES = 60, MAX_STORAGE_SIZE_MB = 1000, QUERY_CAPTURE_MODE = AUTO, SIZE_BASED_CLEANUP_MODE = AUTO, MAX_PLANS_PER_QUERY = 200, WAIT_STATS_CAPTURE_MODE = ON)
+GO
+USE [ShippingDB]
+GO
+ Object  Table [dbo].[__EFMigrationsHistory]    Script Date 7122026 100158 AM 
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[__EFMigrationsHistory](
+	[MigrationId] [nvarchar](150) NOT NULL,
+	[ProductVersion] [nvarchar](32) NOT NULL,
+ CONSTRAINT [PK___EFMigrationsHistory] PRIMARY KEY CLUSTERED 
+(
+	[MigrationId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+ Object  Table [dbo].[AspNetRoleClaims]    Script Date 7122026 100158 AM 
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[AspNetRoleClaims](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[RoleId] [nvarchar](450) NOT NULL,
+	[ClaimType] [nvarchar](max) NULL,
+	[ClaimValue] [nvarchar](max) NULL,
+ CONSTRAINT [PK_AspNetRoleClaims] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+ Object  Table [dbo].[AspNetRoles]    Script Date 7122026 100158 AM 
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[AspNetRoles](
+	[Id] [nvarchar](450) NOT NULL,
+	[Name] [nvarchar](256) NULL,
+	[NormalizedName] [nvarchar](256) NULL,
+	[ConcurrencyStamp] [nvarchar](max) NULL,
+ CONSTRAINT [PK_AspNetRoles] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+ Object  Table [dbo].[AspNetUserClaims]    Script Date 7122026 100158 AM 
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[AspNetUserClaims](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[UserId] [nvarchar](450) NOT NULL,
+	[ClaimType] [nvarchar](max) NULL,
+	[ClaimValue] [nvarchar](max) NULL,
+ CONSTRAINT [PK_AspNetUserClaims] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+ Object  Table [dbo].[AspNetUserLogins]    Script Date 7122026 100158 AM 
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[AspNetUserLogins](
+	[LoginProvider] [nvarchar](450) NOT NULL,
+	[ProviderKey] [nvarchar](450) NOT NULL,
+	[ProviderDisplayName] [nvarchar](max) NULL,
+	[UserId] [nvarchar](450) NOT NULL,
+ CONSTRAINT [PK_AspNetUserLogins] PRIMARY KEY CLUSTERED 
+(
+	[LoginProvider] ASC,
+	[ProviderKey] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+ Object  Table [dbo].[AspNetUserRoles]    Script Date 7122026 100158 AM 
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[AspNetUserRoles](
+	[UserId] [nvarchar](450) NOT NULL,
+	[RoleId] [nvarchar](450) NOT NULL,
+ CONSTRAINT [PK_AspNetUserRoles] PRIMARY KEY CLUSTERED 
+(
+	[UserId] ASC,
+	[RoleId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+ Object  Table [dbo].[AspNetUsers]    Script Date 7122026 100158 AM 
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[AspNetUsers](
+	[Id] [nvarchar](450) NOT NULL,
+	[DateOfBirth] [date] NOT NULL,
+	[Gender] [tinyint] NOT NULL,
+	[ImageUrl] [nvarchar](800) NOT NULL,
+	[UserName] [nvarchar](256) NULL,
+	[NormalizedUserName] [nvarchar](256) NULL,
+	[Email] [nvarchar](256) NULL,
+	[NormalizedEmail] [nvarchar](256) NULL,
+	[EmailConfirmed] [bit] NOT NULL,
+	[PasswordHash] [nvarchar](max) NULL,
+	[SecurityStamp] [nvarchar](max) NULL,
+	[ConcurrencyStamp] [nvarchar](max) NULL,
+	[PhoneNumber] [nvarchar](450) NULL,
+	[PhoneNumberConfirmed] [bit] NOT NULL,
+	[TwoFactorEnabled] [bit] NOT NULL,
+	[LockoutEnd] [datetimeoffset](7) NULL,
+	[LockoutEnabled] [bit] NOT NULL,
+	[AccessFailedCount] [int] NOT NULL,
+	[FirstName] [nvarchar](100) NOT NULL,
+	[LastName] [nvarchar](100) NOT NULL,
+	[SecondName] [nvarchar](100) NOT NULL,
+	[ThirdName] [nvarchar](100) NULL,
+ CONSTRAINT [PK_AspNetUsers] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+ Object  Table [dbo].[AspNetUserTokens]    Script Date 7122026 100158 AM 
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[AspNetUserTokens](
+	[UserId] [nvarchar](450) NOT NULL,
+	[LoginProvider] [nvarchar](450) NOT NULL,
+	[Name] [nvarchar](450) NOT NULL,
+	[Value] [nvarchar](max) NULL,
+ CONSTRAINT [PK_AspNetUserTokens] PRIMARY KEY CLUSTERED 
+(
+	[UserId] ASC,
+	[LoginProvider] ASC,
+	[Name] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+ Object  Table [dbo].[Logs]    Script Date 7122026 100158 AM 
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Logs](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[Message] [nvarchar](max) NULL,
+	[MessageTemplate] [nvarchar](max) NULL,
+	[Level] [nvarchar](16) NULL,
+	[TimeStamp] [datetime] NULL,
+	[Exception] [nvarchar](max) NULL,
+	[Properties] [nvarchar](max) NULL,
+ CONSTRAINT [PK_Logs] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+ Object  Table [dbo].[TbCarrier]    Script Date 7122026 100158 AM 
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[TbCarrier](
+	[Id] [uniqueidentifier] NOT NULL,
+	[CarrierName] [nvarchar](200) NOT NULL,
+	[UpdatedBy] [uniqueidentifier] NULL,
+	[CurrentState] [tinyint] NOT NULL,
+	[CreatedDate] [datetime] NOT NULL,
+	[CreatedBy] [uniqueidentifier] NOT NULL,
+	[UpdatedDate] [datetime] NULL,
+ CONSTRAINT [PK_TbCarrier] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+ Object  Table [dbo].[TbCity]    Script Date 7122026 100158 AM 
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[TbCity](
+	[Id] [uniqueidentifier] NOT NULL,
+	[CityAName] [nvarchar](100) NULL,
+	[CityEName] [nvarchar](100) NULL,
+	[CountryId] [uniqueidentifier] NOT NULL,
+	[UpdatedBy] [uniqueidentifier] NULL,
+	[CurrentState] [tinyint] NOT NULL,
+	[CreatedDate] [datetime] NOT NULL,
+	[CreatedBy] [uniqueidentifier] NOT NULL,
+	[UpdatedDate] [datetime] NULL,
+ CONSTRAINT [PK_TbCity] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+ Object  Table [dbo].[TbCountry]    Script Date 7122026 100158 AM 
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[TbCountry](
+	[Id] [uniqueidentifier] NOT NULL,
+	[CountryAName] [nvarchar](100) NULL,
+	[CountryEName] [nvarchar](100) NULL,
+	[UpdatedBy] [uniqueidentifier] NULL,
+	[CurrentState] [tinyint] NOT NULL,
+	[CreatedDate] [datetime] NOT NULL,
+	[CreatedBy] [uniqueidentifier] NOT NULL,
+	[UpdatedDate] [datetime] NULL,
+ CONSTRAINT [PK_TbCountry] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+ Object  Table [dbo].[TbPaymentMethod]    Script Date 7122026 100158 AM 
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[TbPaymentMethod](
+	[Id] [uniqueidentifier] NOT NULL,
+	[MethdAName] [nvarchar](200) NULL,
+	[MethodEName] [nvarchar](200) NULL,
+	[Commission] [float] NULL,
+	[UpdatedBy] [uniqueidentifier] NULL,
+	[CurrentState] [tinyint] NOT NULL,
+	[CreatedDate] [datetime] NOT NULL,
+	[CreatedBy] [uniqueidentifier] NOT NULL,
+	[UpdatedDate] [datetime] NULL,
+ CONSTRAINT [PK_TbPaymentMethod] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+ Object  Table [dbo].[TbRefreshToken]    Script Date 7122026 100158 AM 
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[TbRefreshToken](
+	[Id] [uniqueidentifier] NOT NULL,
+	[Token] [nvarchar](500) NOT NULL,
+	[UserId] [nvarchar](450) NOT NULL,
+	[Expires] [datetime] NOT NULL,
+	[RevokedDate] [datetime] NULL,
+	[UpdatedBy] [uniqueidentifier] NULL,
+	[CurrentState] [tinyint] NOT NULL,
+	[CreatedDate] [datetime] NOT NULL,
+	[CreatedBy] [uniqueidentifier] NOT NULL,
+	[UpdatedDate] [datetime] NULL,
+ CONSTRAINT [PK_TbRefreshToken] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+ Object  Table [dbo].[TbSetting]    Script Date 7122026 100158 AM 
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[TbSetting](
+	[Id] [uniqueidentifier] NOT NULL,
+	[KiloMeterRate] [float] NULL,
+	[KilooGramRate] [float] NULL,
+	[UpdatedBy] [uniqueidentifier] NULL,
+	[CurrentState] [tinyint] NOT NULL,
+	[CreatedDate] [datetime] NOT NULL,
+	[CreatedBy] [uniqueidentifier] NOT NULL,
+	[UpdatedDate] [datetime] NULL,
+ CONSTRAINT [PK_TbSetting] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+ Object  Table [dbo].[TbShipment]    Script Date 7122026 100158 AM 
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[TbShipment](
+	[Id] [uniqueidentifier] NOT NULL,
+	[ShippingDate] [datetime] NOT NULL,
+	[DeliveryDate] [datetime] NULL,
+	[SenderId] [uniqueidentifier] NOT NULL,
+	[ReceiverId] [uniqueidentifier] NOT NULL,
+	[ShippingTypeId] [uniqueidentifier] NOT NULL,
+	[ShippingPackagingId] [uniqueidentifier] NULL,
+	[Width] [float] NOT NULL,
+	[Height] [float] NOT NULL,
+	[Weight] [float] NOT NULL,
+	[Length] [float] NOT NULL,
+	[PackageValue] [decimal](18, 2) NOT NULL,
+	[ShippingRate] [decimal](8, 4) NOT NULL,
+	[PaymentMethodId] [uniqueidentifier] NULL,
+	[UserSubscriptionId] [uniqueidentifier] NULL,
+	[TrackingNumber] [nvarchar](100) NULL,
+	[ReferenceId] [uniqueidentifier] NULL,
+	[UpdatedBy] [uniqueidentifier] NULL,
+	[CurrentState] [tinyint] NOT NULL,
+	[CreatedDate] [datetime] NOT NULL,
+	[CreatedBy] [uniqueidentifier] NOT NULL,
+	[UpdatedDate] [datetime] NULL,
+ CONSTRAINT [PK_TbShipment] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+ Object  Table [dbo].[TbShipmentStatus]    Script Date 7122026 100158 AM 
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[TbShipmentStatus](
+	[Id] [uniqueidentifier] NOT NULL,
+	[ShipmentId] [uniqueidentifier] NULL,
+	[Notes] [nvarchar](max) NULL,
+	[CarrierId] [uniqueidentifier] NOT NULL,
+	[UpdatedBy] [uniqueidentifier] NULL,
+	[CurrentState] [tinyint] NOT NULL,
+	[CreatedDate] [datetime] NOT NULL,
+	[CreatedBy] [uniqueidentifier] NOT NULL,
+	[UpdatedDate] [datetime] NULL,
+ CONSTRAINT [PK_TbShipmentStatus] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+ Object  Table [dbo].[TbShippingPackaging]    Script Date 7122026 100158 AM 
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[TbShippingPackaging](
+	[Id] [uniqueidentifier] NOT NULL,
+	[ShippingPackagingAname] [nvarchar](100) NOT NULL,
+	[ShippingPackagingEname] [nvarchar](100) NOT NULL,
+	[UpdatedBy] [uniqueidentifier] NULL,
+	[CurrentState] [tinyint] NOT NULL,
+	[CreatedDate] [datetime] NOT NULL,
+	[CreatedBy] [uniqueidentifier] NOT NULL,
+	[UpdatedDate] [datetime] NULL,
+ CONSTRAINT [PK_TbShippingPackaging] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+ Object  Table [dbo].[TbShippingType]    Script Date 7122026 100158 AM 
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[TbShippingType](
+	[Id] [uniqueidentifier] NOT NULL,
+	[ShippingTypeAName] [nvarchar](200) NULL,
+	[ShippingTypeEName] [nvarchar](200) NULL,
+	[ShippingFactor] [float] NOT NULL,
+	[UpdatedBy] [uniqueidentifier] NULL,
+	[CurrentState] [tinyint] NOT NULL,
+	[CreatedDate] [datetime] NOT NULL,
+	[CreatedBy] [uniqueidentifier] NOT NULL,
+	[UpdatedDate] [datetime] NULL,
+ CONSTRAINT [PK_TbShippingType] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+ Object  Table [dbo].[TbSubscriptionPackage]    Script Date 7122026 100158 AM 
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[TbSubscriptionPackage](
+	[Id] [uniqueidentifier] NOT NULL,
+	[PackageName] [nvarchar](200) NOT NULL,
+	[ShipmentCount] [int] NOT NULL,
+	[NumberOfKiloMeters] [float] NOT NULL,
+	[TotalWeight] [float] NOT NULL,
+	[UpdatedBy] [uniqueidentifier] NULL,
+	[CurrentState] [tinyint] NOT NULL,
+	[CreatedDate] [datetime] NOT NULL,
+	[CreatedBy] [uniqueidentifier] NOT NULL,
+	[UpdatedDate] [datetime] NULL,
+	[DurationDays] [int] NOT NULL,
+	[Price] [decimal](18, 2) NOT NULL,
+ CONSTRAINT [PK_TbSubscriptionPackage] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+ Object  Table [dbo].[TbUserReceiver]    Script Date 7122026 100158 AM 
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[TbUserReceiver](
+	[Id] [uniqueidentifier] NOT NULL,
+	[UserId] [nvarchar](450) NULL,
+	[ReceiverName] [nvarchar](200) NOT NULL,
+	[Email] [nvarchar](200) NOT NULL,
+	[Phone] [nvarchar](200) NOT NULL,
+	[CityId] [uniqueidentifier] NOT NULL,
+	[Address] [nvarchar](500) NOT NULL,
+	[UpdatedBy] [uniqueidentifier] NULL,
+	[CurrentState] [tinyint] NOT NULL,
+	[CreatedDate] [datetime] NOT NULL,
+	[CreatedBy] [uniqueidentifier] NOT NULL,
+	[UpdatedDate] [datetime] NULL,
+	[Contact] [nvarchar](200) NOT NULL,
+	[IsDefaultAddress] [bit] NOT NULL,
+	[OtherAddress] [nvarchar](500) NOT NULL,
+	[PostalCode] [nvarchar](200) NOT NULL,
+	[ApplicationUserId] [nvarchar](450) NULL,
+ CONSTRAINT [PK_TbUserReceiver] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+ Object  Table [dbo].[TbUserSender]    Script Date 7122026 100158 AM 
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[TbUserSender](
+	[Id] [uniqueidentifier] NOT NULL,
+	[UserId] [nvarchar](450) NULL,
+	[SenderName] [nvarchar](200) NOT NULL,
+	[Email] [nvarchar](200) NOT NULL,
+	[Phone] [nvarchar](200) NOT NULL,
+	[CityId] [uniqueidentifier] NOT NULL,
+	[Address] [nvarchar](500) NOT NULL,
+	[UpdatedBy] [uniqueidentifier] NULL,
+	[CurrentState] [tinyint] NOT NULL,
+	[CreatedDate] [datetime] NOT NULL,
+	[CreatedBy] [uniqueidentifier] NOT NULL,
+	[UpdatedDate] [datetime] NULL,
+	[Contact] [nvarchar](200) NOT NULL,
+	[IsDefaultAddress] [bit] NOT NULL,
+	[OtherAddress] [nvarchar](500) NOT NULL,
+	[PostalCode] [nvarchar](200) NOT NULL,
+	[ApplicationUserId] [nvarchar](450) NULL,
+ CONSTRAINT [PK_TbUserSender] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+ Object  Table [dbo].[TbUserSubscription]    Script Date 7122026 100158 AM 
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[TbUserSubscription](
+	[Id] [uniqueidentifier] NOT NULL,
+	[UserId] [uniqueidentifier] NOT NULL,
+	[PackageId] [uniqueidentifier] NOT NULL,
+	[SubscriptionDate] [datetime] NOT NULL,
+	[UpdatedBy] [uniqueidentifier] NULL,
+	[CurrentState] [tinyint] NOT NULL,
+	[CreatedDate] [datetime] NOT NULL,
+	[CreatedBy] [uniqueidentifier] NOT NULL,
+	[UpdatedDate] [datetime] NULL,
+	[ExpiryDate] [datetime] NULL,
+	[IsActive] [bit] NOT NULL,
+	[UsedShipmentCount] [int] NOT NULL,
+	[UsedTotalDistance] [float] NOT NULL,
+	[UsedTotalWeight] [float] NOT NULL,
+ CONSTRAINT [PK_TbUserSubscription] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+SET ANSI_PADDING ON
+GO
+ Object  Index [IX_AspNetRoleClaims_RoleId]    Script Date 7122026 100158 AM 
+CREATE NONCLUSTERED INDEX [IX_AspNetRoleClaims_RoleId] ON [dbo].[AspNetRoleClaims]
+(
+	[RoleId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+SET ANSI_PADDING ON
+GO
+ Object  Index [RoleNameIndex]    Script Date 7122026 100158 AM 
+CREATE UNIQUE NONCLUSTERED INDEX [RoleNameIndex] ON [dbo].[AspNetRoles]
+(
+	[NormalizedName] ASC
+)
+WHERE ([NormalizedName] IS NOT NULL)
+WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+SET ANSI_PADDING ON
+GO
+ Object  Index [IX_AspNetUserClaims_UserId]    Script Date 7122026 100158 AM 
+CREATE NONCLUSTERED INDEX [IX_AspNetUserClaims_UserId] ON [dbo].[AspNetUserClaims]
+(
+	[UserId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+SET ANSI_PADDING ON
+GO
+ Object  Index [IX_AspNetUserLogins_UserId]    Script Date 7122026 100158 AM 
+CREATE NONCLUSTERED INDEX [IX_AspNetUserLogins_UserId] ON [dbo].[AspNetUserLogins]
+(
+	[UserId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+SET ANSI_PADDING ON
+GO
+ Object  Index [IX_AspNetUserRoles_RoleId]    Script Date 7122026 100158 AM 
+CREATE NONCLUSTERED INDEX [IX_AspNetUserRoles_RoleId] ON [dbo].[AspNetUserRoles]
+(
+	[RoleId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+SET ANSI_PADDING ON
+GO
+ Object  Index [EmailIndex]    Script Date 7122026 100158 AM 
+CREATE NONCLUSTERED INDEX [EmailIndex] ON [dbo].[AspNetUsers]
+(
+	[NormalizedEmail] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+SET ANSI_PADDING ON
+GO
+ Object  Index [IX_AspNetUsers_PhoneNumber]    Script Date 7122026 100158 AM 
+CREATE UNIQUE NONCLUSTERED INDEX [IX_AspNetUsers_PhoneNumber] ON [dbo].[AspNetUsers]
+(
+	[PhoneNumber] ASC
+)
+WHERE ([PhoneNumber] IS NOT NULL)
+WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+SET ANSI_PADDING ON
+GO
+ Object  Index [UserNameIndex]    Script Date 7122026 100158 AM 
+CREATE UNIQUE NONCLUSTERED INDEX [UserNameIndex] ON [dbo].[AspNetUsers]
+(
+	[NormalizedUserName] ASC
+)
+WHERE ([NormalizedUserName] IS NOT NULL)
+WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+ Object  Index [IX_TbCity_CountryId]    Script Date 7122026 100158 AM 
+CREATE NONCLUSTERED INDEX [IX_TbCity_CountryId] ON [dbo].[TbCity]
+(
+	[CountryId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+SET ANSI_PADDING ON
+GO
+ Object  Index [IX_TbRefreshToken_Token]    Script Date 7122026 100158 AM 
+CREATE UNIQUE NONCLUSTERED INDEX [IX_TbRefreshToken_Token] ON [dbo].[TbRefreshToken]
+(
+	[Token] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+SET ANSI_PADDING ON
+GO
+ Object  Index [IX_TbRefreshToken_UserId]    Script Date 7122026 100158 AM 
+CREATE NONCLUSTERED INDEX [IX_TbRefreshToken_UserId] ON [dbo].[TbRefreshToken]
+(
+	[UserId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+ Object  Index [IX_TbShipment_PaymentMethodId]    Script Date 7122026 100158 AM 
+CREATE NONCLUSTERED INDEX [IX_TbShipment_PaymentMethodId] ON [dbo].[TbShipment]
+(
+	[PaymentMethodId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+ Object  Index [IX_TbShipment_ReceiverId]    Script Date 7122026 100158 AM 
+CREATE NONCLUSTERED INDEX [IX_TbShipment_ReceiverId] ON [dbo].[TbShipment]
+(
+	[ReceiverId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+ Object  Index [IX_TbShipment_SenderId]    Script Date 7122026 100158 AM 
+CREATE NONCLUSTERED INDEX [IX_TbShipment_SenderId] ON [dbo].[TbShipment]
+(
+	[SenderId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+ Object  Index [IX_TbShipment_ShippingPackagingId]    Script Date 7122026 100158 AM 
+CREATE NONCLUSTERED INDEX [IX_TbShipment_ShippingPackagingId] ON [dbo].[TbShipment]
+(
+	[ShippingPackagingId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+ Object  Index [IX_TbShipment_ShippingTypeId]    Script Date 7122026 100158 AM 
+CREATE NONCLUSTERED INDEX [IX_TbShipment_ShippingTypeId] ON [dbo].[TbShipment]
+(
+	[ShippingTypeId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+SET ANSI_PADDING ON
+GO
+ Object  Index [IX_TbShipment_TrackingNumber]    Script Date 7122026 100158 AM 
+CREATE UNIQUE NONCLUSTERED INDEX [IX_TbShipment_TrackingNumber] ON [dbo].[TbShipment]
+(
+	[TrackingNumber] ASC
+)
+WHERE ([TrackingNumber] IS NOT NULL)
+WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+ Object  Index [IX_TbShipment_UserSubscriptionId]    Script Date 7122026 100158 AM 
+CREATE NONCLUSTERED INDEX [IX_TbShipment_UserSubscriptionId] ON [dbo].[TbShipment]
+(
+	[UserSubscriptionId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+ Object  Index [IX_TbShipmentStatus_CarrierId]    Script Date 7122026 100158 AM 
+CREATE NONCLUSTERED INDEX [IX_TbShipmentStatus_CarrierId] ON [dbo].[TbShipmentStatus]
+(
+	[CarrierId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+ Object  Index [IX_TbShipmentStatus_ShipmentId]    Script Date 7122026 100158 AM 
+CREATE NONCLUSTERED INDEX [IX_TbShipmentStatus_ShipmentId] ON [dbo].[TbShipmentStatus]
+(
+	[ShipmentId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+SET ANSI_PADDING ON
+GO
+ Object  Index [IX_TbUserReceiver_ApplicationUserId]    Script Date 7122026 100158 AM 
+CREATE NONCLUSTERED INDEX [IX_TbUserReceiver_ApplicationUserId] ON [dbo].[TbUserReceiver]
+(
+	[ApplicationUserId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+ Object  Index [IX_TbUserReceiver_CityId]    Script Date 7122026 100158 AM 
+CREATE NONCLUSTERED INDEX [IX_TbUserReceiver_CityId] ON [dbo].[TbUserReceiver]
+(
+	[CityId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+SET ANSI_PADDING ON
+GO
+ Object  Index [IX_TbUserReceiver_Email]    Script Date 7122026 100158 AM 
+CREATE UNIQUE NONCLUSTERED INDEX [IX_TbUserReceiver_Email] ON [dbo].[TbUserReceiver]
+(
+	[Email] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+SET ANSI_PADDING ON
+GO
+ Object  Index [IX_TbUserReceiver_Phone]    Script Date 7122026 100158 AM 
+CREATE UNIQUE NONCLUSTERED INDEX [IX_TbUserReceiver_Phone] ON [dbo].[TbUserReceiver]
+(
+	[Phone] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+SET ANSI_PADDING ON
+GO
+ Object  Index [IX_TbUserReceiver_UserId]    Script Date 7122026 100158 AM 
+CREATE NONCLUSTERED INDEX [IX_TbUserReceiver_UserId] ON [dbo].[TbUserReceiver]
+(
+	[UserId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+SET ANSI_PADDING ON
+GO
+ Object  Index [IX_TbUserSender_ApplicationUserId]    Script Date 7122026 100158 AM 
+CREATE NONCLUSTERED INDEX [IX_TbUserSender_ApplicationUserId] ON [dbo].[TbUserSender]
+(
+	[ApplicationUserId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+ Object  Index [IX_TbUserSender_CityId]    Script Date 7122026 100158 AM 
+CREATE NONCLUSTERED INDEX [IX_TbUserSender_CityId] ON [dbo].[TbUserSender]
+(
+	[CityId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+SET ANSI_PADDING ON
+GO
+ Object  Index [IX_TbUserSender_Email]    Script Date 7122026 100158 AM 
+CREATE UNIQUE NONCLUSTERED INDEX [IX_TbUserSender_Email] ON [dbo].[TbUserSender]
+(
+	[Email] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+SET ANSI_PADDING ON
+GO
+ Object  Index [IX_TbUserSender_Phone]    Script Date 7122026 100158 AM 
+CREATE UNIQUE NONCLUSTERED INDEX [IX_TbUserSender_Phone] ON [dbo].[TbUserSender]
+(
+	[Phone] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+SET ANSI_PADDING ON
+GO
+ Object  Index [IX_TbUserSender_UserId]    Script Date 7122026 100158 AM 
+CREATE NONCLUSTERED INDEX [IX_TbUserSender_UserId] ON [dbo].[TbUserSender]
+(
+	[UserId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+ Object  Index [IX_TbUserSubscription_PackageId]    Script Date 7122026 100158 AM 
+CREATE NONCLUSTERED INDEX [IX_TbUserSubscription_PackageId] ON [dbo].[TbUserSubscription]
+(
+	[PackageId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+ Object  Index [IX_TbUserSubscription_UserId]    Script Date 7122026 100158 AM 
+CREATE NONCLUSTERED INDEX [IX_TbUserSubscription_UserId] ON [dbo].[TbUserSubscription]
+(
+	[UserId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+ALTER TABLE [dbo].[AspNetUsers] ADD  DEFAULT (N'') FOR [FirstName]
+GO
+ALTER TABLE [dbo].[AspNetUsers] ADD  DEFAULT (N'') FOR [LastName]
+GO
+ALTER TABLE [dbo].[AspNetUsers] ADD  DEFAULT (N'') FOR [SecondName]
+GO
+ALTER TABLE [dbo].[TbCarrier] ADD  DEFAULT (newid()) FOR [Id]
+GO
+ALTER TABLE [dbo].[TbCarrier] ADD  DEFAULT (getdate()) FOR [CreatedDate]
+GO
+ALTER TABLE [dbo].[TbCity] ADD  DEFAULT (newid()) FOR [Id]
+GO
+ALTER TABLE [dbo].[TbCity] ADD  DEFAULT (getdate()) FOR [CreatedDate]
+GO
+ALTER TABLE [dbo].[TbCountry] ADD  DEFAULT (newid()) FOR [Id]
+GO
+ALTER TABLE [dbo].[TbCountry] ADD  DEFAULT (getdate()) FOR [CreatedDate]
+GO
+ALTER TABLE [dbo].[TbPaymentMethod] ADD  DEFAULT (newid()) FOR [Id]
+GO
+ALTER TABLE [dbo].[TbPaymentMethod] ADD  DEFAULT (getdate()) FOR [CreatedDate]
+GO
+ALTER TABLE [dbo].[TbRefreshToken] ADD  DEFAULT (newid()) FOR [Id]
+GO
+ALTER TABLE [dbo].[TbRefreshToken] ADD  DEFAULT (getdate()) FOR [CreatedDate]
+GO
+ALTER TABLE [dbo].[TbSetting] ADD  DEFAULT (newid()) FOR [Id]
+GO
+ALTER TABLE [dbo].[TbSetting] ADD  DEFAULT (getdate()) FOR [CreatedDate]
+GO
+ALTER TABLE [dbo].[TbShipment] ADD  DEFAULT (newid()) FOR [Id]
+GO
+ALTER TABLE [dbo].[TbShipment] ADD  DEFAULT (getdate()) FOR [CreatedDate]
+GO
+ALTER TABLE [dbo].[TbShipmentStatus] ADD  DEFAULT (newid()) FOR [Id]
+GO
+ALTER TABLE [dbo].[TbShipmentStatus] ADD  DEFAULT (getdate()) FOR [CreatedDate]
+GO
+ALTER TABLE [dbo].[TbShippingPackaging] ADD  DEFAULT (newid()) FOR [Id]
+GO
+ALTER TABLE [dbo].[TbShippingPackaging] ADD  DEFAULT (getdate()) FOR [CreatedDate]
+GO
+ALTER TABLE [dbo].[TbShippingType] ADD  DEFAULT (newid()) FOR [Id]
+GO
+ALTER TABLE [dbo].[TbShippingType] ADD  DEFAULT (getdate()) FOR [CreatedDate]
+GO
+ALTER TABLE [dbo].[TbSubscriptionPackage] ADD  DEFAULT (newid()) FOR [Id]
+GO
+ALTER TABLE [dbo].[TbSubscriptionPackage] ADD  DEFAULT (getdate()) FOR [CreatedDate]
+GO
+ALTER TABLE [dbo].[TbSubscriptionPackage] ADD  DEFAULT ((0)) FOR [DurationDays]
+GO
+ALTER TABLE [dbo].[TbSubscriptionPackage] ADD  DEFAULT ((0.0)) FOR [Price]
+GO
+ALTER TABLE [dbo].[TbUserReceiver] ADD  DEFAULT (newid()) FOR [Id]
+GO
+ALTER TABLE [dbo].[TbUserReceiver] ADD  DEFAULT (getdate()) FOR [CreatedDate]
+GO
+ALTER TABLE [dbo].[TbUserReceiver] ADD  DEFAULT (N'') FOR [Contact]
+GO
+ALTER TABLE [dbo].[TbUserReceiver] ADD  DEFAULT (CONVERT([bit],(0))) FOR [IsDefaultAddress]
+GO
+ALTER TABLE [dbo].[TbUserReceiver] ADD  DEFAULT (N'') FOR [OtherAddress]
+GO
+ALTER TABLE [dbo].[TbUserReceiver] ADD  DEFAULT (N'') FOR [PostalCode]
+GO
+ALTER TABLE [dbo].[TbUserSender] ADD  DEFAULT (newid()) FOR [Id]
+GO
+ALTER TABLE [dbo].[TbUserSender] ADD  DEFAULT (getdate()) FOR [CreatedDate]
+GO
+ALTER TABLE [dbo].[TbUserSender] ADD  DEFAULT (N'') FOR [Contact]
+GO
+ALTER TABLE [dbo].[TbUserSender] ADD  DEFAULT (CONVERT([bit],(0))) FOR [IsDefaultAddress]
+GO
+ALTER TABLE [dbo].[TbUserSender] ADD  DEFAULT (N'') FOR [OtherAddress]
+GO
+ALTER TABLE [dbo].[TbUserSender] ADD  DEFAULT (N'') FOR [PostalCode]
+GO
+ALTER TABLE [dbo].[TbUserSubscription] ADD  DEFAULT (newid()) FOR [Id]
+GO
+ALTER TABLE [dbo].[TbUserSubscription] ADD  DEFAULT (getdate()) FOR [CreatedDate]
+GO
+ALTER TABLE [dbo].[TbUserSubscription] ADD  DEFAULT (CONVERT([bit],(1))) FOR [IsActive]
+GO
+ALTER TABLE [dbo].[TbUserSubscription] ADD  DEFAULT ((0)) FOR [UsedShipmentCount]
+GO
+ALTER TABLE [dbo].[TbUserSubscription] ADD  DEFAULT ((0.0000000000000000e+000)) FOR [UsedTotalDistance]
+GO
+ALTER TABLE [dbo].[TbUserSubscription] ADD  DEFAULT ((0.0000000000000000e+000)) FOR [UsedTotalWeight]
+GO
+ALTER TABLE [dbo].[AspNetRoleClaims]  WITH CHECK ADD  CONSTRAINT [FK_AspNetRoleClaims_AspNetRoles_RoleId] FOREIGN KEY([RoleId])
+REFERENCES [dbo].[AspNetRoles] ([Id])
+ON DELETE CASCADE
+GO
+ALTER TABLE [dbo].[AspNetRoleClaims] CHECK CONSTRAINT [FK_AspNetRoleClaims_AspNetRoles_RoleId]
+GO
+ALTER TABLE [dbo].[AspNetUserClaims]  WITH CHECK ADD  CONSTRAINT [FK_AspNetUserClaims_AspNetUsers_UserId] FOREIGN KEY([UserId])
+REFERENCES [dbo].[AspNetUsers] ([Id])
+ON DELETE CASCADE
+GO
+ALTER TABLE [dbo].[AspNetUserClaims] CHECK CONSTRAINT [FK_AspNetUserClaims_AspNetUsers_UserId]
+GO
+ALTER TABLE [dbo].[AspNetUserLogins]  WITH CHECK ADD  CONSTRAINT [FK_AspNetUserLogins_AspNetUsers_UserId] FOREIGN KEY([UserId])
+REFERENCES [dbo].[AspNetUsers] ([Id])
+ON DELETE CASCADE
+GO
+ALTER TABLE [dbo].[AspNetUserLogins] CHECK CONSTRAINT [FK_AspNetUserLogins_AspNetUsers_UserId]
+GO
+ALTER TABLE [dbo].[AspNetUserRoles]  WITH CHECK ADD  CONSTRAINT [FK_AspNetUserRoles_AspNetRoles_RoleId] FOREIGN KEY([RoleId])
+REFERENCES [dbo].[AspNetRoles] ([Id])
+ON DELETE CASCADE
+GO
+ALTER TABLE [dbo].[AspNetUserRoles] CHECK CONSTRAINT [FK_AspNetUserRoles_AspNetRoles_RoleId]
+GO
+ALTER TABLE [dbo].[AspNetUserRoles]  WITH CHECK ADD  CONSTRAINT [FK_AspNetUserRoles_AspNetUsers_UserId] FOREIGN KEY([UserId])
+REFERENCES [dbo].[AspNetUsers] ([Id])
+ON DELETE CASCADE
+GO
+ALTER TABLE [dbo].[AspNetUserRoles] CHECK CONSTRAINT [FK_AspNetUserRoles_AspNetUsers_UserId]
+GO
+ALTER TABLE [dbo].[AspNetUserTokens]  WITH CHECK ADD  CONSTRAINT [FK_AspNetUserTokens_AspNetUsers_UserId] FOREIGN KEY([UserId])
+REFERENCES [dbo].[AspNetUsers] ([Id])
+ON DELETE CASCADE
+GO
+ALTER TABLE [dbo].[AspNetUserTokens] CHECK CONSTRAINT [FK_AspNetUserTokens_AspNetUsers_UserId]
+GO
+ALTER TABLE [dbo].[TbCity]  WITH CHECK ADD  CONSTRAINT [FK_TbCity_TbCountry_CountryId] FOREIGN KEY([CountryId])
+REFERENCES [dbo].[TbCountry] ([Id])
+GO
+ALTER TABLE [dbo].[TbCity] CHECK CONSTRAINT [FK_TbCity_TbCountry_CountryId]
+GO
+ALTER TABLE [dbo].[TbRefreshToken]  WITH CHECK ADD  CONSTRAINT [FK_TbRefreshToken_AspNetUsers_UserId] FOREIGN KEY([UserId])
+REFERENCES [dbo].[AspNetUsers] ([Id])
+ON DELETE CASCADE
+GO
+ALTER TABLE [dbo].[TbRefreshToken] CHECK CONSTRAINT [FK_TbRefreshToken_AspNetUsers_UserId]
+GO
+ALTER TABLE [dbo].[TbShipment]  WITH CHECK ADD  CONSTRAINT [FK_TbShipment_TbPaymentMethod_PaymentMethodId] FOREIGN KEY([PaymentMethodId])
+REFERENCES [dbo].[TbPaymentMethod] ([Id])
+GO
+ALTER TABLE [dbo].[TbShipment] CHECK CONSTRAINT [FK_TbShipment_TbPaymentMethod_PaymentMethodId]
+GO
+ALTER TABLE [dbo].[TbShipment]  WITH CHECK ADD  CONSTRAINT [FK_TbShipment_TbShippingPackaging_ShippingPackagingId] FOREIGN KEY([ShippingPackagingId])
+REFERENCES [dbo].[TbShippingPackaging] ([Id])
+GO
+ALTER TABLE [dbo].[TbShipment] CHECK CONSTRAINT [FK_TbShipment_TbShippingPackaging_ShippingPackagingId]
+GO
+ALTER TABLE [dbo].[TbShipment]  WITH CHECK ADD  CONSTRAINT [FK_TbShipment_TbShippingType_ShippingTypeId] FOREIGN KEY([ShippingTypeId])
+REFERENCES [dbo].[TbShippingType] ([Id])
+GO
+ALTER TABLE [dbo].[TbShipment] CHECK CONSTRAINT [FK_TbShipment_TbShippingType_ShippingTypeId]
+GO
+ALTER TABLE [dbo].[TbShipment]  WITH CHECK ADD  CONSTRAINT [FK_TbShipment_TbUserReceiver_ReceiverId] FOREIGN KEY([ReceiverId])
+REFERENCES [dbo].[TbUserReceiver] ([Id])
+GO
+ALTER TABLE [dbo].[TbShipment] CHECK CONSTRAINT [FK_TbShipment_TbUserReceiver_ReceiverId]
+GO
+ALTER TABLE [dbo].[TbShipment]  WITH CHECK ADD  CONSTRAINT [FK_TbShipment_TbUserSender_SenderId] FOREIGN KEY([SenderId])
+REFERENCES [dbo].[TbUserSender] ([Id])
+GO
+ALTER TABLE [dbo].[TbShipment] CHECK CONSTRAINT [FK_TbShipment_TbUserSender_SenderId]
+GO
+ALTER TABLE [dbo].[TbShipment]  WITH CHECK ADD  CONSTRAINT [FK_TbShipment_TbUserSubscription_UserSubscriptionId] FOREIGN KEY([UserSubscriptionId])
+REFERENCES [dbo].[TbUserSubscription] ([Id])
+ON DELETE SET NULL
+GO
+ALTER TABLE [dbo].[TbShipment] CHECK CONSTRAINT [FK_TbShipment_TbUserSubscription_UserSubscriptionId]
+GO
+ALTER TABLE [dbo].[TbShipmentStatus]  WITH CHECK ADD  CONSTRAINT [FK_TbShipmentStatus_TbCarrier_CarrierId] FOREIGN KEY([CarrierId])
+REFERENCES [dbo].[TbCarrier] ([Id])
+GO
+ALTER TABLE [dbo].[TbShipmentStatus] CHECK CONSTRAINT [FK_TbShipmentStatus_TbCarrier_CarrierId]
+GO
+ALTER TABLE [dbo].[TbShipmentStatus]  WITH CHECK ADD  CONSTRAINT [FK_TbShipmentStatus_TbShipment_ShipmentId] FOREIGN KEY([ShipmentId])
+REFERENCES [dbo].[TbShipment] ([Id])
+GO
+ALTER TABLE [dbo].[TbShipmentStatus] CHECK CONSTRAINT [FK_TbShipmentStatus_TbShipment_ShipmentId]
+GO
+ALTER TABLE [dbo].[TbUserReceiver]  WITH CHECK ADD  CONSTRAINT [FK_TbUserReceiver_AspNetUsers_ApplicationUserId] FOREIGN KEY([ApplicationUserId])
+REFERENCES [dbo].[AspNetUsers] ([Id])
+GO
+ALTER TABLE [dbo].[TbUserReceiver] CHECK CONSTRAINT [FK_TbUserReceiver_AspNetUsers_ApplicationUserId]
+GO
+ALTER TABLE [dbo].[TbUserReceiver]  WITH CHECK ADD  CONSTRAINT [FK_TbUserReceiver_AspNetUsers_UserId] FOREIGN KEY([UserId])
+REFERENCES [dbo].[AspNetUsers] ([Id])
+ON DELETE SET NULL
+GO
+ALTER TABLE [dbo].[TbUserReceiver] CHECK CONSTRAINT [FK_TbUserReceiver_AspNetUsers_UserId]
+GO
+ALTER TABLE [dbo].[TbUserReceiver]  WITH CHECK ADD  CONSTRAINT [FK_TbUserReceiver_TbCity_CityId] FOREIGN KEY([CityId])
+REFERENCES [dbo].[TbCity] ([Id])
+GO
+ALTER TABLE [dbo].[TbUserReceiver] CHECK CONSTRAINT [FK_TbUserReceiver_TbCity_CityId]
+GO
+ALTER TABLE [dbo].[TbUserSender]  WITH CHECK ADD  CONSTRAINT [FK_TbUserSender_AspNetUsers_ApplicationUserId] FOREIGN KEY([ApplicationUserId])
+REFERENCES [dbo].[AspNetUsers] ([Id])
+GO
+ALTER TABLE [dbo].[TbUserSender] CHECK CONSTRAINT [FK_TbUserSender_AspNetUsers_ApplicationUserId]
+GO
+ALTER TABLE [dbo].[TbUserSender]  WITH CHECK ADD  CONSTRAINT [FK_TbUserSender_AspNetUsers_UserId] FOREIGN KEY([UserId])
+REFERENCES [dbo].[AspNetUsers] ([Id])
+ON DELETE SET NULL
+GO
+ALTER TABLE [dbo].[TbUserSender] CHECK CONSTRAINT [FK_TbUserSender_AspNetUsers_UserId]
+GO
+ALTER TABLE [dbo].[TbUserSender]  WITH CHECK ADD  CONSTRAINT [FK_TbUserSender_TbCity_CityId] FOREIGN KEY([CityId])
+REFERENCES [dbo].[TbCity] ([Id])
+GO
+ALTER TABLE [dbo].[TbUserSender] CHECK CONSTRAINT [FK_TbUserSender_TbCity_CityId]
+GO
+ALTER TABLE [dbo].[TbUserSubscription]  WITH CHECK ADD  CONSTRAINT [FK_TbUserSubscription_TbSubscriptionPackage_PackageId] FOREIGN KEY([PackageId])
+REFERENCES [dbo].[TbSubscriptionPackage] ([Id])
+GO
+ALTER TABLE [dbo].[TbUserSubscription] CHECK CONSTRAINT [FK_TbUserSubscription_TbSubscriptionPackage_PackageId]
+GO
+USE [master]
+GO
+ALTER DATABASE [ShippingDB] SET  READ_WRITE 
+GO

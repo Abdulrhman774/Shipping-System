@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -45,6 +45,7 @@
     <!-- <link rel="stylesheet" href="/assets/css/rtl.css"> -->
     <!-- jQuery -->
     <script src="/assets/js/jquery-3.4.1.min.js"></script>
+    @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
     <!-- Main Wrapper Start -->
@@ -113,8 +114,11 @@
                     <!-- Main menu start -->
                     <nav class="mainmenu">
                         <ul id="navigation">
-                            <li class="nav-active">
-                                <a href="index.html">Home</a>
+                            <li>
+                                <a asp-controller="Home" asp-action="Index">Home</a>
+                            </li>
+                            <li>
+                                <a asp-controller="Shipment" asp-action="CreateShipment">Create Shipment</a>
                             </li>
                             <li>
                                 <a href="about.html">About Us</a>
@@ -123,13 +127,7 @@
                                 <a href="services.html">Services</a>
                             </li>
                             <li>
-                                <a asp-controller="Shipment" asp-action="CreateShipment">Shipping</a>
-                            </li>
-                            <li>
-                                <a href="blog.html">Blog</a>
-                            </li>
-                            <li>
-                                <a href="contact.html">Contuct Us</a>
+                                <a href="contact.html">Contact Us</a>
                             </li>
                             <li>
                                 <a href="profile.html"><img class="header-profile-pic" src="/assets/images/profile.jpg"> Profile</a>
@@ -141,6 +139,8 @@
             </div>
             <!-- Header area End -->
         </header>
+
+        <partial name="_ToastNotifications" />
 
         @RenderBody()
 

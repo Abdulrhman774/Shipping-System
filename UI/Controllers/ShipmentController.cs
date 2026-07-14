@@ -103,6 +103,7 @@ public class ShipmentController : Controller
 
         if (!senderResult.Success)
         {
+            TempData["ErrorMessage"] = senderResult.Error ?? "Failed to save sender information.";
             ModelState.AddModelError("", senderResult.Error ?? "Failed to save sender.");
             await PopulateDropdownDataAsync(model);
             return View(model);
@@ -127,6 +128,7 @@ public class ShipmentController : Controller
 
         if (!receiverResult.Success)
         {
+            TempData["ErrorMessage"] = receiverResult.Error ?? "Failed to save receiver information.";
             ModelState.AddModelError("", receiverResult.Error ?? "Failed to save receiver.");
             await PopulateDropdownDataAsync(model);
             return View(model);
@@ -156,11 +158,13 @@ public class ShipmentController : Controller
 
         if (!result.Success)
         {
+            TempData["ErrorMessage"] = result.Error ?? "Failed to create shipment. Please try again.";
             ModelState.AddModelError("", result.Error ?? "Failed to create shipment.");
             await PopulateDropdownDataAsync(model);
             return View(model);
         }
 
+        TempData["SuccessMessage"] = "Shipment created successfully!";
         return RedirectToAction("Confirmation", new { id = result.Data });
     }
 

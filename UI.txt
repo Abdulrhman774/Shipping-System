@@ -1,0 +1,3578 @@
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\UI\Areas\Admin\Controllers\AdminPanelController.cs ====================
+
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+namespace UI.Areas.Admin.Controllers
+{
+    [Area("Admin")]
+    [Authorize(Roles = "Admin")]
+
+    public class AdminPanelController : BaseController
+    {
+        public IActionResult Index()
+        {
+            return View();
+        }
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\UI\Areas\Admin\Controllers\BaseController.cs ====================
+
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
+
+namespace UI.Areas.Admin.Controllers
+{
+    public abstract class BaseController : Controller
+    {
+        public override void OnActionExecuting(ActionExecutingContext context)
+        {
+            if (User.Identity == null || !User.Identity.IsAuthenticated)
+            {
+                context.Result = RedirectToAction("AccessDenied", "Account", new { area = "" });
+                return;
+            }
+            base.OnActionExecuting(context);
+        }
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\UI\Areas\Admin\Controllers\CarrierController.cs ====================
+
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using System;
+using System.Collections.Generic;
+using Domain.Entities;
+using BL.DTOs.Carrier;
+using BL.Contract.IServices;
+
+namespace UI.Areas.Admin.Controllers
+{
+    [Area("Admin")]
+    [Authorize]
+    public class CarrierController : BaseController
+    {
+        // Constructor inject ICarrierService (commented out as per instructions)
+        /*
+        private readonly ICarrierService _carrierService;
+        public CarrierController(ICarrierService carrierService)
+        {
+            _carrierService = carrierService;
+        }
+        */
+
+        // GET: Admin/Carrier
+        public IActionResult Index()
+        {
+            // Hardcoded list of 3 sample carriers for display
+            var carriers = new List<TbCarrier>
+            {
+                new TbCarrier
+                {
+                    Id = Guid.Parse("11111111-2222-3333-4444-555555555555"),
+                    CarrierName = "DHL Express",
+                    CurrentState = enEntityState.Active,
+                    CreatedDate = new DateTime(2026, 1, 5, 8, 0, 0)
+                },
+                new TbCarrier
+                {
+                    Id = Guid.Parse("22222222-3333-4444-5555-666666666666"),
+                    CarrierName = "Aramex",
+                    CurrentState = enEntityState.Active,
+                    CreatedDate = new DateTime(2026, 2, 12, 10, 30, 0)
+                },
+                new TbCarrier
+                {
+                    Id = Guid.Parse("33333333-4444-5555-6666-777777777777"),
+                    CarrierName = "FedEx",
+                    CurrentState = enEntityState.Inactive,
+                    CreatedDate = new DateTime(2026, 3, 20, 14, 15, 0)
+                }
+            };
+
+            return View(carriers);
+        }
+
+        // GET: Admin/Carrier/Create
+        public IActionResult Create()
+        {
+            return View(new CreateCarrierDto());
+        }
+
+        // POST: Admin/Carrier/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Create(CreateCarrierDto dto)
+        {
+            // Redirect to Index (no actual business logic)
+            return RedirectToAction(nameof(Index));
+        }
+
+        // GET: Admin/Carrier/Edit/{id}
+        public IActionResult Edit(Guid id)
+        {
+            ViewBag.Id = id;
+            // Hardcoded update model with pre-filled values
+            var dto = new UpdateCarrierDto
+            {
+                CarrierName = "DHL Express"
+            };
+            return View(dto);
+        }
+
+        // POST: Admin/Carrier/Edit/{id}
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(Guid id, UpdateCarrierDto dto)
+        {
+            // Redirect to Index (no actual business logic)
+            return RedirectToAction(nameof(Index));
+        }
+
+        // POST: Admin/Carrier/Delete/{id}
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Delete(Guid id)
+        {
+            // Redirect to Index (no actual business logic)
+            return RedirectToAction(nameof(Index));
+        }
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\UI\Areas\Admin\Controllers\CityController.cs ====================
+
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using System;
+using System.Collections.Generic;
+using Domain.Entities;
+using BL.DTOs.City;
+using BL.Contract.IServices;
+
+namespace UI.Areas.Admin.Controllers
+{
+    [Area("Admin")]
+    [Authorize]
+    public class CityController : BaseController
+    {
+        // Constructor inject ICityService (commented out as per instructions)
+        /*
+        private readonly ICityService _cityService;
+        public CityController(ICityService cityService)
+        {
+            _cityService = cityService;
+        }
+        */
+
+        // GET: Admin/City
+        public IActionResult Index()
+        {
+            // Hardcoded list of 3 sample cities for display
+            var cities = new List<TbCity>
+            {
+                new TbCity
+                {
+                    Id = Guid.Parse("f1a2b3c4-d5e6-7f8a-9b0c-1d2e3f4a5b6c"),
+                    CityAname = "Ø§Ù„Ù‚Ø§Ù‡Ø±Ø©",
+                    CityEname = "Cairo",
+                    CountryId = Guid.Parse("a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d"),
+                    Country = new TbCountry { CountryAname = "Ù…ØµØ±", CountryEname = "Egypt" },
+                    CurrentState = enEntityState.Active,
+                    CreatedDate = new DateTime(2026, 1, 2, 11, 0, 0)
+                },
+                new TbCity
+                {
+                    Id = Guid.Parse("e2f3a4b5-c6d7-8e9f-0a1b-2c3d4e5f6a7b"),
+                    CityAname = "Ø§Ù„Ø±ÙŠØ§Ø¶",
+                    CityEname = "Riyadh",
+                    CountryId = Guid.Parse("b2c3d4e5-f67a-8b9c-0d1e-2f3a4b5c6d7e"),
+                    Country = new TbCountry { CountryAname = "Ø§Ù„Ù…Ù…Ù„ÙƒØ© Ø§Ù„Ø¹Ø±Ø¨ÙŠØ© Ø§Ù„Ø³Ø¹ÙˆØ¯ÙŠØ©", CountryEname = "Saudi Arabia" },
+                    CurrentState = enEntityState.Active,
+                    CreatedDate = new DateTime(2026, 2, 16, 15, 0, 0)
+                },
+                new TbCity
+                {
+                    Id = Guid.Parse("d3e4f5a6-b7c8-9d0e-1f2a-3b4c5d6e7f8a"),
+                    CityAname = "Ù†ÙŠÙˆÙŠÙˆØ±Ùƒ",
+                    CityEname = "New York",
+                    CountryId = Guid.Parse("c3d4e5f6-7a8b-9c0d-1e2f-3a4b5c6d7e8f"),
+                    Country = new TbCountry { CountryAname = "Ø§Ù„ÙˆÙ„Ø§ÙŠØ§Øª Ø§Ù„Ù…ØªØ­Ø¯Ø©", CountryEname = "United States" },
+                    CurrentState = enEntityState.Inactive,
+                    CreatedDate = new DateTime(2026, 3, 11, 10, 15, 0)
+                }
+            };
+
+            return View(cities);
+        }
+
+        // GET: Admin/City/Create
+        public IActionResult Create()
+        {
+            LoadCountries();
+            return View(new CreateCityDto());
+        }
+
+        // POST: Admin/City/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Create(CreateCityDto dto)
+        {
+            // Redirect to Index (no actual business logic)
+            return RedirectToAction(nameof(Index));
+        }
+
+        // GET: Admin/City/Edit/{id}
+        public IActionResult Edit(Guid id)
+        {
+            ViewBag.Id = id;
+            LoadCountries();
+            // Hardcoded update model with pre-filled values
+            var dto = new UpdateCityDto
+            {
+                CityAname = "Ø§Ù„Ù‚Ø§Ù‡Ø±Ø©",
+                CityEname = "Cairo",
+                CountryId = Guid.Parse("a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d")
+            };
+            return View(dto);
+        }
+
+        // POST: Admin/City/Edit/{id}
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(Guid id, UpdateCityDto dto)
+        {
+            // Redirect to Index (no actual business logic)
+            return RedirectToAction(nameof(Index));
+        }
+
+        // POST: Admin/City/Delete/{id}
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Delete(Guid id)
+        {
+            // Redirect to Index (no actual business logic)
+            return RedirectToAction(nameof(Index));
+        }
+
+        private void LoadCountries()
+        {
+            var countries = new List<TbCountry>
+            {
+                new TbCountry { Id = Guid.Parse("a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d"), CountryAname = "Ù…ØµØ±", CountryEname = "Egypt" },
+                new TbCountry { Id = Guid.Parse("b2c3d4e5-f67a-8b9c-0d1e-2f3a4b5c6d7e"), CountryAname = "Ø§Ù„Ù…Ù…Ù„ÙƒØ© Ø§Ù„Ø¹Ø±Ø¨ÙŠØ© Ø§Ù„Ø³Ø¹ÙˆØ¯ÙŠØ©", CountryEname = "Saudi Arabia" },
+                new TbCountry { Id = Guid.Parse("c3d4e5f6-7a8b-9c0d-1e2f-3a4b5c6d7e8f"), CountryAname = "Ø§Ù„ÙˆÙ„Ø§ÙŠØ§Øª Ø§Ù„Ù…ØªØ­Ø¯Ø©", CountryEname = "United States" }
+            };
+            ViewBag.Countries = new SelectList(countries, "Id", "CountryEname");
+        }
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\UI\Areas\Admin\Controllers\CountryController.cs ====================
+
+using BL.DTOs.Country;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using UI.Controllers;
+using UI.Services;
+
+namespace UI.Areas.Admin.Controllers
+{
+    [Area("Admin")]
+    [Authorize]
+    public class CountryController : BaseMvcController<CountryDto, CreateCountryDto, UpdateCountryDto>
+    {
+        public CountryController(GenericApiClient apiClient, ILogger<CountryController> logger)
+            : base(apiClient, logger, "Api/Country")
+        {
+        }
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\UI\Areas\Admin\Controllers\DashboardController.cs ====================
+
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+
+namespace UI.Areas.Admin.Controllers
+{
+    [Area("Admin")]
+    [Authorize(Roles = "Admin")]
+
+    public class DashboardController : BaseController
+    {
+        public IActionResult Index()
+        {
+            return View();
+        }
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\UI\Areas\Admin\Controllers\PaymentMethodController.cs ====================
+
+using BL.DTOs.PaymentMethod;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using UI.Controllers;
+using UI.Services;
+
+namespace UI.Areas.Admin.Controllers
+{
+    [Area("Admin")]
+    [Authorize]
+    public class PaymentMethodController : BaseMvcController<PaymentMethodDto, CreatePaymentMethodDto, UpdatePaymentMethodDto>
+    {
+        public PaymentMethodController(GenericApiClient apiClient, ILogger<PaymentMethodController> logger)
+            : base(apiClient, logger, "Api/PaymentMethod")
+        {
+        }
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\UI\Areas\Admin\Controllers\SettingController.cs ====================
+
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using System;
+using Domain.Entities;
+using BL.DTOs.Setting;
+using BL.Contract.IServices;
+
+namespace UI.Areas.Admin.Controllers
+{
+    [Area("Admin")]
+    [Authorize]
+    public class SettingController : BaseController
+    {
+        // Constructor inject ISettingService (commented out as per instructions)
+        /*
+        private readonly ISettingService _settingService;
+        public SettingController(ISettingService settingService)
+        {
+            _settingService = settingService;
+        }
+        */
+
+        // GET: Admin/Setting/Edit
+        public IActionResult Edit()
+        {
+            // Hardcoded setting model with pre-filled values
+            var dto = new UpdateSettingDto
+            {
+                KiloMeterRate = 5.50,
+                KilooGramRate = 2.25
+            };
+            return View(dto);
+        }
+
+        // POST: Admin/Setting/Edit
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(UpdateSettingDto dto)
+        {
+            // Redirect back to Edit page (no business logic)
+            return RedirectToAction(nameof(Edit));
+        }
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\UI\Areas\Admin\Controllers\ShipmentController.cs ====================
+
+using BL.Contract.IServices;
+using BL.DTOs.Country;
+using BL.DTOs.Shipment;
+using Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using System;
+using System.Collections.Generic;
+using UI.Controllers;
+using UI.Services;
+
+namespace UI.Areas.Admin.Controllers;
+
+
+[Area("Admin")]
+[Authorize]
+public class ShipmentController : BaseMvcController<CountryDto, CreateCountryDto, UpdateCountryDto>
+{
+    public ShipmentController(GenericApiClient apiClient, ILogger<ShipmentController> logger)
+        : base(apiClient, logger, "Api/Shipment")
+    {
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\UI\Areas\Admin\Controllers\ShipmentStatusController.cs ====================
+
+using BL.DTOs.ShipmentStatus;
+using BL.DTOs.Shipment;
+using BL.DTOs.Carrier;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using UI.Controllers;
+using UI.Services;
+
+namespace UI.Areas.Admin.Controllers
+{
+    [Area("Admin")]
+    [Authorize]
+    public class ShipmentStatusController : BaseMvcController<ShipmentStatusDto, CreateShipmentStatusDto, UpdateShipmentStatusDto>
+    {
+        public ShipmentStatusController(GenericApiClient apiClient, ILogger<ShipmentStatusController> logger)
+            : base(apiClient, logger, "Api/ShipmentStatus")
+        {
+        }
+
+        public new async Task<IActionResult> Create()
+        {
+            await LoadDropdownsAsync();
+            return View(new CreateShipmentStatusDto());
+        }
+
+        public override async Task<IActionResult> Edit(Guid id)
+        {
+            await LoadDropdownsAsync();
+            var response = await _apiClient.GetAsync<ShipmentStatusDto>($"{_apiEndpoint}/{id}");
+            if (!response.Success || response.Data == null)
+            {
+                TempData["ErrorMessage"] = response.Error ?? "Item not found.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var dto = response.Data;
+            var updateDto = new UpdateShipmentStatusDto
+            {
+                ShipmentId = dto.ShipmentId,
+                Notes = dto.Notes,
+                CarrierId = dto.CarrierId
+            };
+
+            ViewBag.Id = id;
+            return View(updateDto);
+        }
+
+        private async Task LoadDropdownsAsync()
+        {
+            var shipmentsResponse = await _apiClient.GetAsync<IEnumerable<ShipmentDto>>("Api/Shipment");
+            var shipments = shipmentsResponse.Success && shipmentsResponse.Data != null ? shipmentsResponse.Data : new List<ShipmentDto>();
+            ViewBag.Shipments = new SelectList(shipments, "Id", "TrackingNumber");
+
+            var carriersResponse = await _apiClient.GetAsync<IEnumerable<CarrierDto>>("Api/Carrier");
+            var carriers = carriersResponse.Success && carriersResponse.Data != null ? carriersResponse.Data : new List<CarrierDto>();
+            ViewBag.Carriers = new SelectList(carriers, "Id", "CarrierName");
+        }
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\UI\Areas\Admin\Controllers\ShippingTypeController.cs ====================
+
+using BL.Contract.IServices;
+using BL.DTOs.ShippingType;
+using BL.Services;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using UI.Helpers;
+
+namespace UI.Areas.Admin.Controllers
+{
+    [Area("Admin")]
+    [Authorize]
+    public class ShippingTypeController : BaseController
+    {
+        private readonly IShippingTypeService _service;
+        private readonly ILogger<ShippingTypeService> _logger;
+        public ShippingTypeController(IShippingTypeService service, ILogger<ShippingTypeService> logger)
+        {
+            _service = service;
+            _logger = logger;     
+        }
+
+        // Constructor inject IShippingTypeService (commented out as per instructions)
+        /*
+        private readonly IShippingTypeService _shippingTypeService;
+        public ShippingTypeController(IShippingTypeService shippingTypeService)
+        { m
+            _shippingTypeService = shippingTypeService;
+        }
+        */
+
+        // GET: Admin/ShippingType
+        public async Task<IActionResult> Index()
+        {
+            var shippingTypes = await _service.GetAllAsync();
+            return View(shippingTypes);
+        }
+
+        // GET: Admin/ShippingType/Create
+        public IActionResult Create()
+        {
+            return View(new CreateShippingTypeDto());
+        }
+
+        // POST: Admin/ShippingType/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(CreateShippingTypeDto dto)
+        {
+            if (!ModelState.IsValid)
+                return View(dto);
+
+            var result = await _service.AddAsync(dto);
+
+            if (!result.IsSuccess)
+            {
+                ModelState.AddModelError("", "Failed to create shipping type");
+                return View(dto);
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+
+        [HttpGet]
+        public async Task<IActionResult> Edit(Guid id)
+        {
+            var shippingType = await _service.GetByIdAsync(id);
+
+            // Store the ID in ViewBag to use it in the view
+            ViewBag.Id = id;
+
+            if (shippingType == null)
+                return NotFound();
+
+            var dto = new UpdateShippingTypeDto
+            {
+                ShippingTypeAname = shippingType.Value.ShippingTypeAname,
+                ShippingTypeEname = shippingType.Value.ShippingTypeEname,
+                ShippingFactor = shippingType.Value.ShippingFactor
+            };
+
+            return View(dto);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Save(Guid id, UpdateShippingTypeDto dto)
+        {
+            if (!ModelState.IsValid)
+                return View("Edit", dto);
+
+            if (id == Guid.Empty)
+            {
+                ModelState.AddModelError("", "Invalid shipping type ID");
+                return View("Edit", dto);
+            }
+
+            try
+            {
+                var result = await _service.UpdateAsync(id, dto);
+
+                if (!result.IsSuccess)
+                {
+                    TempData["MessageType"] = enMessageType.SavedFailed;
+                    return View("Edit", dto);
+                }
+
+                TempData["MessageType"] = enMessageType.SavedSuccessfully;
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating shipping type {Id}", id);
+
+                TempData["MessageType"] = enMessageType.SavedFailed;
+                return View("Edit", dto);
+            }
+        }
+
+        // POST: Admin/ShippingType/Delete/{id}
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            await _service.DeleteAsync(id);
+            return RedirectToAction(nameof(Index));
+        }
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\UI\Areas\Admin\Controllers\SubscriptionPackageController.cs ====================
+
+using BL.DTOs.SubscriptionPackage;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using UI.Controllers;
+using UI.Services;
+
+namespace UI.Areas.Admin.Controllers
+{
+    [Area("Admin")]
+    [Authorize]
+    public class SubscriptionPackageController : BaseMvcController<SubscriptionPackageDto, CreateSubscriptionPackageDto, UpdateSubscriptionPackageDto>
+    {
+        public SubscriptionPackageController(GenericApiClient apiClient, ILogger<SubscriptionPackageController> logger)
+            : base(apiClient, logger, "Api/SubscriptionPackage")
+        {
+        }
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\UI\Areas\Admin\Controllers\UserReceiverController.cs ====================
+
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using System;
+using System.Collections.Generic;
+using Domain.Entities;
+using BL.DTOs.UserReceiver;
+using BL.Contract.IServices;
+
+namespace UI.Areas.Admin.Controllers
+{
+    [Area("Admin")]
+    [Authorize]
+    public class UserReceiverController : BaseController
+    {
+        // Constructor inject IUserReceiverService (commented out as per instructions)
+        /*
+        private readonly IUserReceiverService _userReceiverService;
+        public UserReceiverController(IUserReceiverService userReceiverService)
+        {
+            _userReceiverService = userReceiverService;
+        }
+        */
+
+        // GET: Admin/UserReceiver
+        public IActionResult Index()
+        {
+            // Hardcoded list of 3 sample receivers for display
+            var receivers = new List<TbUserReceiver>
+            {
+                new TbUserReceiver
+                {
+                    Id = Guid.Parse("44444444-1111-1111-1111-444444444444"),
+                    UserId = "dd44ee55-66ff-77aa-88bb-99cc00dd11ee",
+                    ReceiverName = "Ø³Ø§Ø±Ø© Ø£Ø­Ù…Ø¯ (Sarah Ahmed)",
+                    Email = "sarah.ahmed@example.com",
+                    Phone = "+201009876543",
+                    CityId = Guid.Parse("f1a2b3c4-d5e6-7f8a-9b0c-1d2e3f4a5b6c"),
+                    City = new TbCity { CityAname = "Ø§Ù„Ù‚Ø§Ù‡Ø±Ø©", CityEname = "Cairo" },
+                    Address = "Ø´Ø§Ø±Ø¹ Ø§Ù„ØªØ­Ø±ÙŠØ±ØŒ Ø§Ù„Ø¯Ù‚ÙŠØŒ Ø§Ù„Ù‚Ø§Ù‡Ø±Ø©",
+                    CurrentState = enEntityState.Active,
+                    CreatedDate = new DateTime(2026, 1, 15, 10, 0, 0)
+                },
+                new TbUserReceiver
+                {
+                    Id = Guid.Parse("55555555-2222-2222-2222-555555555555"),
+                    UserId = "ee55ff66-77aa-88bb-99cc-00dd11ee22ff",
+                    ReceiverName = "Ø¹Ù„ÙŠ Ø­Ø³Ù† (Ali Hassan)",
+                    Email = "ali.hassan@example.com",
+                    Phone = "+966509876543",
+                    CityId = Guid.Parse("e2f3a4b5-c6d7-8e9f-0a1b-2c3d4e5f6a7b"),
+                    City = new TbCity { CityAname = "Ø§Ù„Ø±ÙŠØ§Ø¶", CityEname = "Riyadh" },
+                    Address = "Ø­ÙŠ Ø§Ù„Ù…Ù„Ù‚Ø§ØŒ Ø§Ù„Ø±ÙŠØ§Ø¶",
+                    CurrentState = enEntityState.Active,
+                    CreatedDate = new DateTime(2026, 2, 20, 14, 30, 0)
+                },
+                new TbUserReceiver
+                {
+                    Id = Guid.Parse("66666666-3333-3333-3333-666666666666"),
+                    UserId = "ff66aa77-88bb-99cc-00dd-11ee22ff33aa",
+                    ReceiverName = "ÙØ§Ø·Ù…Ø© Ø¹Ù…Ø± (Fatima Omar)",
+                    Email = "fatima.omar@example.com",
+                    Phone = "+12025550199",
+                    CityId = Guid.Parse("d3e4f5a6-b7c8-9d0e-1f2a-3b4c5d6e7f8a"),
+                    City = new TbCity { CityAname = "Ù†ÙŠÙˆÙŠÙˆØ±Ùƒ", CityEname = "New York" },
+                    Address = "Broadway, New York, NY",
+                    CurrentState = enEntityState.Inactive,
+                    CreatedDate = new DateTime(2026, 4, 5, 16, 45, 0)
+                }
+            };
+
+            return View(receivers);
+        }
+
+        // GET: Admin/UserReceiver/Details/{id}
+        public IActionResult Details(Guid id)
+        {
+            // Hardcoded receiver details for display
+            var receiver = new TbUserReceiver
+            {
+                Id = id,
+                UserId = "dd44ee55-66ff-77aa-88bb-99cc00dd11ee",
+                ReceiverName = "Ø³Ø§Ø±Ø© Ø£Ø­Ù…Ø¯ (Sarah Ahmed)",
+                Email = "sarah.ahmed@example.com",
+                Phone = "+201009876543",
+                CityId = Guid.Parse("f1a2b3c4-d5e6-7f8a-9b0c-1d2e3f4a5b6c"),
+                City = new TbCity { CityAname = "Ø§Ù„Ù‚Ø§Ù‡Ø±Ø©", CityEname = "Cairo" },
+                Address = "Ø´Ø§Ø±Ø¹ Ø§Ù„ØªØ­Ø±ÙŠØ±ØŒ Ø§Ù„Ø¯Ù‚ÙŠØŒ Ø§Ù„Ù‚Ø§Ù‡Ø±Ø©",
+                CurrentState = enEntityState.Active,
+                CreatedDate = new DateTime(2026, 1, 15, 10, 0, 0)
+            };
+
+            // Hardcoded list of shipments received by this receiver
+            var shipments = new List<dynamic>
+            {
+                new { Code = "SHP-00109", Sender = "Ø£Ø­Ù…Ø¯ Ù…Ø­Ù…Ø¯", Date = new DateTime(2026, 5, 2, 10, 15, 0), Type = "Express", Weight = 3.5, Status = "Delivered" },
+                new { Code = "SHP-00220", Sender = "Ø®Ø§Ù„Ø¯ Ø¹Ø¨Ø¯Ø§Ù„Ù„Ù‡", Date = new DateTime(2026, 5, 20, 11, 0, 0), Type = "Standard", Weight = 5.0, Status = "In Transit" }
+            };
+
+            ViewBag.Shipments = shipments;
+            return View(receiver);
+        }
+
+        // GET: Admin/UserReceiver/Create
+        public IActionResult Create()
+        {
+            LoadCities();
+            return View(new CreateUserReceiverDto());
+        }
+
+        // POST: Admin/UserReceiver/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Create(CreateUserReceiverDto dto)
+        {
+            // Redirect to Index (no actual business logic)
+            return RedirectToAction(nameof(Index));
+        }
+
+        // GET: Admin/UserReceiver/Edit/{id}
+        public IActionResult Edit(Guid id)
+        {
+            ViewBag.Id = id;
+            LoadCities();
+            // Hardcoded update model with pre-filled values
+            var dto = new UpdateUserReceiverDto
+            {
+                UserId = "dd44ee55-66ff-77aa-88bb-99cc00dd11ee",
+                ReceiverName = "Ø³Ø§Ø±Ø© Ø£Ø­Ù…Ø¯ (Sarah Ahmed)",
+                Email = "sarah.ahmed@example.com",
+                Phone = "+201009876543",
+                CityId = Guid.Parse("f1a2b3c4-d5e6-7f8a-9b0c-1d2e3f4a5b6c"),
+                Address = "Ø´Ø§Ø±Ø¹ Ø§Ù„ØªØ­Ø±ÙŠØ±ØŒ Ø§Ù„Ø¯Ù‚ÙŠØŒ Ø§Ù„Ù‚Ø§Ù‡Ø±Ø©"
+            };
+            return View(dto);
+        }
+
+        // POST: Admin/UserReceiver/Edit/{id}
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(Guid id, UpdateUserReceiverDto dto)
+        {
+            // Redirect to Index (no actual business logic)
+            return RedirectToAction(nameof(Index));
+        }
+
+        // POST: Admin/UserReceiver/Delete/{id}
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Delete(Guid id)
+        {
+            // Redirect to Index (no actual business logic)
+            return RedirectToAction(nameof(Index));
+        }
+
+        private void LoadCities()
+        {
+            var cities = new List<TbCity>
+            {
+                new TbCity { Id = Guid.Parse("f1a2b3c4-d5e6-7f8a-9b0c-1d2e3f4a5b6c"), CityAname = "Ø§Ù„Ù‚Ø§Ù‡Ø±Ø©", CityEname = "Cairo" },
+                new TbCity { Id = Guid.Parse("e2f3a4b5-c6d7-8e9f-0a1b-2c3d4e5f6a7b"), CityAname = "Ø§Ù„Ø±ÙŠØ§Ø¶", CityEname = "Riyadh" },
+                new TbCity { Id = Guid.Parse("d3e4f5a6-b7c8-9d0e-1f2a-3b4c5d6e7f8a"), CityAname = "Ù†ÙŠÙˆÙŠÙˆØ±Ùƒ", CityEname = "New York" }
+            };
+            ViewBag.Cities = new SelectList(cities, "Id", "CityEname");
+        }
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\UI\Areas\Admin\Controllers\UserSenderController.cs ====================
+
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using System;
+using System.Collections.Generic;
+using Domain.Entities;
+using BL.DTOs.UserSender;
+using BL.Contract.IServices;
+
+namespace UI.Areas.Admin.Controllers
+{
+    [Area("Admin")]
+    [Authorize]
+    public class UserSenderController : BaseController
+    {
+        // Constructor inject IUserSenderService (commented out as per instructions)
+        /*
+        private readonly IUserSenderService _userSenderService;
+        public UserSenderController(IUserSenderService userSenderService)
+        {
+            _userSenderService = userSenderService;
+        }
+        */
+
+        // GET: Admin/UserSender
+        public IActionResult Index()
+        {
+            // Hardcoded list of 3 sample senders for display
+            var senders = new List<TbUserSender>
+            {
+                new TbUserSender
+                {
+                    Id = Guid.Parse("11111111-eeee-eeee-eeee-111111111111"),
+                    UserId = "aa11bb22-33cc-44dd-55ee-66ff77aa88bb",
+                    SenderName = "Ø£Ø­Ù…Ø¯ Ù…Ø­Ù…Ø¯ (Ahmed Mohamed)",
+                    Email = "ahmed.mohamed@example.com",
+                    Phone = "+201001234567",
+                    CityId = Guid.Parse("f1a2b3c4-d5e6-7f8a-9b0c-1d2e3f4a5b6c"),
+                    City = new TbCity { CityAname = "Ø§Ù„Ù‚Ø§Ù‡Ø±Ø©", CityEname = "Cairo" },
+                    Address = "Ø´Ø§Ø±Ø¹ Ø§Ù„Ù…Ø¹Ø²ØŒ Ø§Ù„Ù‚Ø§Ù‡Ø±Ø© Ø§Ù„Ù‚Ø¯ÙŠÙ…Ø©",
+                    CurrentState = enEntityState.Active,
+                    CreatedDate = new DateTime(2026, 1, 10, 9, 0, 0)
+                },
+                new TbUserSender
+                {
+                    Id = Guid.Parse("22222222-ffff-ffff-ffff-222222222222"),
+                    UserId = "bb22cc33-44dd-55ee-66ff-77aa88bb99cc",
+                    SenderName = "Ø®Ø§Ù„Ø¯ Ø¹Ø¨Ø¯Ø§Ù„Ù„Ù‡ (Khalid Abdullah)",
+                    Email = "khalid.a@example.com",
+                    Phone = "+966501234567",
+                    CityId = Guid.Parse("e2f3a4b5-c6d7-8e9f-0a1b-2c3d4e5f6a7b"),
+                    City = new TbCity { CityAname = "Ø§Ù„Ø±ÙŠØ§Ø¶", CityEname = "Riyadh" },
+                    Address = "Ø´Ø§Ø±Ø¹ Ø§Ù„Ø¹Ù„ÙŠØ§ØŒ Ø§Ù„Ø±ÙŠØ§Ø¶",
+                    CurrentState = enEntityState.Active,
+                    CreatedDate = new DateTime(2026, 2, 5, 11, 30, 0)
+                },
+                new TbUserSender
+                {
+                    Id = Guid.Parse("33333333-0000-0000-0000-333333333333"),
+                    UserId = "cc33dd44-55ee-66ff-77aa-88bb99cc00dd",
+                    SenderName = "Ø¬ÙˆÙ† Ø¯Ùˆ (John Doe)",
+                    Email = "john.doe@example.com",
+                    Phone = "+12025550143",
+                    CityId = Guid.Parse("d3e4f5a6-b7c8-9d0e-1f2a-3b4c5d6e7f8a"),
+                    City = new TbCity { CityAname = "Ù†ÙŠÙˆÙŠÙˆØ±Ùƒ", CityEname = "New York" },
+                    Address = "5th Avenue, New York, NY",
+                    CurrentState = enEntityState.Inactive,
+                    CreatedDate = new DateTime(2026, 3, 15, 15, 45, 0)
+                }
+            };
+
+            return View(senders);
+        }
+
+        // GET: Admin/UserSender/Details/{id}
+        public IActionResult Details(Guid id)
+        {
+            // Hardcoded sender details for display
+            var sender = new TbUserSender
+            {
+                Id = id,
+                UserId = "aa11bb22-33cc-44dd-55ee-66ff77aa88bb",
+                SenderName = "Ø£Ø­Ù…Ø¯ Ù…Ø­Ù…Ø¯ (Ahmed Mohamed)",
+                Email = "ahmed.mohamed@example.com",
+                Phone = "+201001234567",
+                CityId = Guid.Parse("f1a2b3c4-d5e6-7f8a-9b0c-1d2e3f4a5b6c"),
+                City = new TbCity { CityAname = "Ø§Ù„Ù‚Ø§Ù‡Ø±Ø©", CityEname = "Cairo" },
+                Address = "Ø´Ø§Ø±Ø¹ Ø§Ù„Ù…Ø¹Ø²ØŒ Ø§Ù„Ù‚Ø§Ù‡Ø±Ø© Ø§Ù„Ù‚Ø¯ÙŠÙ…Ø©",
+                CurrentState = enEntityState.Active,
+                CreatedDate = new DateTime(2026, 1, 10, 9, 0, 0)
+            };
+
+            // Hardcoded list of shipments sent by this sender
+            var shipments = new List<dynamic>
+            {
+                new { Code = "SHP-00109", Receiver = "Ø³Ø§Ø±Ø© Ø£Ø­Ù…Ø¯", Date = new DateTime(2026, 5, 2, 10, 15, 0), Type = "Express", Weight = 3.5, Status = "Delivered" },
+                new { Code = "SHP-00214", Receiver = "Ø¹Ù„ÙŠ Ø­Ø³Ù†", Date = new DateTime(2026, 5, 18, 14, 0, 0), Type = "Standard", Weight = 12.0, Status = "In Transit" },
+                new { Code = "SHP-00305", Receiver = "ÙØ§Ø·Ù…Ø© Ø¹Ù…Ø±", Date = new DateTime(2026, 6, 1, 9, 30, 0), Type = "Standard", Weight = 1.2, Status = "Pending" }
+            };
+
+            ViewBag.Shipments = shipments;
+            return View(sender);
+        }
+
+        // GET: Admin/UserSender/Create
+        public IActionResult Create()
+        {
+            LoadCities();
+            return View(new CreateUserSenderDto());
+        }
+
+        // POST: Admin/UserSender/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Create(CreateUserSenderDto dto)
+        {
+            // Redirect to Index (no actual business logic)
+            return RedirectToAction(nameof(Index));
+        }
+
+        // GET: Admin/UserSender/Edit/{id}
+        public IActionResult Edit(Guid id)
+        {
+            ViewBag.Id = id;
+            LoadCities();
+            // Hardcoded update model with pre-filled values
+            var dto = new UpdateUserSenderDto
+            {
+                UserId = "aa11bb22-33cc-44dd-55ee-66ff77aa88bb",
+                SenderName = "Ø£Ø­Ù…Ø¯ Ù…Ø­Ù…Ø¯ (Ahmed Mohamed)",
+                Email = "ahmed.mohamed@example.com",
+                Phone = "+201001234567",
+                CityId = Guid.Parse("f1a2b3c4-d5e6-7f8a-9b0c-1d2e3f4a5b6c"),
+                Address = "Ø´Ø§Ø±Ø¹ Ø§Ù„Ù…Ø¹Ø²ØŒ Ø§Ù„Ù‚Ø§Ù‡Ø±Ø© Ø§Ù„Ù‚Ø¯ÙŠÙ…Ø©"
+            };
+            return View(dto);
+        }
+
+        // POST: Admin/UserSender/Edit/{id}
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(Guid id, UpdateUserSenderDto dto)
+        {
+            // Redirect to Index (no actual business logic)
+            return RedirectToAction(nameof(Index));
+        }
+
+        // POST: Admin/UserSender/Delete/{id}
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Delete(Guid id)
+        {
+            // Redirect to Index (no actual business logic)
+            return RedirectToAction(nameof(Index));
+        }
+
+        private void LoadCities()
+        {
+            var cities = new List<TbCity>
+            {
+                new TbCity { Id = Guid.Parse("f1a2b3c4-d5e6-7f8a-9b0c-1d2e3f4a5b6c"), CityAname = "Ø§Ù„Ù‚Ø§Ù‡Ø±Ø©", CityEname = "Cairo" },
+                new TbCity { Id = Guid.Parse("e2f3a4b5-c6d7-8e9f-0a1b-2c3d4e5f6a7b"), CityAname = "Ø§Ù„Ø±ÙŠØ§Ø¶", CityEname = "Riyadh" },
+                new TbCity { Id = Guid.Parse("d3e4f5a6-b7c8-9d0e-1f2a-3b4c5d6e7f8a"), CityAname = "Ù†ÙŠÙˆÙŠÙˆØ±Ùƒ", CityEname = "New York" }
+            };
+            ViewBag.Cities = new SelectList(cities, "Id", "CityEname");
+        }
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\UI\Areas\Admin\Controllers\UserSubscriptionController.cs ====================
+
+using BL.DTOs.UserSubscription;
+using BL.DTOs.SubscriptionPackage;
+using BL.DTOs.UserSender;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using UI.Controllers;
+using UI.Services;
+
+namespace UI.Areas.Admin.Controllers
+{
+    [Area("Admin")]
+    [Authorize]
+    public class UserSubscriptionController : BaseMvcController<UserSubscriptionDto, CreateUserSubscriptionDto, UpdateUserSubscriptionDto>
+    {
+        public UserSubscriptionController(GenericApiClient apiClient, ILogger<UserSubscriptionController> logger)
+            : base(apiClient, logger, "Api/UserSubscription")
+        {
+        }
+
+        public new async Task<IActionResult> Create()
+        {
+            await LoadDropdownsAsync();
+            return View(new CreateUserSubscriptionDto { SubscriptionDate = DateTime.UtcNow });
+        }
+
+        public override async Task<IActionResult> Edit(Guid id)
+        {
+            await LoadDropdownsAsync();
+            var response = await _apiClient.GetAsync<UserSubscriptionDto>($"{_apiEndpoint}/{id}");
+            if (!response.Success || response.Data == null)
+            {
+                TempData["ErrorMessage"] = response.Error ?? "Item not found.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var dto = response.Data;
+            var updateDto = new UpdateUserSubscriptionDto
+            {
+                UserId = dto.UserId,
+                PackageId = dto.PackageId,
+                SubscriptionDate = dto.SubscriptionDate
+            };
+
+            ViewBag.Id = id;
+            return View(updateDto);
+        }
+
+        private async Task LoadDropdownsAsync()
+        {
+            var packagesResponse = await _apiClient.GetAsync<IEnumerable<SubscriptionPackageDto>>("Api/SubscriptionPackage");
+            var packages = packagesResponse.Success && packagesResponse.Data != null ? packagesResponse.Data : new List<SubscriptionPackageDto>();
+            ViewBag.Packages = new SelectList(packages, "Id", "PackageName");
+
+            var usersResponse = await _apiClient.GetAsync<IEnumerable<UserSenderDto>>("Api/UserSender");
+            var users = usersResponse.Success && usersResponse.Data != null ? usersResponse.Data : new List<UserSenderDto>();
+            ViewBag.Users = new SelectList(users, "Id", "SenderName");
+        }
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\UI\Controllers\AccountController.cs ====================
+
+using BL.Contract.IServices;
+using BL.DTOs.Auth;
+using BL.DTOs.Auth.Requests;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using UI.Models;
+using UI.Models.ResponsesModels;
+using UI.Services;
+using UI.Services.Contracts;
+
+namespace UI.Controllers
+{
+    [Authorize]
+    public class AccountController : Controller
+    {
+        private readonly GenericApiClient _apiClient;
+        private readonly MvcAuthService _mvcAuthService;
+        private readonly ILogger<AccountController> _logger;
+        private readonly ITokenProvider _tokenProvider;
+        private readonly IRefreshTokenProvider _refreshTokenProvider ;
+
+        public AccountController(
+            GenericApiClient apiClient,
+            ILogger<AccountController> logger,
+            MvcAuthService mvcAuthService,
+            ITokenProvider TokenProvider,
+            IRefreshTokenProvider refreshTokenProvider)
+        {
+            _apiClient = apiClient;
+            _logger = logger;
+            _mvcAuthService = mvcAuthService;
+            _tokenProvider = TokenProvider;
+            _refreshTokenProvider = refreshTokenProvider;
+        }
+
+        // GET: /Account/Login
+        [AllowAnonymous]
+        public IActionResult Login(string? returnUrl = null)
+        {
+            if (User.Identity?.IsAuthenticated == true)
+                return RedirectToAction("Index", "Dashboard", new { area = "Admin" });
+
+            ViewData["ReturnUrl"] = returnUrl;
+            return View();
+        }
+
+        // POST: /Account/Login
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Login(LoginViewModel model, string? returnUrl = null)
+        {
+            if (!ModelState.IsValid) return View(model);
+
+
+            try
+            {
+                var loginDto = new LoginRequestDto {
+                    UsernameOrEmail = model.UsernameOrEmail,
+                    Password = model.Password
+                };
+
+                var (response, principal) = await _mvcAuthService.LoginApiAsync(loginDto);
+
+                if (!response.Success || principal is null)
+                {
+                    ModelState.AddModelError("", response.Error!);
+                    return View(model);
+                }
+
+
+                var authProperties = new AuthenticationProperties
+                {
+                    IsPersistent = model.RememberMe,
+                    ExpiresUtc = DateTimeOffset.UtcNow.AddHours(8)
+                };
+
+                await HttpContext.SignInAsync(IdentityConstants.ApplicationScheme, principal, authProperties);
+                
+                
+                _tokenProvider.SetAccessToken(response.Data!.AccessToken);
+                _refreshTokenProvider.SetRefreshToken(response.Data.RefreshToken, response.Data.ExpiresAt.AddDays(7));
+                                
+                _logger.LogInformation($"User {model.UsernameOrEmail} logged in successfully");
+
+
+                // Redirect to the originally requested page
+                if (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl))
+                {
+                    return Redirect(returnUrl);
+                }
+               
+                // No returnUrl ? redirect based on role
+                if (principal.IsInRole("Admin"))
+                {
+                    return RedirectToAction("Index", "Dashboard", new { area = "Admin" });
+                }
+
+                return RedirectToAction("Index", "Home");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Login failed for user {Username}", model.UsernameOrEmail);
+                ModelState.AddModelError("", "An error occurred during login. Please try again.");
+                return View(model);
+            }
+        }
+
+
+
+        // GET: /Account/Register
+        [AllowAnonymous]
+        public IActionResult Register()
+        {
+            return View();
+        }
+
+        // POST: /Account/Register
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Register(RegisterViewModel model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+
+            try
+            {
+                var dto = new RegisterRequestDto{
+                    FirstName = model.FirstName,
+                    SecondName = model.SecondName,
+                    ThirdName = model.ThirdName,
+                    LastName = model.LastName,
+                    Email = model.Email,
+                    UserName = model.UserName,
+                    PhoneNumber = model.PhoneNumber,
+                    Password = model.Password,
+                    DateOfBirth = model.DateOfBirth,
+                    Gender = model.Gender,
+                    ImageUrl = model.ImageUrl!
+                };
+
+                var response = await _mvcAuthService.RegisterAsync(dto);
+
+                if (!response.Success)
+                {
+                    ModelState.AddModelError(
+                        string.Empty,
+                        response.Error ?? "Registration failed.");
+
+                    return View(model);
+                }
+
+                _logger.LogInformation(
+                    "User {Email} registered successfully",
+                    model.Email);
+
+                TempData["SuccessMessage"] = "Registration successful. Please login.";
+
+                return RedirectToAction(nameof(Login));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "Registration failed for user {Email}",
+                    model.Email);
+
+                ModelState.AddModelError(
+                    string.Empty,
+                    "An unexpected error occurred.");
+
+                return View(model);
+            }
+        }
+
+        // POST: /Account/Logout
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Logout()
+        {
+            try
+            {
+                // Get token from session
+                var token = HttpContext.Session.GetString("AccessToken");
+
+                if (!string.IsNullOrEmpty(token))
+                {
+                    // Set token in header and call API logout
+                    await _apiClient.PostAsync<object>("Api/Auth/logout", null);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "API logout failed, but continuing with local logout");
+            }
+
+            // Clear local session and cookie
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            HttpContext.Session.Clear();
+
+            return RedirectToAction(nameof(Login));
+        }
+
+        // GET: /Account/AccessDenied
+        [AllowAnonymous]
+        public IActionResult AccessDenied()
+        {
+            return View();
+        }
+
+        // GET: /Account/Profile
+        public async Task<IActionResult> Profile()
+        {
+            try
+            {
+                // Get user ID from claims
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (string.IsNullOrEmpty(userId))
+                    return RedirectToAction(nameof(Login));
+
+                // Call API to get user profile - returns ApiResponse<UserProfileResponseData>
+                var response = await _apiClient.GetAsync<UserProfileResponseData>($"Api/Users/{userId}");
+
+                // Check if profile fetch failed
+                if (!response.Success || response.Data == null)
+                {
+                    TempData["ErrorMessage"] = response.Error ?? "Failed to load profile.";
+                    return View("Error");
+                }
+
+                return View(response.Data);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to load profile");
+                return View("Error");
+            }
+        }
+
+        // GET: /Account/RefreshToken
+        [HttpGet]
+        public async Task<IActionResult> RefreshToken()
+        {
+            try
+            {
+                // Get current token from session
+                var token = HttpContext.Session.GetString("AccessToken");
+                //_apiClient.SetAuthorizationHeader(token);
+
+                // Call API to refresh token - returns ApiResponse<RefreshTokenResponseData>
+                var response = await _apiClient.PostAsync<RefreshTokenResponseData>("Api/Auth/Refresh-Token", null);
+
+                // Check if refresh succeeded
+                if (response.Success && response.Data != null && !string.IsNullOrEmpty(response.Data.AccessToken))
+                {
+                    // Update session with new token
+                    HttpContext.Session.SetString("AccessToken", response.Data.AccessToken);
+
+                    // Update user claims with new token
+                    await UpdateUserClaims(response.Data.AccessToken);
+
+                    return Ok(new { success = true, message = "Token refreshed successfully" });
+                }
+
+                return Unauthorized(new { success = false, message = response.Error ?? "Failed to refresh token" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to refresh token");
+                return Unauthorized(new { success = false, message = "Failed to refresh token" });
+            }
+        }
+
+        #region Helper Methods
+
+        /// <summary>
+        /// Update user claims with new token
+        /// </summary>
+        private async Task UpdateUserClaims(string newToken)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var jwtToken = tokenHandler.ReadJwtToken(newToken);
+
+            var claims = new List<Claim>();
+
+            // Add all claims from token
+            foreach (var claim in jwtToken.Claims)
+            {
+                claims.Add(claim);
+            }
+
+            // Add AccessToken claim
+            claims.Add(new Claim("AccessToken", newToken));
+
+            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+            // Sign out and sign in with new claims
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            await HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                new ClaimsPrincipal(identity));
+        }
+
+        #endregion
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\UI\Controllers\ApiControllerBase.cs ====================
+
+using BL.Common;
+using Microsoft.AspNetCore.Mvc;
+
+namespace UI.Controllers;
+
+public abstract class ApiControllerBase : Controller
+{
+    protected IActionResult ApiResult<T>(ApiResponse<T> response)
+    {
+        return response.Success
+            ? Ok(response)
+            : StatusCode(response.Success ? 200 : 400, response);
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\UI\Controllers\BaseMvcController.cs ====================
+
+using BL.Common;
+using Microsoft.AspNetCore.Mvc;
+using UI.Services;
+
+namespace UI.Controllers;
+
+/// <summary>
+/// Generic MVC controller for entities exposed via BaseController<> on the WebApi side.
+/// Handles Index, Details, Create, Edit, Delete using standard CRUD endpoints.
+/// </summary>
+public abstract class BaseMvcController<TDto, TCreateDto, TUpdateDto> : Controller
+{
+    protected readonly GenericApiClient _apiClient;
+    protected readonly ILogger _logger;
+    protected readonly string _apiEndpoint; // e.g. "Api/Carrier"
+
+    protected BaseMvcController(GenericApiClient apiClient, ILogger logger, string apiEndpoint)
+    {
+        _apiClient = apiClient;
+        _logger = logger;
+        _apiEndpoint = apiEndpoint;
+    }
+
+    // GET: /Entity
+    public virtual async Task<IActionResult> Index()
+    {
+        var response = await _apiClient.GetAsync<IEnumerable<TDto>>(_apiEndpoint);
+
+        if (!response.Success)
+        {
+            TempData["ErrorMessage"] = response.Error;
+            return View(Enumerable.Empty<TDto>());
+        }
+
+        return View(response.Data);
+    }
+
+    // GET: /Entity/Details/{id}
+    public virtual async Task<IActionResult> Details(Guid id)
+    {
+        var response = await _apiClient.GetAsync<TDto>($"{_apiEndpoint}/{id}");
+
+        if (!response.Success || response.Data == null)
+        {
+            TempData["ErrorMessage"] = response.Error ?? "Not found.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        return View(response.Data);
+    }
+
+    // GET: /Entity/Create
+    public virtual IActionResult Create() => View();
+
+    // POST: /Entity/Create
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public virtual async Task<IActionResult> Create(TCreateDto dto)
+    {
+        if (!ModelState.IsValid) return View(dto);
+
+        var response = await _apiClient.PostAsync<object>(_apiEndpoint, dto);
+
+        if (!response.Success)
+        {
+            ModelState.AddModelError("", response.Error ?? "Failed to create.");
+            return View(dto);
+        }
+
+        TempData["SuccessMessage"] = "Created successfully.";
+        return RedirectToAction(nameof(Index));
+    }
+
+    // GET: /Entity/Edit/{id}
+    public virtual async Task<IActionResult> Edit(Guid id)
+    {
+        var response = await _apiClient.GetAsync<TDto>($"{_apiEndpoint}/{id}");
+
+        if (!response.Success || response.Data == null)
+        {
+            TempData["ErrorMessage"] = response.Error ?? "Not found.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        var json = Newtonsoft.Json.JsonConvert.SerializeObject(response.Data);
+        var updateDto = Newtonsoft.Json.JsonConvert.DeserializeObject<TUpdateDto>(json);
+        ViewBag.Id = id;
+
+        return View(updateDto);
+    }
+
+    // POST: /Entity/Edit/{id}
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public virtual async Task<IActionResult> Edit(Guid id, TUpdateDto dto)
+    {
+        if (!ModelState.IsValid) return View(dto);
+
+        var response = await _apiClient.PutAsync<object>($"{_apiEndpoint}/{id}", dto!);
+
+        if (!response.Success)
+        {
+            ModelState.AddModelError("", response.Error ?? "Failed to update.");
+            return View(dto);
+        }
+
+        TempData["SuccessMessage"] = "Updated successfully.";
+        return RedirectToAction(nameof(Index));
+    }
+
+    // POST: /Entity/Delete/{id}
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public virtual async Task<IActionResult> Delete(Guid id)
+    {
+        var deleted = await _apiClient.DeleteAsync($"{_apiEndpoint}/{id}");
+
+        TempData[deleted ? "SuccessMessage" : "ErrorMessage"] =
+            deleted ? "Deleted successfully." : "Failed to delete.";
+
+        return RedirectToAction(nameof(Index));
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\UI\Controllers\HomeController.cs ====================
+
+using BL.Contract.IServices;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
+using UI.Models;
+
+namespace UI.Controllers
+{
+    [Authorize(Roles = "User")]
+    //[Area("Admin")]
+    public class HomeController : Controller
+    {
+        private readonly ILogger<HomeController> _logger;
+        private readonly IShippingTypeService _IGenericRepository;
+        public HomeController(ILogger<HomeController> logger, IShippingTypeService iGenericRepository)
+        {
+            _logger = logger;
+            _IGenericRepository = iGenericRepository;
+        }
+
+        public async Task<IActionResult> Index()
+        {
+            //var types = await _IGenericRepository.GetAllAsync();
+            return View();
+        }
+
+        public IActionResult Privacy()
+        {
+            return View();
+        }
+
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult Error()
+        {
+            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\UI\Controllers\ShipmentController.cs ====================
+
+using BL.Common;
+using BL.DTOs.Shipment;
+using BL.DTOs.UserSender;
+using BL.DTOs.UserReceiver;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Security.Claims;
+using UI.Models.Shipment;
+using UI.Services;
+
+namespace UI.Controllers;
+
+[Authorize]
+public class ShipmentController : Controller
+{
+    private readonly MvcShipmentService _shipmentService;
+    private readonly ILogger<ShipmentController> _logger;
+
+    public ShipmentController(MvcShipmentService shipmentService, ILogger<ShipmentController> logger)
+    {
+        _shipmentService = shipmentService;
+        _logger = logger;
+    }
+
+    private string GetCurrentUserId()
+    {
+        var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier)
+            ?? User.FindFirstValue("UserId");
+
+        return userIdString ?? string.Empty;
+    }
+
+    private async Task<bool> PopulateDropdownDataAsync(ShipmentWizardViewModel model)
+    {
+        var citiesResponse = await _shipmentService.GetCitiesAsync();
+        var shippingTypesResponse = await _shipmentService.GetShippingTypesAsync();
+        var packagingResponse = await _shipmentService.GetShippingPackagingAsync();
+        var paymentMethodsResponse = await _shipmentService.GetPaymentMethodsAsync();
+
+        if (!citiesResponse.Success || !shippingTypesResponse.Success ||
+            !packagingResponse.Success || !paymentMethodsResponse.Success)
+        {
+            _logger.LogWarning("Failed to load one or more dropdown sources for CreateShipment.");
+            return false;
+        }
+
+        model.Cities = citiesResponse.Data!
+            .Select(c => new SelectListItem(c.CityAname ?? c.Id.ToString(), c.Id.ToString())).ToList();
+
+        model.Shipment.ShippingTypes = shippingTypesResponse.Data!
+            .Select(s => new SelectListItem(s.ShippingTypeEname, s.Id.ToString())).ToList();
+
+        model.Shipment.PackagingTypes = packagingResponse.Data!
+            .Select(p => new SelectListItem(p.ShippingPackagingEname, p.Id.ToString())).ToList();
+
+        model.Shipment.PaymentMethods = paymentMethodsResponse.Data!
+            .Select(p => new SelectListItem(p.MethodEname, p.Id.ToString())).ToList();
+
+        return true;
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> CreateShipment()
+    {
+        var model = new ShipmentWizardViewModel();
+        var success = await PopulateDropdownDataAsync(model);
+
+        if (!success)
+            return View("Error");
+
+        return View(model);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CreateShipment(ShipmentWizardViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            if (!await PopulateDropdownDataAsync(model))
+                return View("Error");
+
+            return View(model);
+        }
+
+        var currentUserId = GetCurrentUserId();
+
+        // 1) Create Sender
+        var senderResult = await _shipmentService.CreateSenderAsync(new CreateUserSenderDto
+        {
+            UserId = currentUserId,
+            SenderName = model.Sender.SenderName,
+            Email = model.Sender.Email,
+            Phone = model.Sender.Phone,
+            CityId = model.Sender.CityId,
+            Address = model.Sender.Address,
+            Contact = model.Sender.Contact!,
+            OtherAddress = model.Sender.OtherAddress!,
+            PostalCode = model.Sender.PostalCode,
+            IsDefaultAddress = model.Sender.IsDefaultAddress
+        });
+
+        if (!senderResult.Success)
+        {
+            ModelState.AddModelError("", senderResult.Error ?? "Failed to save sender.");
+            await PopulateDropdownDataAsync(model);
+            return View(model);
+        }
+
+        var senderId = senderResult.Data;
+
+        // 2) Create Receiver
+        var receiverResult = await _shipmentService.CreateReceiverAsync(new CreateUserReceiverDto
+        {
+            UserId = currentUserId,
+            ReceiverName = model.Receiver.ReceiverName,
+            Email = model.Receiver.Email,
+            Phone = model.Receiver.Phone,
+            CityId = model.Receiver.CityId,
+            Address = model.Receiver.Address,
+            Contact = model.Receiver.Contact!,
+            OtherAddress = model.Receiver.OtherAddress!,
+            PostalCode = model.Receiver.PostalCode,
+            IsDefaultAddress = model.Receiver.IsDefaultAddress
+        });
+
+        if (!receiverResult.Success)
+        {
+            ModelState.AddModelError("", receiverResult.Error ?? "Failed to save receiver.");
+            await PopulateDropdownDataAsync(model);
+            return View(model);
+        }
+
+        var receiverId = receiverResult.Data;
+
+        // 3) Create the shipment itself
+        var dto = new CreateShipmentDto
+        {
+            ShippingDate = model.Shipment.ShippingDate,
+            DeliveryDate = model.Shipment.DeliveryDate,
+            SenderId = senderId,
+            ReceiverId = receiverId,
+            ShippingTypeId = model.Shipment.ShippingTypeId,
+            ShippingPackagingId = model.Shipment.ShippingPackagingId,
+            Width = model.Shipment.Width,
+            Height = model.Shipment.Height,
+            Weight = model.Shipment.Weight,
+            Length = model.Shipment.Length,
+            PackageValue = model.Shipment.PackageValue,
+            PaymentMethodId = model.Shipment.PaymentMethodId,
+            UserSubscriptionId = model.Shipment.UserSubscriptionId
+        };
+
+        var result = await _shipmentService.CreateShipmentAsync(dto);
+
+        if (!result.Success)
+        {
+            ModelState.AddModelError("", result.Error ?? "Failed to create shipment.");
+            await PopulateDropdownDataAsync(model);
+            return View(model);
+        }
+
+        return RedirectToAction("Confirmation", new { id = result.Data });
+    }
+
+    [HttpGet]
+    public IActionResult Confirmation(Guid id)
+    {
+        return View(id);
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\UI\Endpoints\stAuthEndpoints.cs ====================
+
+namespace UI.Endpoints;
+
+public readonly struct stAuthEndpoints
+{
+    public const string Base = "Api/Auth";
+
+    public const string Register = $"{Base}/Register";
+    public const string Login = $"{Base}/Login";
+    public const string RotateRefreshToken = $"{Base}/RotateRefreshToken";
+    public const string RefreshAccessToken = $"{Base}/Refresh-AccessToken";
+    public const string Logout = $"{Base}/Logout";
+    public const string ChangePassword = $"{Base}/ChangePassword";
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\UI\Endpoints\stLookupEndpoints.cs ====================
+
+namespace UI.Endpoints;
+
+
+
+public readonly struct stShipmentEndpoints
+{
+    public const string Create = "Api/Test/CreateShipment";
+}
+
+public readonly struct stLookupEndpoints
+{
+    public const string Cities = "Api/City";
+    public const string ShippingTypes = "Api/ShippingType";
+    public const string ShippingPackaging = "Api/ShippingPackaging";
+    public const string PaymentMethods = "Api/PaymentMethod";
+    public const string UserSenders = "Api/UserSender";
+    public const string UserReceivers = "Api/UserReceiver";
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\UI\Endpoints\stUserEndpoints.cs ====================
+
+namespace UI.Endpoints
+{
+    public class stUserEndpoints
+    {
+        public const string Base = "Api/User";
+
+        public const string GetAll = Base;
+
+        public const string GetById = $"{Base}/{{id}}";
+
+        public const string Search = $"{Base}/Search";
+
+        public const string Update = $"{Base}/{{id}}";
+
+        public const string DeleteUser = Base;
+
+        public const string DeleteMyAccount = $"{Base}/Me";
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\UI\Extensions\ServiceExtensions.cs ====================
+
+using BL.Contract.IServices;
+using BL.Contract.IServices.Shipment;
+using BL.Contract.IvwServices;
+using BL.Mapping;
+using BL.Services;
+using BL.Services.Shipment;
+using BL.Services.vwServices;
+using DAL.Context;
+using DAL.Contracts;
+using DAL.Contracts.IRepositories;
+using DAL.Repositories;
+using DAL.Repositories.Generic;
+using Domain.Entities;
+using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Serilog;
+using Serilog.Sinks.MSSqlServer;
+using System.Net.Http.Headers;
+using UI.Services;
+using UI.Services.Contracts;
+using UI.Services.Token;
+
+namespace Microsoft.Extensions.DependencyInjection;
+
+public static class ServiceExtensions
+{
+    public static IServiceCollection AddPersistence(this IServiceCollection services, IConfiguration configuration, IWebHostEnvironment env)
+    {
+        #region DbContext
+        services.AddDbContext<ShippingDbContext>(options =>
+        {
+            var connectionString = configuration.GetConnectionString("DefaultConnection");
+
+            options.UseSqlServer(connectionString);
+
+            if (env.IsDevelopment())
+            {
+                options.LogTo(Console.WriteLine, LogLevel.Information)
+                       .EnableSensitiveDataLogging()
+                       .EnableDetailedErrors();
+            }
+        });
+        #endregion
+
+        return services;
+    }
+
+    public static IHostBuilder AddSerilogLogging(this IHostBuilder hostBuilder, IConfiguration configuration)
+    {
+        Serilog.Log.Logger = new LoggerConfiguration()
+            .WriteTo.Console()
+            .WriteTo.MSSqlServer(
+                connectionString: configuration.GetConnectionString("DefaultConnection"),
+                sinkOptions: new MSSqlServerSinkOptions
+                {
+                    TableName = "Logs",
+                    AutoCreateSqlTable = true
+                })
+            .CreateLogger();
+
+        hostBuilder.UseSerilog();
+
+        return hostBuilder;
+    }
+
+    public static IServiceCollection AddRepositories(this IServiceCollection services)
+    {
+        services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+        services.AddScoped(typeof(IViewRepository<>), typeof(ViewRepository<>));
+
+        services.AddScoped<ICarrierRepository, CarrierRepository>();
+        services.AddScoped<ICityRepository, CityRepository>();
+        services.AddScoped<ICountryRepository, CountryRepository>();
+        services.AddScoped<IPaymentMethodRepository, PaymentMethodRepository>();
+        services.AddScoped<ISettingRepository, SettingRepository>();
+        services.AddScoped<IShippingTypeRepository, ShippingTypeRepository>();
+        services.AddScoped<IShippmentRepository, ShippmentRepository>();
+        services.AddScoped<IShippmentStatusRepository, ShippmentStatusRepository>();
+        services.AddScoped<ISubscriptionPackageRepository, SubscriptionPackageRepository>();
+        services.AddScoped<IUserReceiverRepository, UserReceiverRepository>();
+        services.AddScoped<IUserSenderRepository, UserSenderRepository>();
+        services.AddScoped<IUserSubscriptionRepository, UserSubscriptionRepository>();
+
+        return services;
+    }
+
+    public static IServiceCollection AddServices(this IServiceCollection services)  
+    {
+        // deprecated: using generic base service for all entities, as it may not fit all cases and may cause issues with specific logic for certain entities
+        //services.AddScoped(typeof(IBaseService<T, TDto, TCreateDto, TUpdateDto>), typeof(BaseService<T, TDto, TCreateDto, TUpdateDto>));
+
+        #region Views-specific services
+        services.AddScoped<IVwCitiesCountriesService, VwCitiesCountriesService>();
+        #endregion
+
+        #region Mapping services
+        services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
+        services.AddScoped<BL.Mapping.IMapper, BL.Mapping.AutoMapper>();
+        #endregion
+
+        #region Auth - UserManager, SignInManager, etc. services
+        services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<IUserService, UserService>();
+        #endregion
+
+        #region Entity-specific services
+        services.AddScoped<ICarrierService, CarrierService>();
+        services.AddScoped<ICityService, CityService>();
+        services.AddScoped<ICountryService, CountryService>();
+        services.AddScoped<IPaymentMethodService, PaymentMethodService>();
+        services.AddScoped<ISettingService, SettingService>();
+        services.AddScoped<IShippingTypeService, ShippingTypeService>();
+        services.AddScoped<IShipmentService, ShipmentService>();
+        services.AddScoped<IShipmentStatusService, ShipmentStatusService>();
+        services.AddScoped<ISubscriptionPackageService, SubscriptionPackageService>();
+        services.AddScoped<IUserReceiverService, UserReceiverService>();
+        services.AddScoped<IUserSenderService, UserSenderService>();
+        services.AddScoped<IUserSubscriptionService, UserSubscriptionService>();
+        services.AddScoped<IShippingPackagingService, ShippingPackagingService>();
+
+        #endregion
+
+        // Add service to can call api endpoint
+        services.AddScoped<GenericApiClient>();
+        services.AddScoped<MvcAuthService>();
+
+        services.AddScoped<ITokenProvider, SessionTokenProvider>();
+        services.AddScoped<ITokenRefreshService, TokenRefreshService>();
+        services.AddScoped<IRefreshTokenProvider, CookieRefreshTokenProvider>();
+        services.AddScoped<IDistanceService, DistanceService>();
+        services.AddScoped<IRateCalculator, RateCalculator>();
+        services.AddScoped<ITrackingNumberCalculator, TrackingNumberCalculator>();
+
+
+        services.AddScoped<MvcShipmentService>();
+
+
+        // Unit of Work
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+        return services;
+    }
+
+    public static IServiceCollection AddValidators(this IServiceCollection services)
+    {
+        services.AddFluentValidationAutoValidation();
+
+        return services;
+    }
+
+    public static IServiceCollection AddIdentityConfig(this IServiceCollection services)
+    {
+        services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+        {
+            options.Password.RequireDigit = true;
+            options.Password.RequiredLength = 9;
+            options.Password.RequireNonAlphanumeric = true;
+            options.Password.RequireUppercase = true;
+            options.Password.RequireLowercase = true;
+        })
+        .AddEntityFrameworkStores<ShippingDbContext>()
+        .AddDefaultTokenProviders();
+
+        services.ConfigureApplicationCookie(options =>
+        {
+            options.LoginPath = "/Account/Login";
+            options.LogoutPath = "/Account/Logout";
+            options.AccessDeniedPath = "/Account/AccessDenied";
+            options.Cookie.Name = "ShippingAuthCookie";
+            options.Cookie.HttpOnly = true;
+            options.Cookie.SameSite = SameSiteMode.Strict;
+            options.ReturnUrlParameter = CookieAuthenticationDefaults.ReturnUrlParameter;
+            options.ExpireTimeSpan = TimeSpan.FromDays(7);
+            options.SlidingExpiration = true;
+        });
+
+
+
+        services.AddAuthorization(options =>
+        {
+            options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
+            options.AddPolicy("UserOnly", policy => policy.RequireRole("User"));
+        });
+
+
+
+        return services;
+    }
+
+    public static IServiceCollection AddHttpClientCallingApi(this IServiceCollection services)
+    {
+        services.AddHttpClient("ApiClient", client =>
+        {
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+        });
+
+        return services;
+    }
+
+    public static IServiceCollection AddSessionServices(this IServiceCollection services)
+    {
+        // For session storage in memory
+        services.AddDistributedMemoryCache(); 
+
+        services.AddSession(options =>
+        {
+            options.IdleTimeout = TimeSpan.FromMinutes(30);
+            options.Cookie.HttpOnly = true;
+            options.Cookie.IsEssential = true;
+            options.Cookie.SameSite = SameSiteMode.Strict;
+            options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+        });
+
+        // âœ… Ø¥Ø¶Ø§ÙØ© HttpContextAccessor Ù„Ù„ÙˆØµÙˆÙ„ Ø¥Ù„Ù‰ Session Ù…Ù† Ø£ÙŠ Ù…ÙƒØ§Ù†
+        services.AddHttpContextAccessor();
+
+        return services;
+    }
+}
+
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\UI\Helpers\Enums.cs ====================
+
+namespace UI.Helpers;
+
+public enum enFormMode
+{
+    Create,
+    Edit,
+    View
+}
+
+public enum enMessageType
+{
+    SavedSuccessfully = 1,
+    SavedFailed = 2,
+    DeletedSuccessfully = 3,
+    DeletedFailed = 4
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\UI\Models\ResponsesModels\LoginResponseData.cs ====================
+
+namespace UI.Models.ResponsesModels;
+
+public class LoginResponseData
+{
+    public string AccessToken { get; set; } = null!;
+    public string RefreshToken { get; set; } = null!;
+    public string Email { get; set; } = null!;
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\UI\Models\ResponsesModels\RefreshTokenResponseData.cs ====================
+
+namespace UI.Models.ResponsesModels;
+
+public class RefreshTokenResponseData
+{
+    public string AccessToken { get; set; } = null!;
+    public string RefreshToken { get; set; } = null!;
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\UI\Models\ResponsesModels\RegisterResponseData.cs ====================
+
+namespace UI.Models.ResponsesModels;
+
+public class RegisterResponseData
+{
+    public bool Success { get; set; } 
+    public string Message { get; set; } = null!;
+    public string UserId { get; set; } = null!;
+    public List<string>? Errors { get; set; }
+
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\UI\Models\ResponsesModels\UserProfileResponseData.cs ====================
+
+namespace UI.Models.ResponsesModels;
+
+public class UserProfileResponseData
+{
+    public string Id { get; set; } = null!;
+    public string FullName { get; set; } = null!;
+    public string Email { get; set; } = null!;
+    public string UserName { get; set; } = null!;
+    public string? PhoneNumber { get; set; }
+    public DateTime? DateOfBirth { get; set; }
+    public string? ProfileImage { get; set; }
+    public enGender Gender { get; set; }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\UI\Models\Shipment\CreateShipmentViewModel.cs ====================
+
+using Microsoft.AspNetCore.Mvc.Rendering;
+using System.ComponentModel.DataAnnotations;
+
+namespace UI.Models.Shipment;
+
+public class CreateShipmentViewModel
+{
+    public Guid? ShippingPackagingId { get; set; }
+
+    [Required]
+    public Guid ShippingTypeId { get; set; }
+
+    [Required]
+    public DateTime ShippingDate { get; set; }
+
+    public DateTime? DeliveryDate { get; set; }
+
+    [Required]
+    public double Weight { get; set; }
+
+    public double Length { get; set; }
+
+    public double Width { get; set; }
+
+    public double Height { get; set; }
+
+    public decimal PackageValue { get; set; }
+
+    public Guid? PaymentMethodId { get; set; }
+
+    public Guid? UserSubscriptionId { get; set; }
+
+    public List<SelectListItem>? ShippingTypes { get; set; }
+    public List<SelectListItem>? PackagingTypes { get; set; }
+    public List<SelectListItem>? PaymentMethods { get; set; }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\UI\Models\Shipment\CreateUserReceiverViewModel.cs ====================
+
+using System.ComponentModel.DataAnnotations;
+
+namespace UI.Models.Shipment;
+
+
+public class CreateUserReceiverViewModel
+{
+    [Required]
+    public string ReceiverName { get; set; } = string.Empty;
+
+    [Required, EmailAddress]
+    public string Email { get; set; } = string.Empty;
+
+    [Required]
+    public string Phone { get; set; } = string.Empty;
+
+    [Required]
+    public string PostalCode { get; set; } = string.Empty;
+
+    public string? Contact { get; set; }
+
+    [Required]
+    public Guid CityId { get; set; }
+
+    [Required]
+    public string Address { get; set; } = string.Empty;
+
+    public string? OtherAddress { get; set; }
+
+    public bool IsDefaultAddress { get; set; }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\UI\Models\Shipment\CreateUserSenderViewModel.cs ====================
+
+using System.ComponentModel.DataAnnotations;
+
+namespace UI.Models.Shipment
+{
+    public class CreateUserSenderViewModel
+    {
+        [Required]
+        public string SenderName { get; set; } = string.Empty;
+
+        [Required, EmailAddress]
+        public string Email { get; set; } = string.Empty;
+
+        [Required]
+        public string Phone { get; set; } = string.Empty;
+
+        [Required]
+        public string PostalCode { get; set; } = string.Empty;
+
+        public string? Contact { get; set; }
+
+        [Required]
+        public Guid CityId { get; set; }
+
+        [Required]
+        public string Address { get; set; } = string.Empty;
+
+        public string? OtherAddress { get; set; }
+
+        public bool IsDefaultAddress { get; set; }
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\UI\Models\Shipment\ShipmentWizardViewModel.cs ====================
+
+using Microsoft.AspNetCore.Mvc.Rendering;
+
+namespace UI.Models.Shipment;
+
+public class ShipmentWizardViewModel
+{
+    public CreateUserSenderViewModel Sender { get; set; } = new();
+
+    public CreateUserReceiverViewModel Receiver { get; set; } = new();
+
+    public CreateShipmentViewModel Shipment { get; set; } = new();
+
+    public List<SelectListItem>? Cities { get; set; }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\UI\Models\CreateShipmentViewModel.cs ====================
+
+using Microsoft.AspNetCore.Mvc.Rendering;
+using System.ComponentModel.DataAnnotations;
+
+namespace UI.Models;
+
+public class CreateShipmentViewModel
+{
+    [Required]
+    public ShipmentPartyViewModel Sender { get; set; } = new();
+
+    [Required]
+    public ShipmentPartyViewModel Receiver { get; set; } = new();
+
+    public Guid? ShippingPackagingId { get; set; }
+
+    [Required(ErrorMessage = "Weight is required")]
+    [Range(0.01, double.MaxValue, ErrorMessage = "Weight must be greater than 0")]
+    public double Weight { get; set; }
+
+    [Range(0, double.MaxValue)]
+    public double Length { get; set; }
+
+    [Range(0, double.MaxValue)]
+    public double Width { get; set; }
+
+    [Range(0, double.MaxValue)]
+    public double Height { get; set; }
+
+    [Range(0, double.MaxValue)]
+    public decimal PackageValue { get; set; }
+
+    [Required(ErrorMessage = "Please select a shipping type")]
+    public Guid ShippingTypeId { get; set; }
+
+    [Required]
+    [DataType(DataType.Date)]
+    public DateTime ShippingDate { get; set; } = DateTime.UtcNow;
+
+    [DataType(DataType.Date)]
+    public DateTime DeliveryDate { get; set; } = DateTime.UtcNow;
+
+    public Guid? PaymentMethodId { get; set; }
+
+    public Guid? UserSubscriptionId { get; set; }
+
+    // Dropdown sources (????? ?? ??? Controller)
+    public List<SelectListItem>? Cities { get; set; }
+    public List<SelectListItem>? ShippingTypes { get; set; }
+    public List<SelectListItem>? PackagingTypes { get; set; }
+    public List<SelectListItem>? PaymentMethods { get; set; }
+}
+
+public class ShipmentPartyViewModel
+{
+    public Guid? ExistingId { get; set; }
+
+    [Required(ErrorMessage = "Name is required")]
+    public string Name { get; set; } = string.Empty;
+
+    public string? Contact { get; set; }
+
+    [Required(ErrorMessage = "Address is required")]
+    public string Address { get; set; } = string.Empty;
+
+    public string? OtherAddress { get; set; }
+
+    [Required(ErrorMessage = "Postal Code is required")]
+    public string PostalCode { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "City is required")]
+    public Guid CityId { get; set; }
+
+    [Required(ErrorMessage = "Email is required")]
+    [EmailAddress]
+    public string Email { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "Telephone is required")]
+    [Phone]
+    public string Phone { get; set; } = string.Empty;
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\UI\Models\ErrorViewModel.cs ====================
+
+namespace UI.Models
+{
+    public class ErrorViewModel
+    {
+        public string? RequestId { get; set; }
+
+        public bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\UI\Models\LoginViewModel.cs ====================
+
+using System.ComponentModel.DataAnnotations;
+
+namespace UI.Models
+{
+    public class LoginViewModel
+    {
+        [Required]
+        [Display(Name = "Username or Email")]
+        public string UsernameOrEmail { get; set; } = null!;
+
+        [Required]
+        [DataType(DataType.Password)]
+        public string Password { get; set; } = null!;
+
+        [Display(Name = "Remember me")]
+        public bool RememberMe { get; set; }
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\UI\Models\RegisterViewModel.cs ====================
+
+using System.ComponentModel.DataAnnotations;
+using Domain.Entities;
+
+namespace UI.Models;
+
+public class RegisterViewModel
+{
+    [Required]
+    [StringLength(100)]
+    [Display(Name = "First Name")]
+    public string FirstName { get; set; } = string.Empty;
+
+    [Required]
+    [StringLength(100)]
+    [Display(Name = "Second Name")]
+    public string SecondName { get; set; } = string.Empty;
+
+    [StringLength(100)]
+    [Display(Name = "Third Name")]
+    public string? ThirdName { get; set; }
+
+    [Required]
+    [StringLength(100)]
+    [Display(Name = "Last Name")]
+    public string LastName { get; set; } = string.Empty;
+
+    [Required]
+    [EmailAddress]
+    public string Email { get; set; } = string.Empty;
+
+    [Required]
+    [StringLength(50)]
+    [Display(Name = "Username")]
+    public string UserName { get; set; } = string.Empty;
+
+    [Required]
+    [Phone]
+    [Display(Name = "Phone Number")]
+    public string PhoneNumber { get; set; } = string.Empty;
+
+    [Url]
+    [Display(Name = "Profile Image URL")]
+    public string? ImageUrl { get; set; }
+
+    [Required]
+    [DataType(DataType.Password)]
+    [MinLength(6, ErrorMessage = "Password must be at least 6 characters.")]
+    public string Password { get; set; } = string.Empty;
+
+    [Required]
+    [DataType(DataType.Password)]
+    [Compare(nameof(Password), ErrorMessage = "Passwords do not match.")]
+    [Display(Name = "Confirm Password")]
+    public string ConfirmPassword { get; set; } = string.Empty;
+
+    [Required]
+    [DataType(DataType.Date)]
+    [Display(Name = "Date of Birth")]
+    public DateOnly DateOfBirth { get; set; }
+
+    [Required]
+    [Display(Name = "Gender")]
+    public enGender Gender { get; set; }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\UI\obj\Debug\net10.0\.NETCoreApp,Version=v10.0.AssemblyAttributes.cs ====================
+
+// <autogenerated />
+using System;
+using System.Reflection;
+[assembly: global::System.Runtime.Versioning.TargetFrameworkAttribute(".NETCoreApp,Version=v10.0", FrameworkDisplayName = ".NET 10.0")]
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\UI\obj\Debug\net10.0\UI.AssemblyInfo.cs ====================
+
+//------------------------------------------------------------------------------
+// <auto-generated>
+//     This code was generated by a tool.
+//     Runtime Version:4.0.30319.42000
+//
+//     Changes to this file may cause incorrect behavior and will be lost if
+//     the code is regenerated.
+// </auto-generated>
+//------------------------------------------------------------------------------
+
+using System;
+using System.Reflection;
+
+[assembly: System.Reflection.AssemblyCompanyAttribute("UI")]
+[assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
+[assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5d02f3b3c050f0329f84235dc61f9a49da691064")]
+[assembly: System.Reflection.AssemblyProductAttribute("UI")]
+[assembly: System.Reflection.AssemblyTitleAttribute("UI")]
+[assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
+
+// Generated by the MSBuild WriteCodeFragment class.
+
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\UI\obj\Debug\net10.0\UI.GlobalUsings.g.cs ====================
+
+// <auto-generated/>
+global using Microsoft.AspNetCore.Builder;
+global using Microsoft.AspNetCore.Hosting;
+global using Microsoft.AspNetCore.Http;
+global using Microsoft.AspNetCore.Routing;
+global using Microsoft.Extensions.Configuration;
+global using Microsoft.Extensions.DependencyInjection;
+global using Microsoft.Extensions.Hosting;
+global using Microsoft.Extensions.Logging;
+global using System;
+global using System.Collections.Generic;
+global using System.IO;
+global using System.Linq;
+global using System.Net.Http;
+global using System.Net.Http.Json;
+global using System.Threading;
+global using System.Threading.Tasks;
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\UI\obj\Debug\net10.0\UI.RazorAssemblyInfo.cs ====================
+
+//------------------------------------------------------------------------------
+// <auto-generated>
+//     This code was generated by a tool.
+//
+//     Changes to this file may cause incorrect behavior and will be lost if
+//     the code is regenerated.
+// </auto-generated>
+//------------------------------------------------------------------------------
+
+using System;
+using System.Reflection;
+
+[assembly: Microsoft.AspNetCore.Mvc.ApplicationParts.ProvideApplicationPartFactoryAttribute(("Microsoft.AspNetCore.Mvc.ApplicationParts.ConsolidatedAssemblyApplicationPartFact" +
+    "ory, Microsoft.AspNetCore.Mvc.Razor"))]
+
+// Generated by the MSBuild WriteCodeFragment class.
+
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\UI\obj\Debug\net8.0\.NETCoreApp,Version=v8.0.AssemblyAttributes.cs ====================
+
+// <autogenerated />
+using System;
+using System.Reflection;
+[assembly: global::System.Runtime.Versioning.TargetFrameworkAttribute(".NETCoreApp,Version=v8.0", FrameworkDisplayName = ".NET 8.0")]
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\UI\obj\Debug\net8.0\UI.AssemblyInfo.cs ====================
+
+//------------------------------------------------------------------------------
+// <auto-generated>
+//     This code was generated by a tool.
+//     Runtime Version:4.0.30319.42000
+//
+//     Changes to this file may cause incorrect behavior and will be lost if
+//     the code is regenerated.
+// </auto-generated>
+//------------------------------------------------------------------------------
+
+using System;
+using System.Reflection;
+
+[assembly: Microsoft.Extensions.Configuration.UserSecrets.UserSecretsIdAttribute("e559f6fc-16cf-403c-992a-2f2081358ff3")]
+[assembly: System.Reflection.AssemblyCompanyAttribute("UI")]
+[assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
+[assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4e4602f19cfea34013a7a73ee64a6805d5af13cd")]
+[assembly: System.Reflection.AssemblyProductAttribute("UI")]
+[assembly: System.Reflection.AssemblyTitleAttribute("UI")]
+[assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
+
+// Generated by the MSBuild WriteCodeFragment class.
+
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\UI\obj\Debug\net8.0\UI.GlobalUsings.g.cs ====================
+
+// <auto-generated/>
+global using Microsoft.AspNetCore.Builder;
+global using Microsoft.AspNetCore.Hosting;
+global using Microsoft.AspNetCore.Http;
+global using Microsoft.AspNetCore.Routing;
+global using Microsoft.Extensions.Configuration;
+global using Microsoft.Extensions.DependencyInjection;
+global using Microsoft.Extensions.Hosting;
+global using Microsoft.Extensions.Logging;
+global using System;
+global using System.Collections.Generic;
+global using System.IO;
+global using System.Linq;
+global using System.Net.Http;
+global using System.Net.Http.Json;
+global using System.Threading;
+global using System.Threading.Tasks;
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\UI\obj\Debug\net8.0\UI.MvcApplicationPartsAssemblyInfo.cs ====================
+
+//------------------------------------------------------------------------------
+// <auto-generated>
+//     This code was generated by a tool.
+//     Runtime Version:4.0.30319.42000
+//
+//     Changes to this file may cause incorrect behavior and will be lost if
+//     the code is regenerated.
+// </auto-generated>
+//------------------------------------------------------------------------------
+
+using System;
+using System.Reflection;
+
+[assembly: Microsoft.AspNetCore.Mvc.ApplicationParts.ApplicationPartAttribute("FluentValidation.AspNetCore")]
+
+// Generated by the MSBuild WriteCodeFragment class.
+
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\UI\obj\Debug\net8.0\UI.RazorAssemblyInfo.cs ====================
+
+//------------------------------------------------------------------------------
+// <auto-generated>
+//     This code was generated by a tool.
+//     Runtime Version:4.0.30319.42000
+//
+//     Changes to this file may cause incorrect behavior and will be lost if
+//     the code is regenerated.
+// </auto-generated>
+//------------------------------------------------------------------------------
+
+using System;
+using System.Reflection;
+
+[assembly: Microsoft.AspNetCore.Mvc.ApplicationParts.ProvideApplicationPartFactoryAttribute("Microsoft.AspNetCore.Mvc.ApplicationParts.ConsolidatedAssemblyApplicationPartFact" +
+    "ory, Microsoft.AspNetCore.Mvc.Razor")]
+
+// Generated by the MSBuild WriteCodeFragment class.
+
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\UI\Services\Auth\ApiTokenRefresher.cs ====================
+
+using BL.Common;
+using BL.DTOs.Auth.Responses;
+using UI.Endpoints;
+
+namespace UI.Services.Auth;
+
+public sealed class ApiTokenRefresher
+{
+    private readonly IHttpClientFactory _httpClientFactory;
+    private readonly IConfiguration _configuration;
+    private readonly ILogger<ApiTokenRefresher> _logger;
+
+    public ApiTokenRefresher(
+        IHttpClientFactory httpClientFactory,
+        IConfiguration configuration,
+        ILogger<ApiTokenRefresher> logger)
+    {
+        _httpClientFactory = httpClientFactory;
+        _configuration = configuration;
+        _logger = logger;
+    }
+
+    public async Task<ApiResponse<TokenResponseDto>?> RefreshAsync(string refreshToken)
+    {
+        if (string.IsNullOrWhiteSpace(refreshToken))
+            return null;
+
+        try
+        {
+            // Use a raw HttpClient — NOT GenericApiClient — to avoid a circular dependency:
+            // GenericApiClient ? ITokenService ? IApiTokenRefresher ? GenericApiClient ?
+            var client = _httpClientFactory.CreateClient("ApiClient");
+
+            var baseUrl = _configuration["ApiSettings:BaseUrl"]
+                ?? throw new InvalidOperationException("ApiSettings:BaseUrl is not configured.");
+
+            client.BaseAddress = new Uri(baseUrl);
+
+            var payload = new { RefreshToken = refreshToken };
+            var content = new StringContent(
+                System.Text.Json.JsonSerializer.Serialize(payload),
+                System.Text.Encoding.UTF8,
+                "application/json");
+
+            var response = await client.PostAsync(stAuthEndpoints.RefreshAccessToken, content);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogWarning(
+                    "RefreshToken endpoint returned {StatusCode}. Token is likely expired or invalid.",
+                    (int)response.StatusCode);
+                return null;
+            }
+
+            var responseBody = await response.Content.ReadAsStringAsync();
+            var tokenResponse = System.Text.Json.JsonSerializer.Deserialize<ApiResponse<TokenResponseDto>>(
+                responseBody,
+                new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+
+            if (tokenResponse is null || string.IsNullOrWhiteSpace(tokenResponse.Data?.AccessToken))
+            {
+                _logger.LogWarning("RefreshToken endpoint returned an empty or malformed token response.");
+                return null;
+            }
+
+            return tokenResponse;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Exception while calling the RefreshToken API endpoint.");
+            return null;
+        }
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\UI\Services\Auth\RefreshTokenCookieService.cs ====================
+
+namespace UI.Services.Auth;
+
+public sealed class RefreshTokenCookieService
+{
+    private const string CookieName = "ShippingRefreshToken";
+    private static readonly TimeSpan DefaultExpiry = TimeSpan.FromDays(7);
+
+    private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly ILogger<RefreshTokenCookieService> _logger;
+
+    public RefreshTokenCookieService(IHttpContextAccessor httpContextAccessor,ILogger<RefreshTokenCookieService> logger)
+    {
+        _httpContextAccessor = httpContextAccessor;
+        _logger = logger;
+    }
+
+    public string? GetRefreshToken()
+    {
+        var value = HttpContext?.Request.Cookies[CookieName];
+        return string.IsNullOrWhiteSpace(value) ? null : value;
+    }
+
+    public void SetRefreshToken(string refreshToken, DateTime? expiresUtc = null)
+    {
+        if (string.IsNullOrWhiteSpace(refreshToken))
+        {
+            _logger.LogWarning("Attempted to store an empty RefreshToken cookie — skipped.");
+            return;
+        }
+
+        var options = BuildCookieOptions(expiresUtc ?? DateTime.UtcNow.Add(DefaultExpiry));
+        HttpContext?.Response.Cookies.Append(CookieName, refreshToken, options);
+    }
+
+    public void DeleteRefreshToken()
+    {
+        // Overwrite with an expired cookie so the browser removes it immediately.
+        var options = BuildCookieOptions(DateTime.UtcNow.AddDays(-1));
+        HttpContext?.Response.Cookies.Append(CookieName, string.Empty, options);
+    }
+
+
+    #region Private region
+    private HttpContext? HttpContext => _httpContextAccessor.HttpContext;
+
+    private static CookieOptions BuildCookieOptions(DateTime expiresUtc) =>
+        new()
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Strict,
+            Expires = expiresUtc,
+        };
+
+    #endregion
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\UI\Services\Contracts\IRefreshTokenProvider.cs ====================
+
+namespace UI.Services.Contracts;
+
+public interface IRefreshTokenProvider
+{
+    string? GetRefreshToken();
+    void SetRefreshToken(string token, DateTime expiresAt);
+    void RemoveRefreshToken();
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\UI\Services\Contracts\ITokenProvider.cs ====================
+
+namespace UI.Services.Contracts;
+
+public interface ITokenProvider
+{
+    string? GetAccessToken();
+    void SetAccessToken(string token);
+    void RemoveAccessToken();
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\UI\Services\Contracts\ITokenRefreshService.cs ====================
+
+namespace UI.Services.Contracts;
+
+public interface ITokenRefreshService
+{
+    Task<bool> RefreshAccessTokenAsync();
+    Task<bool> RotateRefreshTokenAsync();
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\UI\Services\Token\CookieRefreshTokenProvider.cs ====================
+
+using UI.Services.Contracts;
+
+namespace UI.Services.Token;
+
+public class CookieRefreshTokenProvider : IRefreshTokenProvider
+{
+    private const string RefreshTokenKey = "RefreshToken";
+
+    private readonly IHttpContextAccessor _httpContextAccessor;
+
+    public CookieRefreshTokenProvider(IHttpContextAccessor httpContextAccessor)
+    {
+        _httpContextAccessor = httpContextAccessor;
+    }
+
+    public string? GetRefreshToken()
+    {
+        return _httpContextAccessor.HttpContext?
+            .Request
+            .Cookies[RefreshTokenKey];
+    }
+
+    public void SetRefreshToken(string token, DateTime expiresAt)
+    {
+        _httpContextAccessor.HttpContext?
+            .Response
+            .Cookies
+            .Append(
+                RefreshTokenKey,
+                token,
+                new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.Strict,
+                    Expires = expiresAt
+                });
+    }
+
+    public void RemoveRefreshToken()
+    {
+        _httpContextAccessor.HttpContext?
+            .Response
+            .Cookies
+            .Delete(RefreshTokenKey);
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\UI\Services\Token\SessionTokenProvider.cs ====================
+
+using UI.Services.Contracts;
+
+namespace UI.Services.Token;
+
+public class SessionTokenProvider : ITokenProvider
+{
+    private const string AccessTokenKey = "AccessToken";
+    private readonly IHttpContextAccessor _httpContextAccessor;
+
+    public SessionTokenProvider(IHttpContextAccessor httpContextAccessor)
+    {
+        _httpContextAccessor = httpContextAccessor;
+    }
+
+    public string? GetAccessToken()
+    {
+        return _httpContextAccessor.HttpContext?
+            .Session
+            .GetString(AccessTokenKey);
+    }
+
+    public void SetAccessToken(string token)
+    {
+        _httpContextAccessor.HttpContext?
+            .Session
+            .SetString(AccessTokenKey, token);
+    }
+
+    public void RemoveAccessToken()
+    {
+        _httpContextAccessor.HttpContext?
+            .Session
+            .Remove(AccessTokenKey);
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\UI\Services\Token\TokenRefreshService.cs ====================
+
+using BL.Common;
+using BL.DTOs.Auth.Requests;
+using BL.DTOs.Auth.Responses;
+using Newtonsoft.Json;
+using System.Text;
+using UI.Endpoints;
+using UI.Services.Contracts;
+
+namespace UI.Services.Token;
+
+public class TokenRefreshService : ITokenRefreshService
+{
+    private readonly HttpClient _httpClient;
+    private readonly ITokenProvider _tokenProvider;
+    private readonly IRefreshTokenProvider _refreshTokenProvider;
+
+    public TokenRefreshService(
+        IHttpClientFactory httpClientFactory,
+        IConfiguration configuration,
+        ITokenProvider tokenProvider,
+        IRefreshTokenProvider refreshTokenProvider)
+    {
+        _httpClient = httpClientFactory.CreateClient("ApiClient");
+
+        _httpClient.BaseAddress = new Uri(
+            configuration["ApiSettings:BaseUrl"]
+            ?? throw new InvalidOperationException("ApiSettings:BaseUrl is not configured."));
+
+        _tokenProvider = tokenProvider;
+        _refreshTokenProvider = refreshTokenProvider;
+    }
+
+    public async Task<bool> RefreshAccessTokenAsync()
+    {
+        var refreshToken = _refreshTokenProvider.GetRefreshToken();
+
+        if (string.IsNullOrWhiteSpace(refreshToken))
+            return false;
+
+        var response = await PostAsync<RefreshAccessTokenResponseDto>(
+            stAuthEndpoints.RefreshAccessToken,
+            new RefreshTokenRequestDto
+            {
+                RefreshToken = refreshToken
+            });
+
+        if (!response.Success || response.Data is null)
+            return false;
+
+        _tokenProvider.SetAccessToken(response.Data.AccessToken);
+
+        return true;
+    }
+
+    public async Task<bool> RotateRefreshTokenAsync()
+    {
+        var refreshToken = _refreshTokenProvider.GetRefreshToken();
+
+        if (string.IsNullOrWhiteSpace(refreshToken))
+            return false;
+
+        var response = await PostAsync<RefreshTokenResponseDto>(
+            stAuthEndpoints.RotateRefreshToken,
+            new RefreshTokenRequestDto
+            {
+                RefreshToken = refreshToken
+            });
+
+        if (!response.Success || response.Data is null)
+            return false;
+
+        _tokenProvider.SetAccessToken(response.Data.AccessToken);
+
+        _refreshTokenProvider.SetRefreshToken(
+            response.Data.RefreshToken,
+            DateTime.UtcNow.AddDays(7));
+
+        return true;
+    }
+
+    #region Helpers
+
+    private async Task<ApiResponse<T>> PostAsync<T>(string endpoint, object data)
+    {
+        var content = new StringContent(
+            JsonConvert.SerializeObject(data),
+            Encoding.UTF8,
+            "application/json");
+
+        var response = await _httpClient.PostAsync(endpoint, content);
+
+        var json = await response.Content.ReadAsStringAsync();
+
+        var apiResponse = JsonConvert.DeserializeObject<ApiResponse<T>>(json);
+
+        return apiResponse ?? ApiResponse<T>.InternalServerError("Invalid API response.");
+    }
+
+    #endregion
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\UI\Services\AuthService.cs ====================
+
+using BL.Common;
+using BL.Common.Results;
+using BL.Contract.IServices;
+using BL.DTOs.Auth.Requests;
+using BL.DTOs.Auth.Responses;
+using Domain.Entities;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+
+namespace UI.Services;
+
+public class AuthService : IAuthService
+{
+    private readonly UserManager<ApplicationUser> _userManager;
+    private readonly SignInManager<ApplicationUser> _signInManager;
+
+    public AuthService(
+        UserManager<ApplicationUser> userManager,
+        SignInManager<ApplicationUser> signInManager)
+    {
+        _userManager = userManager;
+        _signInManager = signInManager;
+    }
+
+    //public async Task<RegisterResponseDto> RegisterAsync(RegisterRequestDto dto)
+    //{
+    //    var user = new ApplicationUser
+    //    {
+    //        FullName = dto.FullName,
+    //        Email = dto.Email,
+    //        UserName = dto.UserName,
+    //        PhoneNumber = dto.PhoneNumber,
+    //        Gender = dto.Gender,
+    //        DateOfBirth = dto.DateOfBirth,
+    //        ImageUrl = dto.ImageUrl
+    //    };
+
+    //    var result = await _userManager.CreateAsync(user, dto.Password);
+
+    //    if (!result.Succeeded)
+    //    {
+    //        return new RegisterResponseDto
+    //        {
+    //            Success = false,
+    //            //Errors = result.Errors.Select(e => e.Description).ToList()
+    //        };
+    //    }
+
+    //    await _userManager.AddToRoleAsync(user, "User");
+
+    //    return new RegisterResponseDto
+    //    {
+    //        Success = true,
+    //        UserId = Guid.Parse(user.Id),
+    //        Email = user.Email!,
+    //        UserName = user.UserName!
+    //    };
+    //}
+
+    //public async Task<Result<RegisterResponseDto>?> LoginAsync(LoginRequestDto dto)
+    //{
+    //    var user = await _userManager.Users.FirstOrDefaultAsync(x => x.UserName == dto.UsernameOrEmail || x.Email == dto.UsernameOrEmail);
+
+        
+    //    if (user == null)
+    //        return new RegisterResponseDto { Success = false };
+
+    //    await _signInManager.SignInAsync(user, isPersistent: false);
+
+    //    var result = await _signInManager
+    //        .CheckPasswordSignInAsync(user, dto.Password, true);
+
+    //    if (!result.Succeeded)
+    //        return new RegisterResponseDto { Success = false };
+
+    //    return new RegisterResponseDto
+    //    {
+    //        Success = true,
+    //        UserId = Guid.Parse(user.Id),
+    //        Email = user.Email!,
+    //        UserName = user.UserName!
+    //    };
+    //}
+
+    //public async Task<bool> ChangePasswordAsync(string userId, ChangePasswordRequstDto dto)
+    //{
+    //    var user = await _userManager.FindByIdAsync(userId);
+    //    if (user == null) return false;
+
+    //    var result = await _userManager.ChangePasswordAsync(
+    //        user,
+    //        dto.CurrentPassword,
+    //        dto.NewPassword);
+
+    //    return result.Succeeded;
+    //}
+
+    //public async Task<bool> ResetPasswordAsync(string email)
+    //{
+    //    var user = await _userManager.FindByEmailAsync(email);
+    //    if (user == null) return false;
+
+    //    var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+
+    //    var result = await _userManager.ResetPasswordAsync(user, token, "Temp@123");
+
+    //    return result.Succeeded;
+    //}
+
+    //public async Task<RegisterResponseDto> LogoutAsync()
+    //{
+    //    await _signInManager.SignOutAsync();
+    //    return new RegisterResponseDto { Success = true };
+    //}
+
+    public Task<IEnumerable<string>> GetRolesAsync(string userId)
+    {
+        throw new NotImplementedException();
+    }
+
+    Task<Result<TokenResponseDto>> IAuthService.LoginAsync(LoginRequestDto dto)
+    {
+        throw new NotImplementedException();
+    }
+
+    Task<Result<RegisterResponseDto>> IAuthService.RegisterAsync(RegisterRequestDto dto)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<Result> LogoutAsync(string userId)
+    {
+        throw new NotImplementedException();
+    }
+
+    Task<Result> IAuthService.ChangePasswordAsync(string Username, ChangePasswordRequstDto dto)
+    {
+        throw new NotImplementedException();
+    }
+
+    Task<Result> IAuthService.ResetPasswordAsync(string Username)
+    {
+        throw new NotImplementedException();
+    }
+
+    Task<Result<IEnumerable<string>>> IAuthService.GetRolesAsync(string userId)
+    {
+        throw new NotImplementedException();
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\UI\Services\GenericApiClient.cs ====================
+
+using BL.Common;
+using Newtonsoft.Json;
+using System.Net;
+using System.Net.Http.Headers;
+using System.Text;
+using UI.Services.Contracts;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+
+namespace UI.Services;
+
+/// <summary>
+/// A generic HTTP client service that provides a simplified interface for making API calls.
+/// This class abstracts the complexity of HttpClient and provides type-safe methods
+/// for common HTTP operations (GET, POST, PUT, DELETE).
+/// </summary>
+public class GenericApiClient
+{
+    private readonly HttpClient _httpClient;
+    private readonly ITokenProvider _tokenProvider;
+    private readonly ILogger<GenericApiClient> _logger;
+    private readonly ITokenRefreshService _tokenRefreshService;
+
+    public GenericApiClient(
+        IHttpClientFactory httpClientFactory,
+        IConfiguration configuration,
+        ITokenProvider tokenProvider,
+        ILogger<GenericApiClient> logger,
+        ITokenRefreshService tokenRefreshService)
+    {
+        ArgumentNullException.ThrowIfNull(httpClientFactory, nameof(httpClientFactory));
+        ArgumentNullException.ThrowIfNull(configuration, nameof(configuration));
+
+        _httpClient = httpClientFactory.CreateClient("ApiClient");
+        _tokenProvider = tokenProvider;
+        _logger = logger;
+        _tokenRefreshService = tokenRefreshService;
+
+        var baseUrl = configuration["ApiSettings:BaseUrl"]
+            ?? throw new InvalidOperationException("ApiSettings:BaseUrl is not configured.");
+
+        _httpClient.BaseAddress = new Uri(baseUrl);
+    }
+
+
+    /// <summary>
+    /// Sends an asynchronous GET request to the specified endpoint and returns ApiResponse{T}.
+    /// </summary>
+    public async Task<ApiResponse<T>> GetAsync<T>(string endpoint)
+    {
+        try
+        {
+            var response = await SendAsync(() => _httpClient.GetAsync(endpoint));
+            return await ProcessResponse<T>(response);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "GET request failed for {Endpoint}", endpoint);
+            return ApiResponse<T>.BadRequest($"Request failed: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Sends an asynchronous POST request to the specified endpoint and returns ApiResponse{T}.
+    /// </summary>
+    public async Task<ApiResponse<T>> PostAsync<T>(string endpoint, object? data)
+    {
+        try
+        {
+            var content = new StringContent(
+                JsonConvert.SerializeObject(data),
+                Encoding.UTF8,
+                "application/json");
+
+            var response = await SendAsync(() => _httpClient.PostAsync(endpoint, content));
+            return await ProcessResponse<T>(response);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "POST request failed for {Endpoint}", endpoint);
+            return ApiResponse<T>.BadRequest($"Request failed: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Sends an asynchronous PUT request to the specified endpoint and returns ApiResponse { T }.
+    /// </summary>
+    public async Task<ApiResponse<T>> PutAsync<T>(string endpoint, object data)
+    {
+        try
+        {
+            var content = new StringContent(
+                JsonConvert.SerializeObject(data),
+                Encoding.UTF8,
+                "application/json");
+
+            var response = await SendAsync(() => _httpClient.PutAsync(endpoint, content));
+            return await ProcessResponse<T>(response);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "PUT request failed for {Endpoint}", endpoint);
+            return ApiResponse<T>.BadRequest($"Request failed: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Sends an asynchronous DELETE request without expecting a response body.
+    /// </summary>
+    public async Task<bool> DeleteAsync(string endpoint)
+    {
+        try
+        {
+            var response = await SendAsync(() => _httpClient.DeleteAsync(endpoint));
+            return response.IsSuccessStatusCode;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "DELETE request failed for {Endpoint}", endpoint);
+            return false;
+        }
+    }
+
+    #region Private Methods
+    /// <summary>
+    /// Automatically add token from session (with safety checks)
+    /// </summary>
+    private void _AddAuthorizationHeader()
+    {
+        var token = _tokenProvider.GetAccessToken();
+
+        if (string.IsNullOrWhiteSpace(token))
+        {
+            _httpClient.DefaultRequestHeaders.Authorization = null;
+            return;
+        }
+
+        _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+    }
+    private async Task<ApiResponse<T>> ProcessResponse<T>(HttpResponseMessage response)
+    {
+        var responseContent = await response.Content.ReadAsStringAsync();
+
+        try
+        {
+            var apiResponse = JsonConvert.DeserializeObject<ApiResponse<T>>(responseContent);
+
+            if (apiResponse is not null)
+                return apiResponse;
+
+            return ApiResponse<T>.InternalServerError("Empty response.");
+
+        }
+        catch (JsonException ex)
+        {
+            _logger.LogError(ex, "Failed to deserialize response");
+
+            return ApiResponse<T>.InternalServerError("Invalid response format.");
+        }
+    }
+    private async Task<HttpResponseMessage> SendAsync(Func<Task<HttpResponseMessage>> request)
+    {
+        _AddAuthorizationHeader();
+
+        var response = await request();
+
+        if (response.StatusCode != HttpStatusCode.Unauthorized)
+            return response;
+
+        var refreshed = await _tokenRefreshService.RefreshAccessTokenAsync();
+
+        if (!refreshed)
+            return response;
+
+        _AddAuthorizationHeader();
+
+        return await request();
+    }
+
+    #endregion
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\UI\Services\MvcAuthService.cs ====================
+
+using BL.Common;
+using BL.DTOs.Auth.Requests;
+using BL.DTOs.Auth.Responses;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.JsonWebTokens;
+using System.Security.Claims;
+using UI.Endpoints;
+
+namespace UI.Services;
+
+public class MvcAuthService(GenericApiClient _apiClient)
+{
+    public async Task<(ApiResponse<TokenResponseDto> Response, ClaimsPrincipal? Principal)> LoginApiAsync(LoginRequestDto dto)
+    {
+        var response = await _apiClient.PostAsync<TokenResponseDto>(stAuthEndpoints.Login, dto);
+
+        if (!response.Success || response.Data == null)
+            return (response, null);
+
+        var principal = CreatePrincipal(response.Data);
+
+        return (response, principal);
+    }
+
+
+
+    #region Private methods
+    private ClaimsPrincipal CreatePrincipal(TokenResponseDto loginData)
+    {
+        var identity = new ClaimsIdentity(
+            BuildClaims(loginData),
+            IdentityConstants.ApplicationScheme);
+
+        return new ClaimsPrincipal(identity);
+    }
+    private List<Claim> BuildClaims(TokenResponseDto loginData)
+    {
+        var tokenHandler = new JsonWebTokenHandler();
+        var jwtToken = tokenHandler.ReadJsonWebToken(loginData.AccessToken);
+
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.NameIdentifier, GetClaimValue(jwtToken, ClaimTypes.NameIdentifier)),
+            new Claim(ClaimTypes.Name, GetClaimValue(jwtToken, ClaimTypes.Name)),
+            new Claim(ClaimTypes.Role, GetClaimValue(jwtToken, ClaimTypes.Role)),
+
+            // Optional custom claims
+            new Claim("AccessToken", loginData.AccessToken),
+            new Claim("Email", loginData.Email ?? string.Empty),
+            new Claim("UserId", loginData.UserId.ToString())
+        };
+
+        claims.AddRange(
+            jwtToken.Claims.Where(c =>
+                c.Type != ClaimTypes.NameIdentifier &&
+                c.Type != ClaimTypes.Name &&
+                c.Type != ClaimTypes.Role));
+
+        return claims;
+    }
+    private string GetClaimValue(JsonWebToken token, string claimType)
+    {
+        return token.Claims.FirstOrDefault(c => c.Type == claimType)?.Value ?? string.Empty;
+    }
+    #endregion
+
+
+
+
+    public Task<ApiResponse<RegisterResponseDto>> RegisterAsync(RegisterRequestDto dto)
+    {
+        return _apiClient.PostAsync<RegisterResponseDto>(
+            stAuthEndpoints.Register,
+            dto);
+    }
+
+
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\UI\Services\MvcShipmentService.cs ====================
+
+using BL.Common;
+using BL.DTOs.City;
+using BL.DTOs.PaymentMethod;
+using BL.DTOs.Shipment;
+using BL.DTOs.ShippingPackaging;
+using BL.DTOs.ShippingType;
+using BL.DTOs.UserReceiver;
+using BL.DTOs.UserSender;
+using UI.Endpoints;
+
+namespace UI.Services
+{
+    public class MvcShipmentService(GenericApiClient apiClient)
+    {
+        public Task<ApiResponse<Guid>> CreateShipmentAsync(CreateShipmentDto dto)
+        => apiClient.PostAsync<Guid>(stShipmentEndpoints.Create, dto);
+
+        public Task<ApiResponse<Guid>> CreateSenderAsync(CreateUserSenderDto dto)
+            => apiClient.PostAsync<Guid>(stLookupEndpoints.UserSenders, dto);
+
+        public Task<ApiResponse<Guid>> CreateReceiverAsync(CreateUserReceiverDto dto)
+            => apiClient.PostAsync<Guid>(stLookupEndpoints.UserReceivers, dto);
+
+        public Task<ApiResponse<List<CityDto>>> GetCitiesAsync()
+            => apiClient.GetAsync<List<CityDto>>(stLookupEndpoints.Cities);
+
+        public Task<ApiResponse<List<ShippingTypeDto>>> GetShippingTypesAsync()
+            => apiClient.GetAsync<List<ShippingTypeDto>>(stLookupEndpoints.ShippingTypes);
+
+        public Task<ApiResponse<List<ShippingPackagingDto>>> GetShippingPackagingAsync()
+            => apiClient.GetAsync<List<ShippingPackagingDto>>(stLookupEndpoints.ShippingPackaging);
+
+        public Task<ApiResponse<List<PaymentMethodDto>>> GetPaymentMethodsAsync()
+            => apiClient.GetAsync<List<PaymentMethodDto>>(stLookupEndpoints.PaymentMethods);
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\UI\Services\UserService.cs ====================
+
+using BL.Common;
+using BL.Common.Results;
+using BL.Contract.IServices;
+using BL.DTOs.User;
+using System.Security.Claims;
+using UI.Endpoints;
+
+namespace UI.Services;
+
+public class UserService(GenericApiClient apiClient) : IUserService
+{
+    
+
+    public Task<Result> DeleteAccountAsync(string userId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public async Task<ApiResponse<IEnumerable<UserDto>>> GetAllUsersAsync()
+    {
+        return await apiClient.GetAsync<IEnumerable<UserDto>>(stUserEndpoints.GetAll);
+    }
+
+    public async Task<ApiResponse<UserDto>> GetByIdAsync(Guid id)
+    {
+        return await apiClient.GetAsync<UserDto>($"{stUserEndpoints.GetById}/{id}");
+    }
+
+    public Task<Result<UserDto>> GetByIdAsync(string id)
+    {
+        throw new NotImplementedException();
+    }
+
+    public async Task<Guid> GetLoggedInUserAsync()
+    {
+        //var userId = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        //return !string.IsNullOrEmpty(userId) ? Guid.Parse(userId) : Guid.Empty;
+        throw new NotImplementedException();
+
+    }
+
+    public async Task<ApiResponse<UserDto>> GetUserByEmailOrUsernameAsync(string search)
+    {
+        return await apiClient.GetAsync<UserDto>(
+            $"{stUserEndpoints.Search}?emailOrUsername={search}");
+    }
+
+    public Task<Result> UpdateAsync(string updatedUserId, UpdateUserDto dto)
+    {
+        throw new NotImplementedException();
+    }
+
+    Task<Result<IEnumerable<UserDto>>> IUserService.GetAllUsersAsync()
+    {
+        throw new NotImplementedException();
+    }
+
+    Task<Result<UserDto>> IUserService.GetUserByEmailOrUsernameAsync(string emailOrUsername)
+    {
+        throw new NotImplementedException();
+    }
+
+    //public async Task<ApiResponse> UpdateAsync(UpdateUserDto dto)
+    //{
+    //    return await apiClient.PutAsync(stUserEndpoints.Update, dto);
+    //}
+
+    //public async Task<ApiResponse> DeleteAccountAsync(Guid id)
+    //{
+    //    return await apiClient.DeleteAsync(stUserEndpoints.Delete, id);
+    //}
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\UI\Program.cs ====================
+
+using DAL.Context;
+using DAL.Seeding;
+using Domain.Entities;
+using Microsoft.AspNetCore.Identity;
+
+var builder = WebApplication.CreateBuilder(args);
+
+#region DIC
+// Add services to the container.
+builder.Services.AddControllersWithViews();
+
+//builder.Host.AddSerilogLogging(builder.Configuration);
+builder.Services.AddPersistence(builder.Configuration, builder.Environment);
+
+builder.Services.AddRepositories();
+builder.Services.AddServices();
+builder.Services.AddValidators();
+builder.Services.AddIdentityConfig();
+builder.Services.AddHttpClientCallingApi();
+builder.Services.AddSessionServices();
+
+// Simulate current user service for demonstration purposes
+//builder.Services.AddSingleton<ICurrentUserService, CurrentUserService>();
+#endregion
+
+var app = builder.Build();
+
+// Enabled seeding data 
+bool WantedToSeed = false;
+
+if (WantedToSeed)
+{
+    // Seed the database with initial data
+    using (var scope = app.Services.CreateScope())
+    {
+        var services = scope.ServiceProvider;
+
+        var context = services.GetRequiredService<ShippingDbContext>();
+        var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
+        var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+
+        await IdentitySeeder.SeedAsync(context, userManager, roleManager);
+    }
+}
+
+// Configure the HTTP request pipeline.
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/Home/Error");
+    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+    app.UseHsts();
+}
+
+
+app.UseHttpsRedirection();
+app.UseStaticFiles();
+
+app.UseRouting();
+
+// Warningâš : must be done before UseAuthentication()
+app.UseSession();
+
+app.UseAuthentication();
+app.UseAuthorization();
+app.Use(async (context, next) =>
+{
+    // âœ… Ø¥Ø°Ø§ ÙƒØ§Ù† Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù… Ù…ØµØ§Ø¯Ù‚Ø§Ù‹ ÙˆØ§Ù„Ù…Ø³Ø§Ø± Ù‡Ùˆ Login Ø£Ùˆ Ø§Ù„ØµÙØ­Ø© Ø§Ù„Ø±Ø¦ÙŠØ³ÙŠØ©
+    if (context.User.Identity?.IsAuthenticated == true)
+    {
+        var path = context.Request.Path.Value?.ToLower();
+
+        // Ø¥Ø°Ø§ ÙƒØ§Ù† ÙÙŠ ØµÙØ­Ø© Login Ø£Ùˆ Ø§Ù„ØµÙØ­Ø© Ø§Ù„Ø±Ø¦ÙŠØ³ÙŠØ©
+        if (path == "/" || path == "/account/login" || string.IsNullOrEmpty(path))
+        {
+            context.Response.Redirect("/Admin/Dashboard");
+            return;
+        }
+    }
+
+    await next();
+});
+
+
+app.MapControllerRoute(
+    name: "areas",
+    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
+
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Account}/{action=Login}/{id?}");
+
+
+app.Run();

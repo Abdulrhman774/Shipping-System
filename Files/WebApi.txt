@@ -1,0 +1,1947 @@
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\WebApi\Controllers\ExceptionHandlerController\ErrorController.cs ====================
+
+using DAL.Exceptions;
+using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Mvc;
+
+namespace WebApi.Controllers;
+
+[ApiController]
+public class ErrorController : ControllerBase
+{
+    [HttpGet("/error")]
+    public IActionResult Error()
+    {
+        var exception = HttpContext.Features.Get<IExceptionHandlerFeature>()?.Error;
+
+        ProblemDetails problemDetails = exception switch
+        {
+            DataAccessException ex => new ProblemDetails
+            {
+                Type = "https://api.myshipping.com/problems/database-error",
+                Title = "Database Error",
+                Status = StatusCodes.Status500InternalServerError,
+                Detail = ex.Message,
+                Instance = HttpContext.Request.Path
+            },
+
+            _ => new ProblemDetails
+            {
+                Type = "https://yourapi.com/probs/internal-server-error",
+                Title = "Internal Server Error",
+                Status = StatusCodes.Status500InternalServerError,
+                Detail = "An unexpected error occurred.",
+                Instance = HttpContext.Request.Path
+            }
+        };
+
+        return StatusCode(problemDetails.Status!.Value, problemDetails);
+    }
+
+    [HttpGet("/error-development")]
+    public IActionResult ErrorDevelopment(
+        [FromServices] IWebHostEnvironment env)
+    {
+        if (!env.IsDevelopment())
+            return NotFound();
+
+        var exception = HttpContext.Features.Get<IExceptionHandlerFeature>()?.Error;
+
+        var problemDetails = new ProblemDetails
+        {
+            Type = "about:blank",
+            Title = exception?.GetType().Name,
+            Status = StatusCodes.Status500InternalServerError,
+            Detail = exception?.Message,
+            Instance = HttpContext.Request.Path
+        };
+
+        problemDetails.Extensions["stackTrace"] = exception?.StackTrace;
+        problemDetails.Extensions["timestamp"] = DateTime.UtcNow;
+
+        return StatusCode(problemDetails.Status!.Value, problemDetails);
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\WebApi\Controllers\AuthController.cs ====================
+
+using BL.Contract.IServices;
+using BL.DTOs.Auth.Requests;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
+using WebApi.Extensions;
+using WebApi.Services;
+
+namespace WebApi.Controllers;
+
+[ApiConventionType(typeof(ApiConventions))]
+[ApiController]
+[Route("Api/Auth")]
+public class AuthController : ControllerBase
+{
+    private readonly TokenService _tokenService;  
+    private readonly IAuthService _authService;
+
+    public AuthController(TokenService tokenService, IAuthService authService)
+    {
+        _tokenService = tokenService;
+        _authService = authService;
+    }
+
+    [AllowAnonymous]
+    [HttpPost("Register")]
+    [EnableRateLimiting("AuthLimiter")]
+    public async Task<IActionResult> Register([FromForm] RegisterRequestDto request)
+    {
+        var result = await _authService.RegisterAsync(request);
+
+        return result.ToActionResult(this);
+    }
+
+    [AllowAnonymous]
+    [EnableRateLimiting("AuthLimiter")]
+    [HttpPost("Login")]
+    public async Task<IActionResult> Login([FromBody] LoginRequestDto dto)
+    {
+        var response = await _authService.LoginAsync(dto);
+
+        return response.ToActionResult(this);
+    }
+
+    [Authorize]
+    [HttpPost("RotateRefreshToken")]
+    public async Task<IActionResult> RotateRefreshToken(
+    [FromBody] RefreshTokenRequestDto dto)
+    {
+        var result = await _tokenService.RotateRefreshTokenAsync(dto.RefreshToken);
+
+        return result.ToActionResult(this);
+    }
+
+
+    [Authorize]
+    [HttpPost("Refresh-AccessToken")]
+    public async Task<IActionResult> RefreshAccessToken(
+    [FromBody] RefreshTokenRequestDto dto)
+    {
+        var result = await _tokenService.RefreshAccessTokenAsync(dto.RefreshToken);
+
+        return result.ToActionResult(this);
+    }
+
+    [Authorize]
+    [HttpPost("Logout")]
+    public async Task<IActionResult> Logout(string userId)
+    {
+        var result = await _authService.LogoutAsync(userId);
+
+        return result.ToActionResult(this);
+    }
+
+    [Authorize]
+    [HttpPost("ChangePassword")]
+    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequstDto dto)
+    {
+        var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+        if (string.IsNullOrWhiteSpace(userId))
+            return Unauthorized();
+
+        var result = await _authService.ChangePasswordAsync(userId, dto);
+
+        return result.ToActionResult(this);
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\WebApi\Controllers\BaseController.cs ====================
+
+using BL.Contract;
+using Domain.Shared;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using WebApi.Extensions;
+
+namespace WebApi.Controllers;
+
+[Route("api/[controller]")]
+[ApiController]
+public abstract class BaseController<TService, T, TDto, TCreateDto, TUpdateDto> : ControllerBase
+    where TService : IBaseService<T, TDto, TCreateDto, TUpdateDto>
+    where T : BaseEntity
+{
+    protected readonly TService _service;
+
+    protected BaseController(TService service)
+    {
+        _service = service;
+    }
+
+    [HttpGet]
+    public virtual async Task<IActionResult> GetAll()
+    {
+        var result = await _service.GetAllAsync();
+        return result.ToActionResult(this);
+    }
+
+    [HttpGet("{id:guid}")]
+    public virtual async Task<IActionResult> GetById(Guid id)
+    {
+        var result = await _service.GetByIdAsync(id);
+        return result.ToActionResult(this);
+    }
+
+    [HttpPost]
+    public virtual async Task<IActionResult> Create([FromBody] TCreateDto dto)
+    {
+        var result = await _service.AddAsync(dto);
+        return result.ToActionResult(this);
+    }
+
+    [HttpPut("{id:guid}")]
+    public virtual async Task<IActionResult> Update(Guid id, [FromBody] TUpdateDto dto)
+    {
+        var result = await _service.UpdateAsync(id, dto);
+        return result.ToActionResult(this);
+    }
+
+    [HttpDelete]
+    public virtual async Task<IActionResult> Delete([FromBody] Guid id)
+    {
+        var result = await _service.DeleteAsync(id);
+        return result.ToActionResult(this);
+    }
+
+    [HttpPatch("{id:guid}/status")]
+    public virtual async Task<IActionResult> ChangeStatus(Guid id, [FromQuery] enEntityState status = enEntityState.Active)
+    {
+        var result = await _service.ChangeStatusAsync(id, status);
+        return result.ToActionResult(this);
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\WebApi\Controllers\CarrierController.cs ====================
+
+using BL.Contract.IServices;
+using BL.DTOs.Carrier;
+using Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+namespace WebApi.Controllers;
+
+[Authorize]
+[Route("Api/Carrier")]
+public class CarrierController : BaseController<ICarrierService, TbCarrier, CarrierDto, CreateCarrierDto, UpdateCarrierDto>
+{
+    public CarrierController(ICarrierService service) : base(service)
+    {
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\WebApi\Controllers\CityController.cs ====================
+
+using BL.Contract.IServices;
+using BL.DTOs.City;
+using Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+namespace WebApi.Controllers;
+
+[Authorize]
+[Route("Api/City")]
+public class CityController : BaseController<ICityService, TbCity, CityDto, CreateCityDto, UpdateCityDto>
+{
+    public CityController(ICityService service) : base(service)
+    {
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\WebApi\Controllers\CountryController.cs ====================
+
+using BL.Contract.IServices;
+using BL.DTOs.Country;
+using Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+namespace WebApi.Controllers;
+
+[Authorize]
+[Route("Api/Country")]
+public class CountryController : BaseController<ICountryService, TbCountry, CountryDto, CreateCountryDto, UpdateCountryDto>
+{
+    public CountryController(ICountryService service) : base(service)
+    {
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\WebApi\Controllers\HomeController.cs ====================
+
+using BL.Contract.IServices;
+using BL.DTOs.PaymentMethod;
+using Domain.Shared;
+using Microsoft.AspNetCore.Mvc;
+using WebApi.Extensions;
+
+namespace WebApi.Controllers;
+
+[ApiController]
+[Route("Api/[controller]")]
+public class PaymentMethodController : ControllerBase
+{
+    private readonly IPaymentMethodService _service;
+
+
+public PaymentMethodController(IPaymentMethodService service)
+    {
+        _service = service;
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetAll()
+    {
+        var result = await _service.GetAllAsync();
+
+        return result.ToActionResult(this);
+    }
+
+    [HttpGet("{id:guid}")]
+    public async Task<IActionResult> GetById(Guid id)
+    {
+        var result = await _service.GetByIdAsync(id);
+
+        return result.ToActionResult(this);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Create([FromBody] CreatePaymentMethodDto dto)
+    {
+        var result = await _service.AddAsync(dto);
+
+        return result.ToActionResult(this);
+    }
+
+    [HttpPut("{id:guid}")]
+    public async Task<IActionResult> Update(
+        Guid id,
+        [FromBody] UpdatePaymentMethodDto dto)
+    {
+        var result = await _service.UpdateAsync(id, dto);
+
+        return result.ToActionResult(this);
+    }
+
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        var result = await _service.DeleteAsync(id);
+
+        return result.ToActionResult(this);
+    }
+
+
+    [HttpPatch("{id:guid}/status/{status:int}")]
+    public async Task<IActionResult> ChangeStatus(
+        Guid id,
+        enEntityState status)
+    {
+        var result = await _service.ChangeStatusAsync(id, status);
+
+        return result.ToActionResult(this);
+    }
+
+
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\WebApi\Controllers\SettingController.cs ====================
+
+using BL.Contract.IServices;
+using BL.DTOs.Setting;
+using Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+namespace WebApi.Controllers;
+
+[Authorize]
+[Route("Api/Setting")]
+public class SettingController : BaseController<ISettingService, TbSetting, SettingDto, CreateSettingDto, UpdateSettingDto>
+{
+    public SettingController(ISettingService service) : base(service)
+    {
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\WebApi\Controllers\ShipmentController.cs ====================
+
+using BL.Contract.IServices.Shipment;
+using BL.DTOs.Shipment;
+using Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+namespace WebApi.Controllers;
+
+[Authorize]
+[Route("Api/Shipment")]
+public class ShipmentController : BaseController<IShipmentService, TbShipment, ShipmentDto, CreateShipmentDto, UpdateShipmentDto>
+{
+    private readonly IShipmentService _shipmentService;
+    public ShipmentController(IShipmentService service) : base(service) { _shipmentService = service; }
+
+    [HttpPost("CreateShipment")]
+    //    [Authorize(Roles = "User")]
+    [AllowAnonymous]
+    public async Task<IActionResult> CreateShipment([FromBody] CreateShipmentDto dto)
+    {
+        var result = await _shipmentService.CreateShipment(dto);
+
+        if (result.IsFailure)
+            return BadRequest(result.Errors);
+
+        return Ok(result.Value);
+    }
+
+
+    [HttpGet("GetAllShipments")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetAllShipments()
+    {
+        var result = await _shipmentService.GetAllAsync();
+        if (result.IsFailure)
+            return NotFound(result.Errors);
+        return Ok(result.Value);
+    }
+
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\WebApi\Controllers\ShipmentStatusController.cs ====================
+
+using BL.Contract.IServices;
+using BL.DTOs.ShipmentStatus;
+using Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+namespace WebApi.Controllers;
+
+[Authorize]
+[Route("Api/ShipmentStatus")]
+public class ShipmentStatusController : BaseController<IShipmentStatusService, TbShipmentStatus, ShipmentStatusDto, CreateShipmentStatusDto, UpdateShipmentStatusDto>
+{
+    public ShipmentStatusController(IShipmentStatusService service) : base(service)
+    {
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\WebApi\Controllers\ShippingPackagingController.cs ====================
+
+using BL.Contract.IServices;
+using BL.DTOs.ShippingPackaging;
+using Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+namespace WebApi.Controllers;
+
+[Authorize]
+[Route("Api/ShippingPackaging")]
+public class ShippingPackagingController : BaseController<IShippingPackagingService, TbShippingPackaging, ShippingPackagingDto, CreateShippingPackagingDto, UpdateShippingPackagingDto>
+{
+    public ShippingPackagingController(IShippingPackagingService service) : base(service)
+    {
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\WebApi\Controllers\ShippingTypeController.cs ====================
+
+using BL.Contract.IServices;
+using BL.DTOs.ShippingType;
+using Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+namespace WebApi.Controllers;
+
+[Authorize]
+[Route("Api/ShippingType")]
+public class ShippingTypeController : BaseController<IShippingTypeService, TbShippingType, ShippingTypeDto, CreateShippingTypeDto, UpdateShippingTypeDto>
+{
+    public ShippingTypeController(IShippingTypeService service) : base(service)
+    {
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\WebApi\Controllers\SubscriptionPackageController.cs ====================
+
+using BL.Contract.IServices;
+using BL.DTOs.SubscriptionPackage;
+using Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+namespace WebApi.Controllers;
+
+[Authorize]
+[Route("Api/SubscriptionPackage")]
+public class SubscriptionPackageController : BaseController<ISubscriptionPackageService, TbSubscriptionPackage, SubscriptionPackageDto, CreateSubscriptionPackageDto, UpdateSubscriptionPackageDto>
+{
+    public SubscriptionPackageController(ISubscriptionPackageService service) : base(service)
+    {
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\WebApi\Controllers\TestController.cs ====================
+
+using BL.Contract.IServices.Shipment;
+using BL.DTOs.Shipment;
+using BL.Services.Shipment;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using WebApi.Extensions;
+
+namespace WebApi.Controllers;
+
+[Route("api/[controller]")]
+[ApiController]
+[ApiConventionType(typeof(ApiConventions))]
+public class TestController(IShipmentService shipmentService) : ControllerBase
+{
+    private readonly IShipmentService _shipmentService = shipmentService;
+
+    [AllowAnonymous]
+    [HttpGet("testPublic")]
+    public IActionResult testPublic()
+    {
+        return Ok("? Public endpoint — no token needed.");
+    }
+
+    [Authorize]
+    [HttpGet("testProtected")]
+    public IActionResult testProtected()
+    {
+        return Ok("? JWT is valid — you are authenticated.");
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpGet("admin")]
+    public IActionResult AdminOnly()
+    {
+        return Ok("? You have the Admin role.");
+    }
+
+    [Authorize(Roles = "User")]
+    [HttpGet("user")]
+    public IActionResult UserOnly()
+    {
+        return Ok("? You have the User role.");
+    }
+
+
+    [HttpPost("CreateShipment")]
+    //    [Authorize(Roles = "User")]
+    [AllowAnonymous]
+    public async Task<IActionResult> CreateShipment([FromBody] CreateShipmentDto dto)
+    {
+        var result = await _shipmentService.CreateShipment(dto);
+
+        if (result.IsFailure)
+            return BadRequest(result.Errors);
+
+        return Ok(result.Value);
+    }
+
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\WebApi\Controllers\UserController.cs ====================
+
+using BL.Contract.IServices;
+using BL.DTOs.User;
+using Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
+using WebApi.Extensions;
+
+namespace WebApi.Controllers;
+
+[Authorize]
+[ApiController]
+[Route("Api/User")]
+[ApiConventionType(typeof(ApiConventions))]
+public class UserController : ControllerBase
+{
+    private readonly IUserService _userService;
+
+    public UserController(IUserService userService)
+    {
+        _userService = userService;
+    }
+
+    [AllowAnonymous]
+    [HttpGet]
+    public async Task<IActionResult> GetAll()
+    {
+        var result = await _userService.GetAllUsersAsync();
+
+        return result.ToActionResult(this);
+    }
+
+    [HttpGet("{id}")]
+    [Authorize(Roles = "User")]
+    public async Task<IActionResult> GetById(string id)
+    {
+        var result = await _userService.GetByIdAsync(id);
+
+        return result.ToActionResult(this);
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpGet("Search")]
+    public async Task<IActionResult> GetByEmailOrUsername([FromQuery] string emailOrUsername)
+    {
+        var result = await _userService.GetUserByEmailOrUsernameAsync(emailOrUsername);
+
+        return result.ToActionResult(this);
+    }
+
+    
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(
+        string id,
+        [FromBody] UpdateUserDto dto)
+    {
+        var result = await _userService.UpdateAsync(id, dto);
+
+        return result.ToActionResult(this);
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpDelete]
+    public async Task<IActionResult> DeleteUser([FromBody] string id)
+    {
+        var result = await _userService.DeleteAccountAsync(id);
+
+        return result.ToActionResult(this);
+    }
+
+    [Authorize]
+    [HttpDelete("Me")]
+    public async Task<IActionResult> DeleteMyAccount()
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (string.IsNullOrWhiteSpace(userId))
+            return Unauthorized();
+
+        var result = await _userService.DeleteAccountAsync(userId);
+
+        return result.ToActionResult(this);
+    }
+
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\WebApi\Controllers\UserReceiverController.cs ====================
+
+using BL.Contract.IServices;
+using BL.DTOs.UserReceiver;
+using Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+namespace WebApi.Controllers;
+
+[Authorize]
+[Route("Api/UserReceiver")]
+public class UserReceiverController : BaseController<IUserReceiverService, TbUserReceiver, UserReceiverDto, CreateUserReceiverDto, UpdateUserReceiverDto>
+{
+    public UserReceiverController(IUserReceiverService service) : base(service)
+    {
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\WebApi\Controllers\UserSenderController.cs ====================
+
+using BL.Contract.IServices;
+using BL.DTOs.UserSender;
+using Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+namespace WebApi.Controllers;
+
+[Authorize]
+[Route("Api/UserSender")]
+public class UserSenderController : BaseController<IUserSenderService, TbUserSender, UserSenderDto, CreateUserSenderDto, UpdateUserSenderDto>
+{
+    public UserSenderController(IUserSenderService service) : base(service)
+    {
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\WebApi\Controllers\UserSubscriptionController.cs ====================
+
+using BL.Contract.IServices;
+using BL.DTOs.UserSubscription;
+using Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+namespace WebApi.Controllers;
+
+[Authorize]
+[Route("Api/UserSubscription")]
+public class UserSubscriptionController : BaseController<IUserSubscriptionService, TbUserSubscription, UserSubscriptionDto, CreateUserSubscriptionDto, UpdateUserSubscriptionDto>
+{
+    public UserSubscriptionController(IUserSubscriptionService service) : base(service)
+    {
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\WebApi\Extensions\ApiConventions.cs ====================
+
+using Microsoft.AspNetCore.Mvc;
+
+namespace WebApi.Extensions;
+
+public static class ApiConventions
+{
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status429TooManyRequests)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public static void Default() { }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\WebApi\Extensions\ResultExtensions.cs ====================
+
+using BL.Common;
+using BL.Common.Results;
+using Microsoft.AspNetCore.Mvc;
+
+namespace WebApi.Extensions;
+
+public static class ResultExtensions
+{
+    public static IActionResult ToActionResult<T>(this Result<T> result, ControllerBase controller)
+    {
+        if (result.IsSuccess)
+        {
+            return controller.Ok(
+                ApiResponse<T>.Ok(result.Value));
+        }
+
+        var error = result.FirstError;
+
+        var response = error?.Type switch
+        {
+            enErrorKind.Validation =>
+                ApiResponse<T>.BadRequest(error.Description),
+
+            enErrorKind.NotFound =>
+                ApiResponse<T>.NotFound(error.Description),
+
+            enErrorKind.Unauthorized =>
+                ApiResponse<T>.Unauthorized(error.Description),
+
+            enErrorKind.Forbidden =>
+                ApiResponse<T>.Forbidden(error.Description),
+
+            enErrorKind.Conflict =>
+                ApiResponse<T>.Conflict(error.Description),
+   
+            _ =>
+                ApiResponse<T>.InternalServerError(error?.Description ?? "Server side error"),
+        };
+
+        return controller.StatusCode(response.StatusCode, response);
+    }
+
+    public static IActionResult ToActionResult(
+    this Result result,
+    ControllerBase controller)
+    {
+        if (result.IsSuccess)
+        {
+            return controller.Ok(
+                ApiResponse.Succeded());
+        }
+
+        var error = result.Errors.First();
+
+        var response = error.Type switch
+        {
+            enErrorKind.Validation =>
+                ApiResponse.BadRequest(error.Description),
+
+            enErrorKind.NotFound =>
+                ApiResponse.NotFound(error.Description),
+
+            enErrorKind.Unauthorized =>
+                ApiResponse.Unauthorized(error.Description),
+
+            enErrorKind.Forbidden =>
+                ApiResponse.Forbidden(error.Description),
+
+            enErrorKind.Conflict =>
+                ApiResponse.Conflict(error.Description),
+
+            _ =>
+                ApiResponse.InternalServerError(
+                    error.Description)
+        };
+
+        return controller.StatusCode(response.StatusCode, response);
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\WebApi\Extensions\SeederExtensions.cs ====================
+
+using DAL.Context;
+using DAL.Seeding;
+using Domain.Entities;
+using Microsoft.AspNetCore.Identity;
+
+namespace WebApi.Extensions;
+
+public static class SeederExtensions
+{
+    public static async Task SeedDatabaseAsync(WebApplication app, bool shouldSeed)
+    {
+        if (!shouldSeed)
+            return;
+
+        using var scope = app.Services.CreateScope();
+
+        var services = scope.ServiceProvider;
+
+        var context = services.GetRequiredService<ShippingDbContext>();
+        var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
+        var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+
+        await IdentitySeeder.SeedAsync(context, userManager, roleManager);
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\WebApi\Extensions\ServiceExtensions.cs ====================
+
+using BL.Contract.IServices;
+using BL.Contract.IServices.Shipment;
+using BL.Contract.IvwServices;
+using BL.DTOs.Auth;
+using BL.DTOs.Auth.Requests;
+using BL.DTOs.Carrier;
+using BL.DTOs.City;
+using BL.DTOs.Country;
+using BL.DTOs.PaymentMethod;
+using BL.DTOs.Setting;
+using BL.DTOs.Shipment;
+using BL.DTOs.ShipmentStatus;
+using BL.DTOs.ShippingPackaging;
+using BL.DTOs.ShippingType;
+using BL.DTOs.SubscriptionPackage;
+using BL.DTOs.UserReceiver;
+using BL.DTOs.UserSender;
+using BL.DTOs.UserSubscription;
+using BL.Mapping;
+using BL.Services;
+using BL.Services.Shipment;
+using BL.Services.vwServices;
+using BL.Validators.Auth;
+using BL.Validators.Carrier;
+using BL.Validators.City;
+using BL.Validators.Country;
+using BL.Validators.PaymentMethod;
+using BL.Validators.Setting;
+using BL.Validators.Shipment;
+using BL.Validators.ShipmentStatus;
+using BL.Validators.ShippingPackaging;
+using BL.Validators.ShippingType;
+using BL.Validators.SubscriptionPackage;
+using BL.Validators.UserReceiver;
+using BL.Validators.UserSender;
+using BL.Validators.UserSubscription;
+using DAL.Context;
+using DAL.Contracts;
+using DAL.Contracts.IRepositories;
+using DAL.Repositories;
+using DAL.Repositories.Generic;
+using Domain.Entities;
+using FluentValidation;
+using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using Serilog;
+using Serilog.Sinks.MSSqlServer;
+using System.Text;
+using System.Threading.RateLimiting;
+using WebApi.Services;
+
+namespace Microsoft.Extensions.DependencyInjection
+{
+    public static class ServiceExtensions
+    {
+        public static IServiceCollection AddPersistence(this IServiceCollection services, IConfiguration configuration, IWebHostEnvironment env)
+        {
+            #region DbContext
+            services.AddDbContext<ShippingDbContext>(options =>
+            {
+                var connectionString = configuration.GetConnectionString("DefaultConnection");
+
+                options.UseSqlServer(connectionString);
+
+                if (env.IsDevelopment())
+                {
+                    options.LogTo(Console.WriteLine, LogLevel.Information)
+                           .EnableSensitiveDataLogging()
+                           .EnableDetailedErrors();
+                }
+            });
+            #endregion
+
+            return services;
+        }
+
+        public static IHostBuilder AddSerilogLogging(this IHostBuilder hostBuilder, IConfiguration configuration)
+        {
+            Serilog.Log.Logger = new LoggerConfiguration()
+                .WriteTo.Console()
+                .WriteTo.MSSqlServer(
+                    connectionString: configuration.GetConnectionString("DefaultConnection"),
+                    sinkOptions: new MSSqlServerSinkOptions
+                    {
+                        TableName = "Logs",
+                        AutoCreateSqlTable = true
+                    })
+                .CreateLogger();
+
+            hostBuilder.UseSerilog();
+
+            return hostBuilder;
+        }
+
+        public static IServiceCollection AddRepositories(this IServiceCollection services)
+        {
+            services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+            services.AddScoped(typeof(IViewRepository<>), typeof(ViewRepository<>));
+
+            services.AddScoped<ICarrierRepository, CarrierRepository>();
+            services.AddScoped<ICityRepository, CityRepository>();
+            services.AddScoped<ICountryRepository, CountryRepository>();
+            services.AddScoped<IPaymentMethodRepository, PaymentMethodRepository>();
+            services.AddScoped<ISettingRepository, SettingRepository>();
+            services.AddScoped<IShippingTypeRepository, ShippingTypeRepository>();
+            services.AddScoped<IShippmentRepository, ShippmentRepository>();
+            services.AddScoped<IShippmentStatusRepository, ShippmentStatusRepository>();
+            services.AddScoped<ISubscriptionPackageRepository, SubscriptionPackageRepository>();
+            services.AddScoped<IUserReceiverRepository, UserReceiverRepository>();
+            services.AddScoped<IUserSenderRepository, UserSenderRepository>();
+            services.AddScoped<IUserSubscriptionRepository, UserSubscriptionRepository>();
+
+            return services;
+        }
+
+        public static IServiceCollection AddServices(this IServiceCollection services)
+        {
+            // deprecated: using generic base service for all entities, as it may not fit all cases and may cause issues with specific logic for certain entities
+            //services.AddScoped(typeof(IBaseService<T, TDto, TCreateDto, TUpdateDto>), typeof(BaseService<T, TDto, TCreateDto, TUpdateDto>));
+
+            #region Views-specific services
+            services.AddScoped<IVwCitiesCountriesService, VwCitiesCountriesService>();
+            #endregion
+
+            #region Mapping services
+            services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
+            services.AddScoped<BL.Mapping.IMapper, BL.Mapping.AutoMapper>();
+            #endregion
+
+            #region Auth - UserManager, SignInManager, etc. services
+            services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IRefreshTokenService, RefreshTokenService>();
+            services.AddScoped<TokenService>();
+
+            #endregion
+
+            #region Entity-specific services
+            services.AddScoped<ICarrierService, CarrierService>();
+            services.AddScoped<ICityService, CityService>();
+            services.AddScoped<ICountryService, CountryService>();
+            services.AddScoped<IPaymentMethodService, PaymentMethodService>();
+            services.AddScoped<ISettingService, SettingService>();
+            services.AddScoped<IShippingTypeService, ShippingTypeService>();
+            services.AddScoped<IShipmentService, ShipmentService>();
+            services.AddScoped<IShipmentStatusService, ShipmentStatusService>();
+            services.AddScoped<ISubscriptionPackageService, SubscriptionPackageService>();
+            services.AddScoped<IUserReceiverService, UserReceiverService>();
+            services.AddScoped<IUserSenderService, UserSenderService>();
+            services.AddScoped<IUserSubscriptionService, UserSubscriptionService>();            
+            services.AddScoped<IShippingPackagingService, ShippingPackagingService>();
+
+            services.AddScoped<IRateCalculator, RateCalculator>();
+            services.AddScoped<ITrackingNumberCalculator, TrackingNumberCalculator>();
+            services.AddScoped<IDistanceService, DistanceService>();
+            #endregion
+
+
+            // Unit of Work
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+            return services;
+        }
+
+        public static IServiceCollection AddValidators(this IServiceCollection services)
+        {
+            services.AddFluentValidationAutoValidation();
+
+            services.AddScoped<IValidator<ChangePasswordRequstDto>, ChangePasswordRequestDtoValidator>();
+            services.AddScoped<IValidator<LoginRequestDto>, LoginRequestDtoValidator>();
+            services.AddScoped<IValidator<RefreshRequestDto>, RefreshRequestDtoValidator>();
+            services.AddScoped<IValidator<RefreshTokenRequestDto>, RefreshTokenRequestDtoValidator>();
+            services.AddScoped<IValidator<RegisterRequestDto>, RegisterRequestDtoValidator>();
+
+            services.AddScoped<IValidator<CreateCarrierDto>, CreateCarrierDtoValidator>();
+            services.AddScoped<IValidator<UpdateCarrierDto>, UpdateCarrierDtoValidator>();
+
+            services.AddScoped<IValidator<CreateCityDto>, CreateCityDtoValidator>();
+            services.AddScoped<IValidator<UpdateCityDto>, UpdateCityDtoValidator>();
+
+            services.AddScoped<IValidator<CreateCountryDto>, CreateCountryDtoValidator>();
+            services.AddScoped<IValidator<UpdateCountryDto>, UpdateCountryDtoValidator>();
+
+            services.AddScoped<IValidator<CreatePaymentMethodDto>, CreatePaymentMethodDtoValidator>();
+            services.AddScoped<IValidator<UpdatePaymentMethodDto>, UpdatePaymentMethodDtoValidator>();
+
+            services.AddScoped<IValidator<UpdateSettingDto>, UpdateSettingDtoValidator>();
+
+            services.AddScoped<IValidator<CreateShippingTypeDto>, CreateShippingTypeDtoValidator>();
+            services.AddScoped<IValidator<UpdateShippingTypeDto>, UpdateShippingTypeDtoValidator>();
+
+            services.AddScoped<IValidator<CreateShipmentDto>, CreateShipmentDtoValidator>();
+            services.AddScoped<IValidator<UpdateShipmentDto>, UpdateShipmentDtoValidator>();
+
+            services.AddScoped<IValidator<CreateShipmentStatusDto>, CreateShipmentStatusDtoValidator>();
+            services.AddScoped<IValidator<UpdateShipmentStatusDto>, UpdateShipmentStatusDtoValidator>();
+
+            services.AddScoped<IValidator<CreateSubscriptionPackageDto>, CreateSubscriptionPackageDtoValidator>();
+            services.AddScoped<IValidator<UpdateSubscriptionPackageDto>, UpdateSubscriptionPackageDtoValidator>();
+
+            services.AddScoped<IValidator<CreateUserReceiverDto>, CreateUserReceiverDtoValidator>();
+            services.AddScoped<IValidator<UpdateUserReceiverDto>, UpdateUserReceiverDtoValidator>();
+
+            services.AddScoped<IValidator<CreateUserSenderDto>, CreateUserSenderDtoValidator>();
+            services.AddScoped<IValidator<UpdateUserSenderDto>, UpdateUserSenderDtoValidator>();
+
+            services.AddScoped<IValidator<CreateUserSubscriptionDto>, CreateUserSubscriptionDtoValidator>();
+            services.AddScoped<IValidator<UpdateUserSubscriptionDto>, UpdateUserSubscriptionDtoValidator>();
+
+            services.AddScoped<IValidator<CreateShippingPackagingDto>,CreateShippingPackagingDtoValidator>();
+
+            services.AddScoped<IValidator<UpdateShippingPackagingDto>,UpdateShippingPackagingDtoValidator>();
+
+            return services;
+        }
+
+        public static IServiceCollection AddCorsPolicy(this IServiceCollection services, string corsPolicy)
+        {
+
+            services.AddCors(options =>
+            {
+                options.AddPolicy(corsPolicy, policy =>
+                {
+                    policy
+                        .WithOrigins(
+                            "https://localhost:7246"
+                        )
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
+                });
+            });
+            return services;
+        }
+
+        public static IServiceCollection AddIdentityConfig(this IServiceCollection services)
+        {
+            services.AddIdentityCore<ApplicationUser>(options =>
+            {
+                options.User.RequireUniqueEmail = true;
+                options.Password.RequireDigit = true;
+                options.Password.RequiredLength = 9;
+                options.Password.RequireNonAlphanumeric = true;
+                options.Password.RequireUppercase = true;
+                options.Password.RequireLowercase = true;
+            })
+            .AddRoles<IdentityRole>()
+            .AddSignInManager<SignInManager<ApplicationUser>>()
+            .AddEntityFrameworkStores<ShippingDbContext>()
+            .AddDefaultTokenProviders();
+
+            return services;
+        }
+
+        public static IServiceCollection AddJwtAuth(this IServiceCollection services, IConfiguration config)
+        {
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+
+                        ValidIssuer = config["Jwt:Issuer"],
+                        ValidAudience = config["Jwt:Audience"],
+
+                        IssuerSigningKey = new SymmetricSecurityKey(
+                        Encoding.UTF8.GetBytes(config["JWT_SECRET_KEY"]!)),
+
+                        ClockSkew = TimeSpan.Zero
+                    };
+                });
+
+            return services;
+        }
+
+        public static IServiceCollection AddAppAuthorization(this IServiceCollection services)
+        {
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
+                options.AddPolicy("UserOnly", policy => policy.RequireRole("User"));
+            });
+
+
+            return services;
+        }
+
+        public static IServiceCollection AddAppRateLimiting(this IServiceCollection services)
+        {
+            services.AddRateLimiter(options =>
+            {
+                options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+                options.AddPolicy("AuthLimiter", httpContext =>
+                {
+                    var ip = httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+
+                    return RateLimitPartition.GetFixedWindowLimiter(
+                        partitionKey: ip,
+                        factory: _ => new FixedWindowRateLimiterOptions
+                        {
+                            PermitLimit = 5,
+                            Window = TimeSpan.FromMinutes(1),
+                            QueueLimit = 0
+                        });
+                });
+            });
+
+            return services;
+        }
+
+        public static IServiceCollection AddSwaggerDocs(this IServiceCollection services)
+        {
+            services.AddEndpointsApiExplorer();
+
+            services.AddSwaggerGen(options =>
+            {
+                options.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Title = "Shipping API",
+                    Version = "v1"
+                });
+
+                var jwtScheme = new OpenApiSecurityScheme
+                {
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "Bearer",
+                    BearerFormat = "JWT",
+                    In = ParameterLocation.Header,
+                    Description = "Enter: Bearer {your token}"
+                };
+
+                options.AddSecurityDefinition("Bearer", jwtScheme);
+
+                options.AddSecurityRequirement(new OpenApiSecurityRequirement
+            {
+                {
+                    new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                        }
+                    },
+                    Array.Empty<string>()
+                }
+            });
+            });
+
+            return services;
+        }
+
+    }
+}
+
+
+
+
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\WebApi\obj\Debug\net10.0\.NETCoreApp,Version=v10.0.AssemblyAttributes.cs ====================
+
+// <autogenerated />
+using System;
+using System.Reflection;
+[assembly: global::System.Runtime.Versioning.TargetFrameworkAttribute(".NETCoreApp,Version=v10.0", FrameworkDisplayName = ".NET 10.0")]
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\WebApi\obj\Debug\net10.0\WebApi.AssemblyInfo.cs ====================
+
+//------------------------------------------------------------------------------
+// <auto-generated>
+//     This code was generated by a tool.
+//     Runtime Version:4.0.30319.42000
+//
+//     Changes to this file may cause incorrect behavior and will be lost if
+//     the code is regenerated.
+// </auto-generated>
+//------------------------------------------------------------------------------
+
+using System;
+using System.Reflection;
+
+[assembly: System.Reflection.AssemblyCompanyAttribute("WebApi")]
+[assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
+[assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5d02f3b3c050f0329f84235dc61f9a49da691064")]
+[assembly: System.Reflection.AssemblyProductAttribute("WebApi")]
+[assembly: System.Reflection.AssemblyTitleAttribute("WebApi")]
+[assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
+
+// Generated by the MSBuild WriteCodeFragment class.
+
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\WebApi\obj\Debug\net10.0\WebApi.GlobalUsings.g.cs ====================
+
+// <auto-generated/>
+global using System;
+global using System.Collections.Generic;
+global using System.IO;
+global using System.Linq;
+global using System.Net.Http;
+global using System.Threading;
+global using System.Threading.Tasks;
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\WebApi\obj\Debug\net10.0\WebApi.MvcApplicationPartsAssemblyInfo.cs ====================
+
+//------------------------------------------------------------------------------
+// <auto-generated>
+//     This code was generated by a tool.
+//
+//     Changes to this file may cause incorrect behavior and will be lost if
+//     the code is regenerated.
+// </auto-generated>
+//------------------------------------------------------------------------------
+
+using System;
+using System.Reflection;
+
+[assembly: Microsoft.AspNetCore.Mvc.ApplicationParts.ApplicationPartAttribute("Swashbuckle.AspNetCore.SwaggerGen")]
+
+// Generated by the MSBuild WriteCodeFragment class.
+
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\WebApi\obj\Debug\net8.0\.NETCoreApp,Version=v8.0.AssemblyAttributes.cs ====================
+
+// <autogenerated />
+using System;
+using System.Reflection;
+[assembly: global::System.Runtime.Versioning.TargetFrameworkAttribute(".NETCoreApp,Version=v8.0", FrameworkDisplayName = ".NET 8.0")]
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\WebApi\obj\Debug\net8.0\WebApi.AssemblyInfo.cs ====================
+
+//------------------------------------------------------------------------------
+// <auto-generated>
+//     This code was generated by a tool.
+//     Runtime Version:4.0.30319.42000
+//
+//     Changes to this file may cause incorrect behavior and will be lost if
+//     the code is regenerated.
+// </auto-generated>
+//------------------------------------------------------------------------------
+
+using System;
+using System.Reflection;
+
+[assembly: Microsoft.Extensions.Configuration.UserSecrets.UserSecretsIdAttribute("769e758f-2ac6-4d68-a670-eabc744d1632")]
+[assembly: System.Reflection.AssemblyCompanyAttribute("WebApi")]
+[assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
+[assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4e4602f19cfea34013a7a73ee64a6805d5af13cd")]
+[assembly: System.Reflection.AssemblyProductAttribute("WebApi")]
+[assembly: System.Reflection.AssemblyTitleAttribute("WebApi")]
+[assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
+
+// Generated by the MSBuild WriteCodeFragment class.
+
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\WebApi\obj\Debug\net8.0\WebApi.GlobalUsings.g.cs ====================
+
+// <auto-generated/>
+global using Microsoft.AspNetCore.Builder;
+global using Microsoft.AspNetCore.Hosting;
+global using Microsoft.AspNetCore.Http;
+global using Microsoft.AspNetCore.Routing;
+global using Microsoft.Extensions.Configuration;
+global using Microsoft.Extensions.DependencyInjection;
+global using Microsoft.Extensions.Hosting;
+global using Microsoft.Extensions.Logging;
+global using System;
+global using System.Collections.Generic;
+global using System.IO;
+global using System.Linq;
+global using System.Net.Http;
+global using System.Net.Http.Json;
+global using System.Threading;
+global using System.Threading.Tasks;
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\WebApi\obj\Debug\net8.0\WebApi.MvcApplicationPartsAssemblyInfo.cs ====================
+
+//------------------------------------------------------------------------------
+// <auto-generated>
+//     This code was generated by a tool.
+//
+//     Changes to this file may cause incorrect behavior and will be lost if
+//     the code is regenerated.
+// </auto-generated>
+//------------------------------------------------------------------------------
+
+using System;
+using System.Reflection;
+
+[assembly: Microsoft.AspNetCore.Mvc.ApplicationParts.ApplicationPartAttribute("FluentValidation.AspNetCore")]
+[assembly: Microsoft.AspNetCore.Mvc.ApplicationParts.ApplicationPartAttribute("Swashbuckle.AspNetCore.SwaggerGen")]
+
+// Generated by the MSBuild WriteCodeFragment class.
+
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\WebApi\Services\AuthService.cs ====================
+
+using BL.Common;
+using BL.Common.Results;
+using BL.Contract.IServices;
+using BL.DTOs.Auth.Requests;
+using BL.DTOs.Auth.Responses;
+using BL.DTOs.RefreshToken;
+using BL.DTOs.User;
+using BL.Services;
+using Domain.Entities;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
+
+namespace WebApi.Services;
+
+public class AuthService : IAuthService
+{
+    private readonly UserManager<ApplicationUser> _userManager;
+    private readonly SignInManager<ApplicationUser> _signInManager;
+    private readonly TokenService _tokenService;
+    private readonly IRefreshTokenService _refreshService;
+
+    public AuthService(
+        UserManager<ApplicationUser> userManager,
+        SignInManager<ApplicationUser> signInManager, TokenService tokenService, IRefreshTokenService refreshService)
+    {
+        _userManager = userManager;
+        _signInManager = signInManager;
+        _tokenService = tokenService;
+        _refreshService = refreshService;
+    }
+
+
+    public async Task<Result<RegisterResponseDto>> RegisterAsync(RegisterRequestDto dto)
+    {
+        var user = new ApplicationUser
+        {
+            FirstName = dto.FirstName,
+            SecondName = dto.SecondName,
+            ThirdName = dto.ThirdName,
+            LastName = dto.LastName,
+            Email = dto.Email,
+            UserName = dto.UserName,
+            PhoneNumber = dto.PhoneNumber,
+            Gender = dto.Gender,
+            DateOfBirth = dto.DateOfBirth,
+            ImageUrl = dto.ImageUrl
+        };
+
+        var result = await _userManager.CreateAsync(user, dto.Password);
+
+        if (!result.Succeeded)
+        {
+            return result.Errors
+                .Select(e => Error.Validation(e.Code, e.Description)).ToList();
+        }
+
+        var roleResult = await _userManager.AddToRoleAsync(user, "User");
+
+        if (!roleResult.Succeeded)
+        {
+            return roleResult.Errors
+                .Select(e => Error.Failure(
+                    e.Code,
+                    e.Description))
+                .ToList();
+        }
+
+        return new RegisterResponseDto
+        {
+            UserId = Guid.Parse(user.Id),
+            Email = user.Email!,
+            UserName = user.UserName!
+        };
+    }
+
+    public async Task<Result<TokenResponseDto>> LoginAsync(LoginRequestDto dto)
+    {
+        var user = await _userManager.Users.FirstOrDefaultAsync(x => x.UserName == dto.UsernameOrEmail || x.Email == dto.UsernameOrEmail);
+            
+
+        if (user == null)
+            return Error.Unauthorized("Auth.InvalidCredentials", "Invalid username or email.");
+
+        var result = await _signInManager.CheckPasswordSignInAsync(user, dto.Password, lockoutOnFailure: true);
+
+        if (!result.Succeeded)
+        {
+            if (result.IsLockedOut)
+                return Error.Forbidden("Auth.LockedOut", "Account is locked.");
+            if (result.IsNotAllowed)
+                return Error.Unauthorized("Auth.NotAllowed", "Account is not confirmed.");
+
+
+            return Error.Unauthorized("Auth.InvalidPassword", "Invalid password.");
+        }
+
+        var claims = await _tokenService.BuildClaimsAsync(user);
+        var accessToken = _tokenService.GenerateAccessToken(claims);
+        var refreshToken = _tokenService.GenerateRefreshToken();
+
+
+        bool SaveSuccessfully = await _refreshService.SaveTokenAsync(user.Id.ToString(), refreshToken, DateTime.UtcNow.AddDays(_tokenService.GetRefreshTokenExpiryDays()));
+
+        if (!SaveSuccessfully) return Error.Unexpected("RefreshToken.SaveFailed", "Failed to save refresh token.");
+
+
+        return new TokenResponseDto
+        {
+            AccessToken = accessToken,
+            RefreshToken = refreshToken,
+            Email = user.Email!,
+            UserId = Guid.Parse(user.Id),
+            ExpiresAt = DateTime.UtcNow.AddMinutes(
+            _tokenService.GetAccessTokenExpiryMinutes())
+        };
+    }
+
+    public async Task<Result> ChangePasswordAsync(string userId, ChangePasswordRequstDto dto)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+
+        if (user is null)
+            return Error.NotFound(
+                "User.NotFound",
+                "User was not found.");
+
+        var result = await _userManager.ChangePasswordAsync(
+            user,
+            dto.CurrentPassword,
+            dto.NewPassword);
+
+        if (!result.Succeeded)
+            return result.Errors
+                .Select(e => Error.Validation(e.Code, e.Description))
+                .ToList();
+
+        return Result.Success();
+    }
+
+    public async Task<Result> ResetPasswordAsync(string email)
+    {
+        var user = await _userManager.FindByEmailAsync(email);
+
+        if (user is null)
+            return Error.NotFound(
+                "User.NotFound",
+                "User was not found.");
+
+        var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+
+        var result = await _userManager.ResetPasswordAsync(
+            user,
+            token,
+            "Temp@123");
+
+        if (!result.Succeeded)
+            return result.Errors
+                .Select(e => Error.Validation(e.Code, e.Description))
+                .ToList();
+
+        return Result.Success();
+    }
+
+    public async Task<Result> LogoutAsync(string userId)
+    {
+        var revoked = await _refreshService.RevokeTokensAsync(userId);
+
+        if (!revoked)
+            return Error.Unexpected(
+                "RefreshToken.RevokeFailed",
+                "Failed to revoke refresh tokens.");
+
+        await _signInManager.SignOutAsync();
+
+        return Result.Success();
+    }
+
+
+
+    public async Task<Result<IEnumerable<string>>> GetRolesAsync(string userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+
+        if (user is null)
+            return Error.NotFound("User.NotFound", "User was not found.");
+
+        var roles = await _userManager.GetRolesAsync(user);
+
+        return Result<IEnumerable<string>>.Success(roles);
+    }
+
+
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\WebApi\Services\TokenService.cs ====================
+
+using BL.Common.Results;
+using BL.Contract.IServices;
+using BL.DTOs.Auth.Responses;
+using BL.DTOs.RefreshToken;
+using Domain.Entities;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
+using System.Configuration;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
+
+namespace WebApi.Services;
+
+public class TokenService
+{
+    private readonly IConfiguration _config;
+    private readonly IRefreshTokenService _refreshService;
+    private readonly UserManager<ApplicationUser> _userManager;
+
+    public TokenService(IConfiguration config, IRefreshTokenService refreshTokenService, UserManager<ApplicationUser> userManager)
+    {
+        _config = config;
+        _refreshService = refreshTokenService;
+        _userManager = userManager;
+    }
+
+    public string GenerateAccessToken(IEnumerable<Claim> claims)
+    {
+        // Generate a symmetric security key from the secret key in the configuration
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JWT_SECRET_KEY"]!));
+
+        // Create signing credentials using the security key and HMAC-SHA256 algorithm
+        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+
+        // Create a JWT token with the specified issuer, audience, claims, expiration time, and signing credentials
+        var token = new JwtSecurityToken(
+            issuer: _config["Jwt:Issuer"],
+            audience: _config["Jwt:Audience"],
+            claims: claims,
+            expires: DateTime.UtcNow.AddMinutes(double.Parse(_config["Jwt:ExpiryMinutes"]!)),
+            signingCredentials: creds
+        );
+
+        return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+
+    public string GenerateRefreshToken()
+    {
+        return Convert.ToHexString(RandomNumberGenerator.GetBytes(32));
+    }
+
+    public int GetRefreshTokenExpiryDays()
+    {
+        return _config.GetValue<int>("Jwt:RefreshTokenExpiryDays");
+    }
+
+    public int GetAccessTokenExpiryMinutes()
+    {
+        return _config.GetValue<int>("Jwt:ExpiryMinutes");
+    }
+
+    public async Task<Claim[]> BuildClaimsAsync(ApplicationUser user)
+    {
+        var roles = await _userManager.GetRolesAsync(user);
+        var role = roles.FirstOrDefault() ?? "User";
+
+        return new[]
+        {
+            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new Claim(ClaimTypes.Email,           user.Email ?? "Email not found"),
+            new Claim(ClaimTypes.Role,           role)
+        };
+    }
+
+
+    #region Private Helper Method
+    private async Task<Result<(ApplicationUser User, RefreshTokenDto Token)>> ValidateRefreshTokenAsync(string refreshToken)
+    {
+        if (string.IsNullOrWhiteSpace(refreshToken))
+            return Error.Validation(
+                "RefreshToken.Required",
+                "Refresh token is required.");
+
+        var stored = await _refreshService.GetTokenAsync(refreshToken);
+
+        if (stored is null)
+            return Error.Unauthorized(
+                "RefreshToken.NotFound",
+                "Refresh token not found.");
+
+        if (stored.CurrentState is not enEntityState.Active)
+            return Error.Unauthorized(
+                "RefreshToken.Revoked",
+                "Refresh token has been revoked.");
+
+        if (stored.Expires < DateTime.UtcNow)
+            return Error.Unauthorized(
+                "RefreshToken.Expired",
+                "Refresh token has expired.");
+
+        var user = await _userManager.FindByIdAsync(stored.UserId);
+
+        if (user is null)
+            return Error.NotFound(
+                "User.NotFound",
+                "User no longer exists.");
+
+        return (user, stored);
+    }
+    
+    #endregion
+
+
+    public async Task<Result<RefreshTokenResponseDto>> RotateRefreshTokenAsync(string refreshToken)
+    {
+        var validation = await ValidateRefreshTokenAsync(refreshToken);
+
+        if (validation.IsFailure)
+            return validation.Errors.ToList();
+
+        var (user, stored) = validation.Value;
+
+        var revoked = await _refreshService.RevokeTokensAsync(stored.UserId);
+
+        if (!revoked)
+            return Error.Unexpected(
+                "RefreshToken.RevokeFailed",
+                "Failed to revoke refresh tokens.");
+
+        var claims = await BuildClaimsAsync(user);
+
+        var accessToken = GenerateAccessToken(claims);
+        var newRefreshToken = GenerateRefreshToken();
+
+        var saved = await _refreshService.SaveTokenAsync(
+            stored.UserId,
+            newRefreshToken,
+            DateTime.UtcNow.AddDays(GetRefreshTokenExpiryDays()));
+
+        if (!saved)
+            return Error.Unexpected(
+                "RefreshToken.SaveFailed",
+                "Failed to save refresh token.");
+
+        return new RefreshTokenResponseDto
+        {
+            AccessToken = accessToken,
+            RefreshToken = newRefreshToken,
+            ExpiresAt = DateTime.UtcNow.AddMinutes(
+                GetAccessTokenExpiryMinutes())
+        };
+    }
+    public async Task<Result<RefreshAccessTokenResponseDto>> RefreshAccessTokenAsync(string refreshToken)
+    {
+        var validation = await ValidateRefreshTokenAsync(refreshToken);
+
+        if (validation.IsFailure)
+            return validation.Errors.ToList();
+
+        var (user, _) = validation.Value;
+
+        var claims = await BuildClaimsAsync(user);
+
+        var accessToken = GenerateAccessToken(claims);
+
+        return new RefreshAccessTokenResponseDto
+        {
+            AccessToken = accessToken,
+            ExpiresAt = DateTime.UtcNow.AddMinutes(
+                GetAccessTokenExpiryMinutes())
+        };
+    }
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\WebApi\Services\UserService.cs ====================
+
+using BL.Common.Results;
+using BL.Contract.IServices;
+using BL.DTOs.User;
+using Domain.Entities;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
+
+namespace WebApi.Services;
+
+public class UserService : IUserService
+{
+    private readonly UserManager<ApplicationUser> _userManager;
+    private readonly IHttpContextAccessor _httpContextAccessor;
+
+    public UserService(UserManager<ApplicationUser> userManager, IHttpContextAccessor httpContextAccessor   )
+    {
+        _userManager = userManager;
+        _httpContextAccessor = httpContextAccessor;
+    }
+
+    public async Task<Result> DeleteAccountAsync(string userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+
+        if (user is null)
+            return Error.NotFound(
+                "User.NotFound",
+                "User was not found.");
+
+        var result = await _userManager.DeleteAsync(user);
+
+        if (!result.Succeeded)
+        {
+            return result.Errors
+                .Select(e => Error.Validation(e.Code, e.Description))
+                .ToList();
+        }
+
+        return Result.Success();
+    }
+    public async Task<Result<IEnumerable<UserDto>>> GetAllUsersAsync()
+    {
+        var users = await _userManager.Users
+            .Select(u => _MapToDto(u))
+            .ToListAsync();
+
+        return users;
+    }
+    public async Task<Result<UserDto>> GetByIdAsync(string id)
+    {
+        var user = await _userManager.FindByIdAsync(id);
+
+        if (user is null)
+            return Error.NotFound(
+                "User.NotFound",
+                "User was not found.");
+
+        return _MapToDto(user);
+    }
+    public async Task<Result> UpdateAsync(string updatedUserId, UpdateUserDto dto)
+    {
+        var user = await _userManager.FindByIdAsync(updatedUserId);
+
+        if (user is null)
+            return Error.NotFound(
+                "User.NotFound",
+                "User was not found.");
+
+        user.FirstName = dto.FirstName;
+        user.SecondName = dto.SecondName;
+        user.ThirdName = dto.ThirdName;
+        user.LastName = dto.LastName;
+        user.PhoneNumber = dto.PhoneNumber;
+        user.ImageUrl = dto.ImageUrl ?? user.ImageUrl;
+        user.DateOfBirth = dto.DateOfBirth;
+        user.Gender = dto.Gender;
+
+        var result = await _userManager.UpdateAsync(user);
+
+        if (!result.Succeeded)
+        {
+            return result.Errors
+                .Select(e => Error.Validation(e.Code, e.Description))
+                .ToList();
+        }
+
+        return Result.Success();
+    }
+    public async Task<Result<UserDto>> GetUserByEmailOrUsernameAsync(string emailOrUsername)
+    {
+        var user = await _userManager.Users
+            .FirstOrDefaultAsync(u =>
+                u.Email == emailOrUsername ||
+                u.UserName == emailOrUsername);
+    
+        if (user is null)
+            return Error.NotFound(
+                "User.NotFound",
+                "User was not found.");
+    
+        return _MapToDto(user);
+    }
+    public async Task<Guid> GetLoggedInUserAsync()
+    {
+        var userId = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        return !string.IsNullOrEmpty(userId) ? Guid.Parse(userId) : Guid.Empty;
+    }
+    private static UserDto _MapToDto(ApplicationUser u) => new()
+    {
+        Id = Guid.Parse(u.Id),
+        FirstName = u.FirstName,
+        SecondName = u.SecondName,
+        ThirdName = u.ThirdName,
+        LastName = u.LastName,
+        Email = u.Email!,
+        PhoneNumber = u.PhoneNumber,
+        ImageUrl = u.ImageUrl,
+        Gender = u.Gender,
+        DateOfBirth = u.DateOfBirth,
+    };
+}
+
+
+==================== C:\Users\seif\source\repos\Shipping-System\WebApi\Program.cs ====================
+
+using WebApi.Extensions;
+
+var builder = WebApplication.CreateBuilder(args);
+var corsPolicy = builder.Configuration["Cors:PolicyName"];
+
+
+#region DIC
+builder.Host.AddSerilogLogging(builder.Configuration);
+builder.Services.AddPersistence(builder.Configuration, builder.Environment);
+builder.Services.AddRepositories();
+builder.Services.AddServices();
+builder.Services.AddValidators();
+
+builder.Services.AddCorsPolicy(corsPolicy!);
+builder.Services.AddIdentityConfig();
+builder.Services.AddJwtAuth(builder.Configuration);
+
+
+builder.Services.AddAppAuthorization();
+builder.Services.AddAppRateLimiting();
+builder.Services.AddSwaggerDocs();
+
+builder.Services.AddControllers();
+#endregion
+
+
+// build the app
+var app = builder.Build();
+
+
+#region  Seeding data 
+await SeederExtensions.SeedDatabaseAsync(app, false);
+#endregion
+
+
+#region Middleware pipeline
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{
+    //app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI();
+
+    // Use the development error handler
+    app.UseExceptionHandler("/error-development");
+}
+else
+{
+    // Use the production error handler
+    app.UseExceptionHandler("/error");
+}
+
+
+app.UseHttpsRedirection();
+
+app.UseCors(corsPolicy!);
+
+app.UseRateLimiter();
+
+app.UseAuthentication();
+
+app.UseAuthorization();
+
+app.MapControllers();
+
+#endregion
+
+app.Run();

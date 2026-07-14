@@ -738,7 +738,7 @@ using System.Threading.Tasks;
 namespace BL.DTOs.Auth.Requests;
 
 /// <summary>
-/// Sent by any caller (MVC, React, Flutter, Postman, …) when they need
+/// Sent by any caller (MVC, React, Flutter, Postman, �) when they need
 /// to exchange a RefreshToken for new tokens.
 /// The API has zero knowledge of where the caller stored the token.
 /// </summary>
@@ -3342,7 +3342,7 @@ public class CreateCityDtoValidator : AbstractValidator<CreateCityDto>
     public CreateCityDtoValidator()
     {
         RuleFor(x => x.CityAname)
-            .MaximumLength(100).WithMessage("Ø§Ø³Ù… Ø§Ù„Ù…Ø¯ÙŠÙ†Ø© ÙŠØ¬Ø¨ Ø£Ù† Ù„Ø§ ÙŠØªØ¬Ø§ÙˆØ² 100 Ø­Ø±Ù.");
+            .MaximumLength(100).WithMessage("اسم المدينة يجب أن لا يتجاوز 100 حرف.");
 
         RuleFor(x => x.CityEname)
             .MaximumLength(100).WithMessage("City name must not exceed 100 characters.");
@@ -3367,7 +3367,7 @@ public class UpdateCityDtoValidator : AbstractValidator<UpdateCityDto>
     public UpdateCityDtoValidator()
     {
         RuleFor(x => x.CityAname)
-            .MaximumLength(10).WithMessage("Ø§Ø³Ù… Ø§Ù„Ù…Ø¯ÙŠÙ†Ø© ÙŠØ¬Ø¨ Ø£Ù† Ù„Ø§ ÙŠØªØ¬Ø§ÙˆØ² 10 Ø£Ø­Ø±Ù.");
+            .MaximumLength(10).WithMessage("اسم المدينة يجب أن لا يتجاوز 10 أحرف.");
 
         RuleFor(x => x.CityEname)
             .MaximumLength(10).WithMessage("City name must not exceed 10 characters.");
@@ -3391,7 +3391,7 @@ public class CreateCountryDtoValidator : AbstractValidator<CreateCountryDto>
     public CreateCountryDtoValidator()
     {
         RuleFor(x => x.CountryAname)
-            .MaximumLength(200).WithMessage("Ø§Ø³Ù… Ø§Ù„Ø¯ÙˆÙ„Ø© ÙŠØ¬Ø¨ Ø£Ù† Ù„Ø§ ÙŠØªØ¬Ø§ÙˆØ² 200 Ø­Ø±Ù.");
+            .MaximumLength(200).WithMessage("اسم الدولة يجب أن لا يتجاوز 200 حرف.");
 
         RuleFor(x => x.CountryEname)
             .MaximumLength(200).WithMessage("Country name must not exceed 200 characters.");
@@ -3411,7 +3411,7 @@ public class UpdateCountryDtoValidator : AbstractValidator<UpdateCountryDto>
     public UpdateCountryDtoValidator()
     {
         RuleFor(x => x.CountryAname)
-            .MaximumLength(200).WithMessage("Ø§Ø³Ù… Ø§Ù„Ø¯ÙˆÙ„Ø© ÙŠØ¬Ø¨ Ø£Ù† Ù„Ø§ ÙŠØªØ¬Ø§ÙˆØ² 200 Ø­Ø±Ù.");
+            .MaximumLength(200).WithMessage("اسم الدولة يجب أن لا يتجاوز 200 حرف.");
 
         RuleFor(x => x.CountryEname)
             .MaximumLength(200).WithMessage("Country name must not exceed 200 characters.");
@@ -3431,7 +3431,7 @@ public class CreatePaymentMethodDtoValidator : AbstractValidator<CreatePaymentMe
     public CreatePaymentMethodDtoValidator()
     {
         RuleFor(x => x.MethdAname)
-            .MaximumLength(200).WithMessage("Ø§Ø³Ù… Ø·Ø±ÙŠÙ‚Ø© Ø§Ù„Ø¯ÙØ¹ ÙŠØ¬Ø¨ Ø£Ù† Ù„Ø§ ÙŠØªØ¬Ø§ÙˆØ² 200 Ø­Ø±Ù.");
+            .MaximumLength(200).WithMessage("اسم طريقة الدفع يجب أن لا يتجاوز 200 حرف.");
 
         RuleFor(x => x.MethodEname)
             .MaximumLength(200).WithMessage("Payment method name must not exceed 200 characters.");
@@ -3454,7 +3454,7 @@ public class UpdatePaymentMethodDtoValidator : AbstractValidator<UpdatePaymentMe
     public UpdatePaymentMethodDtoValidator()
     {
         RuleFor(x => x.MethdAname)
-            .MaximumLength(200).WithMessage("Ø§Ø³Ù… Ø·Ø±ÙŠÙ‚Ø© Ø§Ù„Ø¯ÙØ¹ ÙŠØ¬Ø¨ Ø£Ù† Ù„Ø§ ÙŠØªØ¬Ø§ÙˆØ² 200 Ø­Ø±Ù.");
+            .MaximumLength(200).WithMessage("اسم طريقة الدفع يجب أن لا يتجاوز 200 حرف.");
 
         RuleFor(x => x.MethodEname)
             .MaximumLength(200).WithMessage("Payment method name must not exceed 200 characters.");
@@ -3800,7 +3800,7 @@ public class CreateShippingPackagingDtoValidator : AbstractValidator<CreateShipp
     {
         RuleFor(x => x.ShippingPackagingAname)
             .NotEmpty()
-            .WithMessage("Ø¥Ø³Ù… Ø§Ù„Ø´Ø­Ù† ÙˆØ§Ù„ØªØºÙ„ÙŠÙ Ù…Ø·Ù„ÙˆØ¨.")
+            .WithMessage("إسم الشحن والتغليف مطلوب.")
             .MaximumLength(100);
 
         RuleFor(x => x.ShippingPackagingEname)
@@ -3845,7 +3845,7 @@ public class CreateShippingTypeDtoValidator : AbstractValidator<CreateShippingTy
     public CreateShippingTypeDtoValidator()
     {
         RuleFor(x => x.ShippingTypeAname)
-            .MaximumLength(200).WithMessage("Ø§Ø³Ù… Ù†ÙˆØ¹ Ø§Ù„Ø´Ø­Ù† ÙŠØ¬Ø¨ Ø£Ù† Ù„Ø§ ÙŠØªØ¬Ø§ÙˆØ² 200 Ø­Ø±Ù.");
+            .MaximumLength(200).WithMessage("اسم نوع الشحن يجب أن لا يتجاوز 200 حرف.");
 
         RuleFor(x => x.ShippingTypeEname)
             .MaximumLength(200).WithMessage("Shipping type name must not exceed 200 characters.");
@@ -3869,7 +3869,7 @@ public class UpdateShippingTypeDtoValidator : AbstractValidator<UpdateShippingTy
     public UpdateShippingTypeDtoValidator()
     {
         RuleFor(x => x.ShippingTypeAname)
-            .MaximumLength(200).WithMessage("Ø§Ø³Ù… Ù†ÙˆØ¹ Ø§Ù„Ø´Ø­Ù† ÙŠØ¬Ø¨ Ø£Ù† Ù„Ø§ ÙŠØªØ¬Ø§ÙˆØ² 200 Ø­Ø±Ù.");
+            .MaximumLength(200).WithMessage("اسم نوع الشحن يجب أن لا يتجاوز 200 حرف.");
 
         RuleFor(x => x.ShippingTypeEname)
             .MaximumLength(200).WithMessage("Shipping type name must not exceed 200 characters.");

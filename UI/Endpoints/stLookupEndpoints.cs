@@ -1,10 +1,11 @@
-﻿namespace UI.Endpoints;
+namespace UI.Endpoints;
 
 
 
 public readonly struct stShipmentEndpoints
 {
-    public const string Create = "Api/Test/CreateShipment";
+    public const string Create  = "Api/Test/CreateShipment";
+    public const string GetAll  = "Api/Shipment/GetAllShipments";
 }
 
 public readonly struct stLookupEndpoints

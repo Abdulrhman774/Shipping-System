@@ -1,0 +1,18 @@
+@* ─── _AddressForm.cshtml ──────────────────────────────────────────────── *@
+@* Reusable address block for both Sender (prefix="Sender") and            *@
+@* Receiver (prefix="Receiver") wizard steps.                              *@
+@*                                                                         *@
+@* Usage:                                                                  *@
+@*   <partial name="_AddressForm" model='new AddressFormViewModel {         *@
+@*       Prefix      = "Sender",                                           *@
+@*       NameLabel   = "Sender Name",                                      *@
+@*       NameField   = Model.Sender.SenderName,                            *@
+@*       ... etc                                                           *@
+@*   }' />                                                                 *@
+@*                                                                         *@
+@* Because Razor partials cannot bind to parent model prefixes             *@
+@* transparently, we keep the full field inputs inside each parent         *@
+@* fieldset and only extract the SHARED STYLING into this partial.         *@
+@* This partial is therefore used for SHARED CSS only, loaded once.        *@
+
+@* ── Shared address-form styles injected once via Layout's Styles section *@

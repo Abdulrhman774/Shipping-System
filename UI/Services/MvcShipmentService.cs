@@ -1,4 +1,4 @@
-﻿using BL.Common;
+using BL.Common;
 using BL.DTOs.City;
 using BL.DTOs.PaymentMethod;
 using BL.DTOs.Shipment;
@@ -14,6 +14,10 @@ namespace UI.Services
     {
         public Task<ApiResponse<Guid>> CreateShipmentAsync(CreateShipmentDto dto)
         => apiClient.PostAsync<Guid>(stShipmentEndpoints.Create, dto);
+
+        public Task<ApiResponse<List<ShipmentDto>>> GetAllShipmentsAsync()
+            => apiClient.GetAsync<List<ShipmentDto>>(stShipmentEndpoints.GetAll);
+
 
         public Task<ApiResponse<Guid>> CreateSenderAsync(CreateUserSenderDto dto)
             => apiClient.PostAsync<Guid>(stLookupEndpoints.UserSenders, dto);
