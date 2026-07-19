@@ -1,6 +1,35 @@
 # 🚚 Shipping Management System
 
+> ⚠️ **Work in Progress** - This project is under active development. Some features may be incomplete or subject to change.
+
+[![GitHub repo size](https://img.shields.io/github/repo-size/Abdulrhman774/Shipping-System)](https://github.com/Abdulrhman774/Shipping-System)
+[![GitHub language count](https://img.shields.io/github/languages/count/Abdulrhman774/Shipping-System)](https://github.com/Abdulrhman774/Shipping-System)
+[![GitHub top language](https://img.shields.io/github/languages/top/Abdulrhman774/Shipping-System)](https://github.com/Abdulrhman774/Shipping-System)
+[![GitHub last commit](https://img.shields.io/github/last-commit/Abdulrhman774/Shipping-System)](https://github.com/Abdulrhman774/Shipping-System)
+[![GitHub issues](https://img.shields.io/github/issues/Abdulrhman774/Shipping-System)](https://github.com/Abdulrhman774/Shipping-System)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![.NET Version](https://img.shields.io/badge/.NET-8.0-blue)](https://dotnet.microsoft.com/)
+
+---
+
 A comprehensive **Shipping Management System** built with **.NET 8** and **Clean Architecture** principles. Designed to manage shipments, users, carriers, payments, subscriptions, and more with a robust **Result Pattern** for error handling.
+
+---
+
+## 📋 Project Status
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| ✅ Authentication | Complete | JWT + Refresh Tokens |
+| ✅ User Management | Complete | CRUD + Roles |
+| ✅ Shipment Creation | Complete | With rate calculation |
+| 🔄 Shipment Tracking | In Progress | Tracking by number |
+| 🔄 Distance Calculation | In Progress | Fallback values used |
+| ✅ Subscription System | Complete | Usage tracking |
+| ✅ Payment Methods | Complete | CRUD operations |
+| ✅ Carrier Management | Complete | CRUD operations |
+| 🔄 Reporting | Planned | PDF/Excel export |
+| 🔄 Notifications | Planned | Email/SMS alerts |
 
 ---
 
@@ -15,7 +44,6 @@ A comprehensive **Shipping Management System** built with **.NET 8** and **Clean
 - ✅ **Payment Methods** - Multiple payment method support with commission tracking
 - ✅ **Carrier Management** - Manage shipping carriers
 - ✅ **Address Management** - Sender and receiver address management with default address support
-- ✅ **Currency Exchange** - Multi-currency support (Optional module)
 
 ### 🎯 Business Features
 - 📦 **Shipment Tracking** - Track shipments via unique tracking numbers
@@ -26,7 +54,7 @@ A comprehensive **Shipping Management System** built with **.NET 8** and **Clean
 
 ---
 
-## 🏗️ Architecture
+## 🏗️ Architecture (Clean Architecture)
 
 ```
 Shipping-System/
@@ -67,14 +95,6 @@ Shipping-System/
 │   ├── Views/                       # Razor views
 │   └── wwwroot/                     # Static files
 │
-├── Database/                        # Database scripts
-│   └── ShippingDB.sql               # SQL Server database script
-│
-├── Docs/                            # Documentation
-│   ├── CSS/                         # Template styles
-│   ├── JS/                          # JavaScript files
-│   └── Images/                      # Project images
-│
 └── README.md                        # This file
 ```
 
@@ -104,98 +124,63 @@ Shipping-System/
 | **jQuery** | JavaScript library |
 | **FontAwesome** | Icons |
 
-### Patterns & Practices
-- ✅ **Clean Architecture** - Separation of concerns
-- ✅ **Repository Pattern** - Data access abstraction
-- ✅ **Unit of Work** - Transaction management
-- ✅ **Result Pattern** - Explicit error handling
-- ✅ **Dependency Injection** - Loose coupling
-- ✅ **CQRS-like** - Command/Query separation
-
 ---
 
-## 🚀 How to Run
+## 🚀 Quick Start
 
 ### Prerequisites
 - [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
 - [SQL Server](https://www.microsoft.com/en-us/sql-server/sql-server-downloads) (or SQL Server Express)
 - [Visual Studio 2022](https://visualstudio.microsoft.com/) or VS Code
 
-### Step 1: Clone the Repository
+### Step 1: Clone
 ```bash
 git clone https://github.com/Abdulrhman774/Shipping-System.git
 cd Shipping-System
 ```
 
 ### Step 2: Database Setup
-1. Update the connection string in `WebApi/appsettings.json`:
+Update connection string in `WebApi/appsettings.json`:
+
 ```json
 "ConnectionStrings": {
   "DefaultConnection": "Server=localhost\\SQLEXPRESS;Database=ShippingDB;Trusted_Connection=True;TrustServerCertificate=True;"
 }
 ```
 
-2. Run migrations:
+Run migrations:
 ```bash
 cd WebApi
 dotnet ef database update
 ```
 
-Or use the provided database script:
-- Run `Database/ShippingDB.sql` in SQL Server Management Studio
+Or use: `Database/ShippingDB.sql`
 
-### Step 3: Run the Application
-**Run both services:**
-
-#### Web API (Backend)
+### Step 3: Run
+#### Web API
 ```bash
 cd WebApi
 dotnet run
 ```
 
-#### UI (Frontend)
+#### UI
 ```bash
 cd UI
 dotnet run
 ```
 
-### Step 4: Default Credentials
-After seeding:
-- **Username**: `admin@gmail.com`
-- **Password**: `Admin@12345`
-- **Role**: `Admin`
+### Default Credentials
+| Username | Password | Role |
+|----------|----------|------|
+| admin@gmail.com | Admin@12345 | Admin |
 
----
-
-## 🔑 Key Features Explained
-
-### 🧮 Rate Calculator
-The system calculates shipping rates based on:
-1. **Actual Weight** - Physical weight in kg
-2. **Volumetric Weight** - (Length × Width × Height) / 5000
-3. **Billable Weight** - Max(Actual Weight, Volumetric Weight)
-4. **Distance** - Between sender and receiver cities
-5. **Shipping Type** - Multiplier factor
-
-### 📦 Subscription Packages
-Users can subscribe to packages with:
-- **Shipment Count** - Number of shipments allowed
-- **Total Weight** - Maximum weight (kg)
-- **Total Distance** - Maximum distance (km)
-- **Tracking** - Used shipment count, weight, and distance
-
-### 🔐 Authentication Flow
-1. **Register** → Create user account
-2. **Login** → Receive AccessToken + RefreshToken
-3. **AccessToken** → Used for API calls (short-lived)
-4. **RefreshToken** → Used to get new AccessToken (long-lived)
-5. **Rotate** → RefreshToken rotation for security
+*Add more users via the system*
 
 ---
 
 ## 📊 API Endpoints
 
-### Auth Endpoints
+### 🔐 Auth
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | POST | `/Api/Auth/Register` | Register new user |
@@ -204,7 +189,7 @@ Users can subscribe to packages with:
 | POST | `/Api/Auth/Refresh-AccessToken` | Get new access token |
 | POST | `/Api/Auth/Logout` | Logout user |
 
-### Shipment Endpoints
+### 📦 Shipment
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | GET | `/Api/Shipment` | Get all shipments |
@@ -213,7 +198,7 @@ Users can subscribe to packages with:
 | PUT | `/Api/Shipment/{id}` | Update shipment |
 | DELETE | `/Api/Shipment` | Delete shipment |
 
-### Lookup Endpoints
+### 📋 Lookup
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | GET | `/Api/City` | Get all cities |
@@ -222,19 +207,47 @@ Users can subscribe to packages with:
 | GET | `/Api/PaymentMethod` | Get payment methods |
 | GET | `/Api/Carrier` | Get carriers |
 
-*Full API documentation available at `/swagger` when running the WebApi*
+> 📘 Full API docs available at `/swagger` when running WebApi
 
 ---
 
 ## 🧪 Testing
 
-### API Testing
-Use the provided HTTP files:
-- `WebApi/WebApi.http` - Test API endpoints
-- `WebApi/test.http` - Additional tests
+```bash
+# Run API tests
+cd WebApi
+dotnet test
 
-### Postman Collection
-Import the Postman collection from `Docs/` (if available)
+# Or use the provided HTTP files
+# WebApi/WebApi.http - Test API endpoints
+# WebApi/test.http - Additional tests
+```
+
+---
+
+## 📈 Roadmap
+
+### Phase 1: Core Features (✅ Complete)
+- [x] Authentication & Authorization
+- [x] User Management
+- [x] Shipment CRUD
+- [x] Rate Calculator
+- [x] Subscription System
+- [x] Payment Methods
+- [x] Carrier Management
+
+### Phase 2: Enhancements (🔄 In Progress)
+- [ ] Real-time distance calculation (Google Maps API)
+- [ ] Shipment tracking with status updates
+- [ ] Email notifications
+- [ ] PDF report generation
+
+### Phase 3: Advanced Features (📋 Planned)
+- [ ] Mobile app (React Native/Flutter)
+- [ ] Payment gateway integration
+- [ ] Real-time tracking (SignalR)
+- [ ] Multi-language support
+- [ ] Analytics dashboard
 
 ---
 
@@ -248,20 +261,10 @@ Import the Postman collection from `Docs/` (if available)
 
 ---
 
-## 🐛 Known Issues & TODOs
-
-- [ ] Implement actual distance calculation (Google Maps API integration)
-- [ ] Add real-time shipment tracking
-- [ ] Implement email notifications
-- [ ] Add PDF report generation
-- [ ] Complete missing methods in `GetShipmentByTrackingNumberAsync` and `GetShipmentsForUserAsync`
-- [ ] Add comprehensive unit tests
-
----
-
 ## 📧 Contact
 
 **Developer**: Abdulrhman  
+**GitHub**: [@Abdulrhman774](https://github.com/Abdulrhman774)  
 **Project**: Shipping Management System  
 **Built With**: ❤️ + .NET 8
 
@@ -269,7 +272,7 @@ Import the Postman collection from `Docs/` (if available)
 
 ## 📄 License
 
-This project is for educational purposes only.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
