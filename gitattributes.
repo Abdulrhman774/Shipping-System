@@ -1,0 +1,10 @@
+# Ignore generated/static assets
+**/wwwroot/lib/** linguist-vendored
+**/wwwroot/css/** linguist-vendored
+**/wwwroot/js/** linguist-vendored
+**/wwwroot/fonts/** linguist-vendored
+**/wwwroot/images/** linguist-vendored
+
+# Ignore build output
+**/bin/** linguist-generated
+**/obj/** linguist-generated
