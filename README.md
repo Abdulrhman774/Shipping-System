@@ -12,7 +12,7 @@
 
 ---
 
-A comprehensive **Shipping Management System** built with **.NET 8** and **Clean Architecture** principles. Designed to manage shipments, users, carriers, payments, subscriptions, and more with a robust **Result Pattern** for error handling.
+A comprehensive **Shipping Management System** built with **.NET 8** and **N-Tier with Clean Architecture Principles. Designed to manage shipments, users, carriers, payments, subscriptions, and more with a robust **Result Pattern** for error handling.
 
 ---
 
@@ -54,7 +54,7 @@ A comprehensive **Shipping Management System** built with **.NET 8** and **Clean
 
 ---
 
-## 🏗️ Architecture (Clean Architecture)
+## 🏗️ N-Tier Architecture (Clean Architecture Inspired)
 
 ```
 Shipping-System/
