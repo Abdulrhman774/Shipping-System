@@ -36,7 +36,9 @@ public class UserService(GenericApiClient apiClient) : IUserService
         //var userId = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
         //return !string.IsNullOrEmpty(userId) ? Guid.Parse(userId) : Guid.Empty;
-        throw new NotImplementedException();
+
+        return Guid.NewGuid();
+        //throw new NotImplementedException();
 
     }
 

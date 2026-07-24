@@ -8,19 +8,40 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Security.Claims;
 using UI.Models.Shipment;
 using UI.Services;
+using BL.Contract.IServices.Shipment;
+using BL.Contract.IServices;
 
 namespace UI.Controllers;
 
 [Authorize]
 public class ShipmentController : Controller
 {
-    private readonly MvcShipmentService _shipmentService;
+    private readonly MvcShipmentService _shipmentServiceApi;
+    private readonly IShipmentService _shipmentService;
+    private readonly ICityService _cityService;
+    private readonly IShippingTypeService _shippingTypeService;
+    private readonly IPaymentMethodService _paymentMethodService;
+    private readonly ICountryService _countryService;
+    private readonly IShippingPackagingService _shippingPackagingService;
+    private readonly IUserSenderService _userSenderService;
+    private readonly IUserReceiverService _userReceiverService;
     private readonly ILogger<ShipmentController> _logger;
 
-    public ShipmentController(MvcShipmentService shipmentService, ILogger<ShipmentController> logger)
+    public ShipmentController(MvcShipmentService shipmentServiceApi, ILogger<ShipmentController> logger
+        , IShipmentService shipmentService, ICountryService countryService, ICityService cityService
+        , IShippingTypeService shippingTypeService, IPaymentMethodService paymentMethodService, 
+        IShippingPackagingService shippingPackagingService, IUserSenderService userSenderService, IUserReceiverService userReceiverService)
     {
+        _shipmentServiceApi = shipmentServiceApi;
         _shipmentService = shipmentService;
         _logger = logger;
+        _countryService = countryService;
+        _cityService = cityService;
+        _shippingTypeService = shippingTypeService;
+        _paymentMethodService = paymentMethodService;
+        _shippingPackagingService = shippingPackagingService;
+        _userSenderService = userSenderService;
+        _userReceiverService = userReceiverService;
     }
 
     private string GetCurrentUserId()
@@ -33,28 +54,29 @@ public class ShipmentController : Controller
 
     private async Task<bool> PopulateDropdownDataAsync(ShipmentWizardViewModel model)
     {
-        var citiesResponse = await _shipmentService.GetCitiesAsync();
-        var shippingTypesResponse = await _shipmentService.GetShippingTypesAsync();
-        var packagingResponse = await _shipmentService.GetShippingPackagingAsync();
-        var paymentMethodsResponse = await _shipmentService.GetPaymentMethodsAsync();
+        var citiesResponse = await _cityService.GetAllAsync();
+        var countriesResponse = await _countryService.GetAllAsync();
+        var shippingTypesResponse = await _shippingTypeService.GetAllAsync();
+        var packagingResponse = await _shippingPackagingService.GetAllAsync();
+        var paymentMethodsResponse = await _paymentMethodService.GetAllAsync();
 
-        if (!citiesResponse.Success || !shippingTypesResponse.Success ||
-            !packagingResponse.Success || !paymentMethodsResponse.Success)
+        if (citiesResponse.IsFailure || shippingTypesResponse.IsFailure ||
+            packagingResponse.IsFailure || paymentMethodsResponse.IsFailure)
         {
             _logger.LogWarning("Failed to load one or more dropdown sources for CreateShipment.");
             return false;
         }
 
-        model.Cities = citiesResponse.Data!
+        model.Cities = citiesResponse.Value!
             .Select(c => new SelectListItem(c.CityAname ?? c.Id.ToString(), c.Id.ToString())).ToList();
 
-        model.Shipment.ShippingTypes = shippingTypesResponse.Data!
+        model.Shipment.ShippingTypes = shippingTypesResponse.Value!
             .Select(s => new SelectListItem(s.ShippingTypeEname, s.Id.ToString())).ToList();
 
-        model.Shipment.PackagingTypes = packagingResponse.Data!
+        model.Shipment.PackagingTypes = packagingResponse.Value!
             .Select(p => new SelectListItem(p.ShippingPackagingEname, p.Id.ToString())).ToList();
 
-        model.Shipment.PaymentMethods = paymentMethodsResponse.Data!
+        model.Shipment.PaymentMethods = paymentMethodsResponse.Value!
             .Select(p => new SelectListItem(p.MethodEname, p.Id.ToString())).ToList();
 
         return true;
@@ -87,7 +109,7 @@ public class ShipmentController : Controller
         var currentUserId = GetCurrentUserId();
 
         // 1) Create Sender
-        var senderResult = await _shipmentService.CreateSenderAsync(new CreateUserSenderDto
+        var senderResult = await _userSenderService.AddAsync(new CreateUserSenderDto
         {
             UserId = currentUserId,
             SenderName = model.Sender.SenderName,
@@ -101,18 +123,18 @@ public class ShipmentController : Controller
             IsDefaultAddress = model.Sender.IsDefaultAddress
         });
 
-        if (!senderResult.Success)
+        if (senderResult.IsFailure)
         {
-            TempData["ErrorMessage"] = senderResult.Error ?? "Failed to save sender information.";
-            ModelState.AddModelError("", senderResult.Error ?? "Failed to save sender.");
+            TempData["ErrorMessage"] = senderResult.FirstError!.ToString() ?? "Failed to save sender information.";
+            ModelState.AddModelError("", senderResult.FirstError!.ToString() ?? "Failed to save sender.");
             await PopulateDropdownDataAsync(model);
             return View(model);
         }
 
-        var senderId = senderResult.Data;
+        var senderId = senderResult.Value;
 
         // 2) Create Receiver
-        var receiverResult = await _shipmentService.CreateReceiverAsync(new CreateUserReceiverDto
+        var receiverResult = await _userReceiverService.AddAsync(new CreateUserReceiverDto
         {
             UserId = currentUserId,
             ReceiverName = model.Receiver.ReceiverName,
@@ -126,15 +148,15 @@ public class ShipmentController : Controller
             IsDefaultAddress = model.Receiver.IsDefaultAddress
         });
 
-        if (!receiverResult.Success)
+        if (receiverResult.IsFailure)
         {
-            TempData["ErrorMessage"] = receiverResult.Error ?? "Failed to save receiver information.";
-            ModelState.AddModelError("", receiverResult.Error ?? "Failed to save receiver.");
+            TempData["ErrorMessage"] = receiverResult.FirstError!.ToString() ?? "Failed to save receiver information.";
+            ModelState.AddModelError("", receiverResult.FirstError!.ToString() ?? "Failed to save receiver.");
             await PopulateDropdownDataAsync(model);
             return View(model);
         }
 
-        var receiverId = receiverResult.Data;
+        var receiverId = receiverResult.Value;
 
         // 3) Create the shipment itself
         var dto = new CreateShipmentDto
@@ -154,18 +176,18 @@ public class ShipmentController : Controller
             UserSubscriptionId = model.Shipment.UserSubscriptionId
         };
 
-        var result = await _shipmentService.CreateShipmentAsync(dto);
+        var result = await _shipmentService.AddAsync(dto);
 
-        if (!result.Success)
+        if (result.IsFailure)
         {
-            TempData["ErrorMessage"] = result.Error ?? "Failed to create shipment. Please try again.";
-            ModelState.AddModelError("", result.Error ?? "Failed to create shipment.");
+            TempData["ErrorMessage"] = result.FirstError!.ToString() ?? "Failed to create shipment. Please try again.";
+            ModelState.AddModelError("", result.FirstError!.ToString() ?? "Failed to create shipment.");
             await PopulateDropdownDataAsync(model);
             return View(model);
         }
 
         TempData["SuccessMessage"] = "Shipment created successfully!";
-        return RedirectToAction("Confirmation", new { id = result.Data });
+        return RedirectToAction("Confirmation", new { id = result.Value });
     }
 
     [HttpGet]
