@@ -1,349 +1,164 @@
-@model UI.Models.Home.HomeDashboardViewModel
+<!-- Views/Home/Index.cshtml -->
 @{
-    ViewData["Title"] = "My Dashboard";
+    ViewData["Title"] = "Home";
 }
 
-<!-- ─── Page Header ───────────────────────────────────────────────── -->
-<div class="wshipping-content-block wshipping-breadcroumb inner-bg-1">
-    <div class="container">
-        <div class="row align-items-center">
-            <div class="col-12 col-lg-7">
-                <h1>My Dashboard</h1>
-                <a href="/" title="Home">Home</a> / Dashboard
-            </div>
-            <div class="col-12 col-lg-5 text-right">
-                <a href="/Shipment/CreateShipment" class="wshipping-button slide-btn" id="btn-create-shipment">
-                    <i class="fa fa-plus"></i> &nbsp;Create New Shipment
-                </a>
+<!-- Slider Start -->
+<div class="homepage-slides-wrapper">
+    <div class="owl-carousel homepage-slides text-center">
+        <!-- Slider item1 start -->
+        <div class="single-slide-item slider-overlay slide-bg-1">
+            <div class="item-table">
+                <div class="item-tablecell">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-lg-10 offset-lg-1">
+                                <h3>We are proud</h3>
+                                <h2>To be always on demand</h2>
+                                <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.</p>
+                                <a href="#" class="wshipping-button slide-btn">Contact With Us</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-</div>
-<!-- ─── End Page Header ───────────────────────────────────────────── -->
+        <!-- Slider item1 end -->
 
-<!-- ─── Stats Cards ──────────────────────────────────────────────── -->
-<div class="wshipping-content-block dashboard-stats-section">
-    <div class="container">
-        <div class="row">
-
-            <!-- Total Shipments -->
-            <div class="col-12 col-sm-6 col-lg-3">
-                <div class="dashboard-stat-card stat-total wow fadeInUp">
-                    <div class="stat-icon"><i class="fa fa-boxes"></i></div>
-                    <div class="stat-info">
-                        <span class="stat-count" id="stat-total">@Model.TotalShipments</span>
-                        <p>Total Shipments</p>
+        <!-- Slider item2 start -->
+        <div class="single-slide-item slider-overlay slide-bg-2">
+            <div class="item-table">
+                <div class="item-tablecell">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-lg-10 offset-lg-1">
+                                <h3>We are active</h3>
+                                <h2>To ship your product trusted</h2>
+                                <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.</p>
+                                <a href="#" class="wshipping-button slide-btn">Get Free Quote</a>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-
-            <!-- Pending Shipments -->
-            <div class="col-12 col-sm-6 col-lg-3">
-                <div class="dashboard-stat-card stat-pending wow fadeInUp">
-                    <div class="stat-icon"><i class="fa fa-clock"></i></div>
-                    <div class="stat-info">
-                        <span class="stat-count" id="stat-pending">@Model.PendingShipments</span>
-                        <p>Pending</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- In Transit -->
-            <div class="col-12 col-sm-6 col-lg-3">
-                <div class="dashboard-stat-card stat-transit wow fadeInUp">
-                    <div class="stat-icon"><i class="fa fa-truck"></i></div>
-                    <div class="stat-info">
-                        <span class="stat-count" id="stat-transit">@Model.InTransitShipments</span>
-                        <p>In Transit</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Delivered -->
-            <div class="col-12 col-sm-6 col-lg-3">
-                <div class="dashboard-stat-card stat-delivered wow fadeInUp">
-                    <div class="stat-icon"><i class="fa fa-check-circle"></i></div>
-                    <div class="stat-info">
-                        <span class="stat-count" id="stat-delivered">@Model.DeliveredShipments</span>
-                        <p>Delivered</p>
-                    </div>
-                </div>
-            </div>
-
         </div>
+        <!-- Slider item2 end -->
     </div>
 </div>
-<!-- ─── End Stats Cards ───────────────────────────────────────────── -->
+<!-- Slider End -->
 
-<!-- ─── Recent Shipments Table ───────────────────────────────────── -->
+<!-- Tracking start -->
 <div class="wshipping-content-block">
     <div class="container">
-
-        <div class="dashboard-table-header wow fadeInUp">
-            <h2 class="heading2-border mt0">Recent Shipments</h2>
-            <a href="/Shipment/CreateShipment" class="wshipping-button cta-btn" id="btn-create-shipment-2">
-                <i class="fa fa-plus"></i> &nbsp;New Shipment
-            </a>
+        <div class="row">
+            <div class="col-12 col-lg-6 offset-lg-3">
+                <div class="section-title wow fadeInUp">
+                    <h2>Track a shipment</h2>
+                    <p>Track your LTL, truckload, or intermodal shipment by entering your <span>Track number</span> below to get instant freight tracking information.</p>
+                </div>
+            </div>
         </div>
-
-        @if (!Model.RecentShipments.Any())
-        {
-            <div class="dashboard-empty-state wow fadeInUp">
-                <i class="fa fa-shipping-fast"></i>
-                <h3>No shipments yet</h3>
-                <p>You haven't created any shipments. Click the button above to get started.</p>
+        <div class="row justify-content-center">
+            <div class="col-12 col-lg-9">
+                <div class="tracking-block">
+                    <ul class="nav nav-tabs" role="tablist">
+                        <li class="nav-item"><a class="nav-link active" href="#track-by-number" aria-controls="track-by-number" role="tab" data-toggle="tab">Track by Number</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#track-by-reference" aria-controls="track-by-reference" role="tab" data-toggle="tab">Track by Reference</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div role="tabpanel" class="tab-pane active" id="track-by-number">
+                            <h3>Air Freight Tracking</h3>
+                            <div class="put-track-number">
+                                <form action="@Url.Action("Result", "Tracking")">
+                                    <input type="text" class="form-control track-id" name="trackid" placeholder="Track ID" />
+                                    <button type="submit" class="btn btn-track">Track</button>
+                                </form>
+                            </div>
+                            <div class="track-bottom-link"><a href="#">Need Help?</a> <span>|</span> <a href="#">Your Order list</a></div>
+                        </div>
+                        <div role="tabpanel" class="tab-pane" id="track-by-reference">
+                            <div class="put-reference-number">
+                                <form action="@Url.Action("Index", "Tracking")">
+                                    <div class="form-group">
+                                        <div class="row">
+                                            <div class="col-12 col-md-6 col-lg-4">
+                                                <label>Shipment Reference (BOL or PO):</label>
+                                                <input type="text" class="form-control" name="RefNumber" required />
+                                            </div>
+                                            <div class="col-12 col-md-6 col-lg-4">
+                                                <label>Shipment Date Start:</label>
+                                                <div class="input-group date" data-provide="datepicker">
+                                                    <input type="text" class="form-control" name="startDate" required />
+                                                    <div class="input-group-addon"><span class="glyphicon glyphicon-th"></span></div>
+                                                </div>
+                                            </div>
+                                            <div class="col-12 col-md-6 col-lg-4">
+                                                <label>Shipment Date End:</label>
+                                                <div class="input-group date" data-provide="datepicker">
+                                                    <input type="text" class="form-control" name="EndDate" required />
+                                                    <div class="input-group-addon"><span class="glyphicon glyphicon-th"></span></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-submit">Track</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        }
-        else
-        {
-            <div class="dashboard-table-wrapper wow fadeInUp">
-                <table class="dashboard-table" id="recent-shipments-table">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Tracking Number</th>
-                            <th>Sender ID</th>
-                            <th>Receiver ID</th>
-                            <th>Shipping Date</th>
-                            <th>Status</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @{ int rowNum = 1; }
-                        @foreach (var shipment in Model.RecentShipments)
-                        {
-                            <tr>
-                                <td>@rowNum</td>
-                                <td>
-                                    <span class="tracking-number">
-                                        <i class="fa fa-barcode"></i>
-                                        @shipment.TrackingNumber
-                                    </span>
-                                </td>
-                                <td>
-                                    <span class="id-cell" title="@shipment.SenderId">
-                                        @shipment.SenderId.ToString()[..8]…
-                                    </span>
-                                </td>
-                                <td>
-                                    <span class="id-cell" title="@shipment.ReceiverId">
-                                        @shipment.ReceiverId.ToString()[..8]…
-                                    </span>
-                                </td>
-                                <td>@shipment.ShippingDate.ToString("dd MMM yyyy")</td>
-                                <td>
-                                    <span class="status-badge @shipment.BadgeClass">
-                                        @shipment.Status
-                                    </span>
-                                </td>
-                                <td>
-                                    <a href="/Shipment/Details/@shipment.Id"
-                                       class="btn-view-details"
-                                       title="View Details">
-                                        <i class="fa fa-eye"></i> View
-                                    </a>
-                                </td>
-                            </tr>
-                            rowNum++;
-                        }
-                    </tbody>
-                </table>
-            </div>
-        }
-
+        </div>
     </div>
 </div>
-<!-- ─── End Recent Shipments Table ───────────────────────────────── -->
+<!-- Tracking end -->
 
-<!-- ─── Dashboard Styles (scoped) ────────────────────────────────── -->
-@section Styles {
-<style>
-/* ── Stats Section ──────────────────────────────────────────────── */
-.dashboard-stats-section {
-    background: #f8f9fc;
-    padding: 50px 0 30px;
-}
-
-.dashboard-stat-card {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    background: #fff;
-    border-radius: 12px;
-    padding: 28px 24px;
-    margin-bottom: 24px;
-    box-shadow: 0 4px 20px rgba(0,0,0,.07);
-    border-left: 5px solid transparent;
-    transition: transform .25s ease, box-shadow .25s ease;
-}
-
-.dashboard-stat-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 32px rgba(0,0,0,.12);
-}
-
-.stat-total   { border-left-color: #3a6df0; }
-.stat-pending { border-left-color: #f7a548; }
-.stat-transit { border-left-color: #17a2b8; }
-.stat-delivered { border-left-color: #28a745; }
-
-.stat-icon {
-    font-size: 2.4rem;
-    width: 56px;
-    height: 56px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    flex-shrink: 0;
-}
-
-.stat-total   .stat-icon { background: rgba(58,109,240,.12); color: #3a6df0; }
-.stat-pending .stat-icon { background: rgba(247,165,72,.12);  color: #f7a548; }
-.stat-transit .stat-icon { background: rgba(23,162,184,.12);  color: #17a2b8; }
-.stat-delivered .stat-icon { background: rgba(40,167,69,.12); color: #28a745; }
-
-.stat-count {
-    display: block;
-    font-size: 2.2rem;
-    font-weight: 700;
-    line-height: 1;
-    color: #2d3748;
-}
-
-.stat-info p {
-    margin: 6px 0 0;
-    font-size: .9rem;
-    color: #718096;
-    font-weight: 500;
-}
-
-/* ── Table Section ──────────────────────────────────────────────── */
-.dashboard-table-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 12px;
-    margin-bottom: 24px;
-}
-
-.dashboard-table-wrapper {
-    overflow-x: auto;
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0,0,0,.07);
-}
-
-.dashboard-table {
-    width: 100%;
-    border-collapse: collapse;
-    background: #fff;
-    font-size: .92rem;
-}
-
-.dashboard-table thead tr {
-    background: linear-gradient(135deg, #1a3c6e 0%, #3a6df0 100%);
-    color: #fff;
-}
-
-.dashboard-table thead th {
-    padding: 14px 18px;
-    font-weight: 600;
-    text-align: left;
-    white-space: nowrap;
-    letter-spacing: .03em;
-}
-
-.dashboard-table tbody tr {
-    border-bottom: 1px solid #edf2f7;
-    transition: background .18s;
-}
-
-.dashboard-table tbody tr:hover {
-    background: #f0f5ff;
-}
-
-.dashboard-table tbody td {
-    padding: 14px 18px;
-    color: #4a5568;
-    vertical-align: middle;
-}
-
-/* ── Tracking number cell ── */
-.tracking-number {
-    font-family: 'Courier New', monospace;
-    font-weight: 600;
-    color: #2d3748;
-    font-size: .88rem;
-}
-
-.tracking-number i { margin-right: 6px; color: #3a6df0; }
-
-/* ── ID cell ── */
-.id-cell {
-    font-size: .82rem;
-    color: #718096;
-    cursor: help;
-}
-
-/* ── Status badges ── */
-.status-badge {
-    display: inline-block;
-    padding: 4px 14px;
-    border-radius: 50px;
-    font-size: .8rem;
-    font-weight: 600;
-    letter-spacing: .04em;
-    text-transform: uppercase;
-}
-
-.badge-pending   { background: #fff3cd; color: #856404; }
-.badge-transit   { background: #d1ecf1; color: #0c5460; }
-.badge-delivered { background: #d4edda; color: #155724; }
-.badge-unknown   { background: #e2e8f0; color: #4a5568; }
-
-/* ── View button ── */
-.btn-view-details {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 16px;
-    background: #3a6df0;
-    color: #fff !important;
-    border-radius: 6px;
-    font-size: .82rem;
-    font-weight: 600;
-    text-decoration: none;
-    transition: background .2s;
-}
-
-.btn-view-details:hover { background: #1a3c6e; }
-
-/* ── Empty state ── */
-.dashboard-empty-state {
-    text-align: center;
-    padding: 60px 20px;
-    color: #718096;
-}
-
-.dashboard-empty-state i {
-    font-size: 3.5rem;
-    color: #cbd5e0;
-    margin-bottom: 16px;
-    display: block;
-}
-
-.dashboard-empty-state h3 {
-    font-size: 1.4rem;
-    color: #4a5568;
-    margin-bottom: 8px;
-}
-
-/* ── Responsive ── */
-@@media (max-width: 576px) {
-    .dashboard-stat-card { flex-direction: column; text-align: center; }
-    .stat-icon { width: 48px; height: 48px; font-size: 1.8rem; }
-}
-</style>
-}
+<!-- Service start -->
+<div class="wshipping-content-block">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 col-lg-6 offset-lg-3">
+                <div class="section-title wow fadeInUp">
+                    <h2>Our Services</h2>
+                    <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry.</p>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12 col-lg-4">
+                <div class="single-service-item wow fadeInUp">
+                    <div class="service-item-bg service-bg-1"></div>
+                    <div class="service-content">
+                        <h4>Ocean Freight Shipping</h4>
+                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard</p>
+                        <a href="@Url.Action("Details", "Services", new { id = 1 })" title="" class="readmore-btn">Read more <i class="fa fa-angle-right"></i></a>
+                        <div class="location_map"><i class="fa fa-plus"></i></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-lg-4">
+                <div class="single-service-item wow fadeInUp">
+                    <div class="service-item-bg service-bg-2"></div>
+                    <div class="service-content">
+                        <h4>Air Freight Shipping</h4>
+                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard</p>
+                        <a href="@Url.Action("Details", "Services", new { id = 2 })" title="" class="readmore-btn">Read more <i class="fa fa-angle-right"></i></a>
+                        <div class="location_map"><i class="fa fa-plus"></i></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-lg-4">
+                <div class="single-service-item wow fadeInUp">
+                    <div class="service-item-bg service-bg-3"></div>
+                    <div class="service-content">
+                        <h4>Car Shipping</h4>
+                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard</p>
+                        <a href="@Url.Action("Details", "Services", new { id = 3 })" title="" class="readmore-btn">Read more <i class="fa fa-angle-right"></i></a>
+                        <div class="location_map"><i class="fa fa-plus"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Service End -->

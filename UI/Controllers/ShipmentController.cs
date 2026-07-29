@@ -108,63 +108,36 @@ public class ShipmentController : Controller
 
         var currentUserId = GetCurrentUserId();
 
-        // 1) Create Sender
-        var senderResult = await _userSenderService.AddAsync(new CreateUserSenderDto
-        {
-            UserId = currentUserId,
-            SenderName = model.Sender.SenderName,
-            Email = model.Sender.Email,
-            Phone = model.Sender.Phone,
-            CityId = model.Sender.CityId,
-            Address = model.Sender.Address,
-            Contact = model.Sender.Contact!,
-            OtherAddress = model.Sender.OtherAddress!,
-            PostalCode = model.Sender.PostalCode,
-            IsDefaultAddress = model.Sender.IsDefaultAddress
-        });
-
-        if (senderResult.IsFailure)
-        {
-            TempData["ErrorMessage"] = senderResult.FirstError!.ToString() ?? "Failed to save sender information.";
-            ModelState.AddModelError("", senderResult.FirstError!.ToString() ?? "Failed to save sender.");
-            await PopulateDropdownDataAsync(model);
-            return View(model);
-        }
-
-        var senderId = senderResult.Value;
-
-        // 2) Create Receiver
-        var receiverResult = await _userReceiverService.AddAsync(new CreateUserReceiverDto
-        {
-            UserId = currentUserId,
-            ReceiverName = model.Receiver.ReceiverName,
-            Email = model.Receiver.Email,
-            Phone = model.Receiver.Phone,
-            CityId = model.Receiver.CityId,
-            Address = model.Receiver.Address,
-            Contact = model.Receiver.Contact!,
-            OtherAddress = model.Receiver.OtherAddress!,
-            PostalCode = model.Receiver.PostalCode,
-            IsDefaultAddress = model.Receiver.IsDefaultAddress
-        });
-
-        if (receiverResult.IsFailure)
-        {
-            TempData["ErrorMessage"] = receiverResult.FirstError!.ToString() ?? "Failed to save receiver information.";
-            ModelState.AddModelError("", receiverResult.FirstError!.ToString() ?? "Failed to save receiver.");
-            await PopulateDropdownDataAsync(model);
-            return View(model);
-        }
-
-        var receiverId = receiverResult.Value;
-
-        // 3) Create the shipment itself
         var dto = new CreateShipmentDto
         {
+            Sender = new CreateUserSenderDto
+            {
+                UserId = currentUserId,
+                SenderName = model.Sender.SenderName,
+                Email = model.Sender.Email,
+                Phone = model.Sender.Phone,
+                CityId = model.Sender.CityId,
+                Address = model.Sender.Address,
+                Contact = model.Sender.Contact!,
+                OtherAddress = model.Sender.OtherAddress!,
+                PostalCode = model.Sender.PostalCode,
+                IsDefaultAddress = model.Sender.IsDefaultAddress
+            },
+            Receiver = new CreateUserReceiverDto
+            {
+                UserId = currentUserId,
+                ReceiverName = model.Receiver.ReceiverName,
+                Email = model.Receiver.Email,
+                Phone = model.Receiver.Phone,
+                CityId = model.Receiver.CityId,
+                Address = model.Receiver.Address,
+                Contact = model.Receiver.Contact!,
+                OtherAddress = model.Receiver.OtherAddress!,
+                PostalCode = model.Receiver.PostalCode,
+                IsDefaultAddress = model.Receiver.IsDefaultAddress
+            },
             ShippingDate = model.Shipment.ShippingDate,
             DeliveryDate = model.Shipment.DeliveryDate,
-            SenderId = senderId,
-            ReceiverId = receiverId,
             ShippingTypeId = model.Shipment.ShippingTypeId,
             ShippingPackagingId = model.Shipment.ShippingPackagingId,
             Width = model.Shipment.Width,
@@ -176,12 +149,12 @@ public class ShipmentController : Controller
             UserSubscriptionId = model.Shipment.UserSubscriptionId
         };
 
-        var result = await _shipmentService.AddAsync(dto);
+        var result = await _shipmentService.CreateShipment(dto);
 
         if (result.IsFailure)
         {
-            TempData["ErrorMessage"] = result.FirstError!.ToString() ?? "Failed to create shipment. Please try again.";
-            ModelState.AddModelError("", result.FirstError!.ToString() ?? "Failed to create shipment.");
+            TempData["ErrorMessage"] = result.FirstError?.Code ?? "Failed to create shipment. Please try again.";
+            ModelState.AddModelError("", result.FirstError?.Code ?? "Failed to create shipment.");
             await PopulateDropdownDataAsync(model);
             return View(model);
         }

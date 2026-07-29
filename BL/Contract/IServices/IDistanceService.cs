@@ -9,5 +9,4 @@ namespace BL.Contract.IServices;
 public interface IDistanceService
 {
     Task<decimal> GetDistanceBetweenCitiesAsync(Guid fromCityId, Guid toCityId);
-    Task<decimal> GetDistanceBetweenSenderAndReceiverAsync(Guid senderId, Guid receiverId);
 }

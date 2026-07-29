@@ -4,6 +4,7 @@ using BL.Contract.IServices;
 using BL.Mapping;
 using DAL.Contracts;
 using Domain.Shared;
+using Domain.Entities;
 
 namespace BL.Services;
 public class BaseService<T, TDto, TCreateDto, TUpdateDto> : IBaseService<T, TDto, TCreateDto, TUpdateDto> where T : BaseEntity
@@ -12,22 +13,14 @@ public class BaseService<T, TDto, TCreateDto, TUpdateDto> : IBaseService<T, TDto
     protected readonly IMapper _mapper;
     protected readonly IUserService _userService;
     protected readonly IUnitOfWork _unitOfWork;
-    public BaseService(IGenericRepository<T> repository, IMapper mapper, IUserService userService)
-    {
-        _repository = repository;
-        _mapper = mapper;
-        _userService = userService;
-        _unitOfWork = new UnsupportedUnitOfWork();
-    }
 
     public BaseService(IUnitOfWork unitOfWork, IMapper mapper, IUserService userService)
     {
         _mapper = mapper;
         _userService = userService;
-        _repository = unitOfWork.Repository<T>();
         _unitOfWork = unitOfWork;
+        _repository = unitOfWork.Repository<T>();
     }
-
     public async Task<Result<IEnumerable<TDto>>> GetAllAsync()
     {
         var list = await _repository.GetAllAsync();
@@ -92,21 +85,16 @@ public class BaseService<T, TDto, TCreateDto, TUpdateDto> : IBaseService<T, TDto
         return Result.Success();
     }
 
-    public virtual async Task<Result<Guid>> AddAsync(TCreateDto dto)
+    public virtual async Task<Result<T>> AddAsync(TCreateDto dto)
     {
         var entity = _mapper.Map<TCreateDto, T>(dto);
 
         entity.CreatedBy = await _userService.GetLoggedInUserAsync();
+        entity.CreatedDate = DateTime.UtcNow;
+        entity.CurrentState = enEntityState.Active;
 
-        var added = await _repository.AddAsync(entity);
+        await _repository.CreateAsync(entity);
 
-        if (!added)
-        {
-            return Error.Unexpected(
-                $"{typeof(T).Name}.CreateFailed",
-                $"Failed to create {typeof(T).Name}.");
-        }
-
-        return Result<Guid>.Success(entity.Id);
+        return Result<T>.Success(entity);
     }
 }

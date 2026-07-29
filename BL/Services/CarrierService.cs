@@ -9,6 +9,6 @@ namespace BL.Services;
 public class CarrierService 
     : BaseService<TbCarrier, CarrierDto, CreateCarrierDto, UpdateCarrierDto>, ICarrierService
 {
-    public CarrierService(IGenericRepository<TbCarrier> repository, IMapper mapper, IUserService userService)
-        : base(repository, mapper, userService) { }
+    public CarrierService(IGenericRepository<TbCarrier> repository, IMapper mapper, IUserService userService, IUnitOfWork unitOfWork)
+        : base(unitOfWork, mapper, userService) { }
 }

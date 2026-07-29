@@ -1,0 +1,65 @@
+
+<!-- Views/Services/Index.cshtml -->
+@{
+    ViewData["Title"] = "Our Services";
+}
+
+<!-- Breadcroumbs start -->
+<div class="wshipping-content-block wshipping-breadcroumb inner-bg-1">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 col-lg-7">
+                <h1>Our Services</h1>
+                <a href="@Url.Action("Index", "Home")" title="Home">Home</a> / Our Services
+            </div>
+            <div class="col-12 col-lg-5 text-right">
+                <h4>We freight to all over the world<br />The best logistic company, <span>FAST</span> and <span>SAFELY!</span></h4>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Breadcroumbs end -->
+
+<!-- Our Services Start -->
+<div class="wshipping-content-block">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 col-lg-6 offset-lg-3">
+                <div class="section-title wow fadeInUp">
+                    <h2>Our Services</h2>
+                    <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry.</p>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <!-- خدمات متكررة -->
+            <div class="col-12 col-lg-4">
+                <div class="single-service-item wow fadeInUp">
+                    <div class="service-item-bg service-bg-1"></div>
+                    <div class="service-content">
+                        <h3>Ocean Freight Shipping</h3>
+                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry.</p>
+                        <a href="@Url.Action("Details", "Services", new { id = 1 })" title="" class="readmore-btn">Read more <i class="fa fa-angle-right"></i></a>
+                        <div class="location_map"><i class="fa fa-plus"></i></div>
+                    </div>
+                </div>
+            </div>
+            <!-- ... تكرار لباقي الخدمات -->
+        </div>
+    </div>
+</div>
+<!-- Our Services end -->
+
+<!-- Our client start -->
+<div class="wshipping-content-block client-block pt0">
+    <div class="container">
+        <div class="row">
+            <div class="col-12"><h3 class="heading3-border text-uppercase">Our Valuable Client</h3></div>
+            <div class="owl-carousel our-client">
+                <div class="client-item"><img src="~/assets/images/client-1.jpg" alt="" /></div>
+                <!-- ... تكرار لباقي العملاء -->
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Our client end -->

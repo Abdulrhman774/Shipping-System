@@ -1,12 +1,22 @@
+using BL.DTOs.UserReceiver;
+using BL.DTOs.UserSender;
 using System.Text.Json.Serialization;
 
 namespace BL.DTOs.Shipment
 {
     public class CreateShipmentDto
     {
+        public CreateUserSenderDto Sender { get; set; } = null!;
+        public CreateUserReceiverDto Receiver { get; set; } = null!;
+
+
         public DateTime ShippingDate { get; set; }
         public DateTime? DeliveryDate { get; set; }
+
+        [JsonIgnore]
         public Guid SenderId { get; set; }
+        
+        [JsonIgnore]
         public Guid ReceiverId { get; set; }
         public Guid ShippingTypeId { get; set; }
         public double Width { get; set; }

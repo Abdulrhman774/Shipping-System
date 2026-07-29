@@ -1,0 +1,67 @@
+﻿<!-- Views/Tracking/Result.cshtml -->
+@{
+    ViewData["Title"] = "Tracking Result";
+}
+
+<!-- Breadcroumbs start -->
+<div class="wshipping-content-block wshipping-breadcroumb inner-bg-1">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 col-lg-7">
+                <h1>Your shipment progress</h1>
+                <a href="@Url.Action("Index", "Home")" title="Home">Home</a> / Your shipment progress
+            </div>
+            <div class="col-12 col-lg-5 text-right">
+                <h4>We freight to all over the world<br />The best logistic company, <span>FAST</span> and <span>SAFELY!</span></h4>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Breadcroumbs end -->
+<!-- Your shipment progress start -->
+<div class="wshipping-content-block">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 col-lg-9">
+                <div class="track-result">
+                    <h3>Shipment Track Result</h3>
+                    <div class="track-result-block">
+                        <div class="track-result-id"><b>Order Tracking:</b> Order No</div>
+                        <div class="track-status">
+                            <div class="row">
+                                <div class="col-12 col-lg-4"><b>Shipping Via:</b> Ipsum Dolor</div>
+                                <div class="col-12 col-lg-4"><b>Status:</b> Processing Order</div>
+                                <div class="col-12 col-lg-4"><b>Expected Date:</b> 12-DEC-2017</div>
+                            </div>
+                        </div>
+                        <div class="track-result-bar">
+                            <ul class="track-progress">
+                                <li class="icon-confirm-roder track-active">Confirmed Order</li>
+                                <li class="icon-process-roder track-active">Processing Order</li>
+                                <li class="icon-quality-check">Quality Check</li>
+                                <li class="icon-dispatched-item">Dispatched Item</li>
+                                <li class="icon-product-deliver">Product Delivered</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Right sidebar start -->
+            <div class="col-12 col-lg-3">
+                <div class="right-block left-menu menu-with-title mt60 mb15">
+                    <h4 class="title-with-bg">Select Your Freight</h4>
+                    <ul>
+                        <li class="active"><a href="#" title="Air Freight Tracking">Air Freight Tracking</a></li>
+                        <li><a href="#" title="Ocean Freight Tracking">Ocean Freight Tracking</a></li>
+                        <li><a href="#" title="Road & Rail Freight Tracking">Road & Rail Freight Tracking</a></li>
+                    </ul>
+                </div>
+                <a href="#" class="order-list-button">Your Order List</a>
+            </div>
+            <!-- Right sidebar end -->
+        </div>
+    </div>
+</div>
+<!-- Your shipment progress end -->
+<!-- Send free quote & Our Services -->
+<!-- ... تكرار الأقسام السابقة -->

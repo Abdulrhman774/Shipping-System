@@ -9,6 +9,6 @@ namespace BL.Services;
 public class PaymentMethodService 
     : BaseService<TbPaymentMethod, PaymentMethodDto, CreatePaymentMethodDto, UpdatePaymentMethodDto>, IPaymentMethodService
 {
-    public PaymentMethodService(IGenericRepository<TbPaymentMethod> repository, IMapper mapper, IUserService userService)
-        : base(repository, mapper, userService) { }
+    public PaymentMethodService(IGenericRepository<TbPaymentMethod> repository, IMapper mapper, IUserService userService, IUnitOfWork unitOfWork)
+        : base(unitOfWork, mapper, userService) { }
 }

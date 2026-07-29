@@ -1,11 +1,12 @@
 // BL/Services/UserReceiverService.cs
 
-using Domain.Entities;
-using BL.DTOs.UserReceiver;
-using BL.Contract.IServices;
-using DAL.Contracts;
-using BL.Mapping;
 using BL.Common.Results;
+using BL.Contract.IServices;
+using BL.DTOs.UserReceiver;
+using BL.DTOs.UserSender;
+using BL.Mapping;
+using DAL.Contracts;
+using Domain.Entities;
 
 namespace BL.Services;
 
@@ -15,17 +16,18 @@ public class UserReceiverService
     private readonly ICityService _cityService;
 
     public UserReceiverService(
+        IUnitOfWork unitOfWork,
         IGenericRepository<TbUserReceiver> repository,
         IMapper mapper,
         IUserService userService,
         ICityService cityService)
-        : base(repository, mapper, userService)
+        : base(unitOfWork, mapper, userService)
     {
         _cityService = cityService;
     }
 
     // Override CreateAsync with the same logic
-    public override async Task<Result<Guid>> AddAsync(CreateUserReceiverDto dto)
+    public override async Task<Result<TbUserReceiver>> AddAsync(CreateUserReceiverDto dto)
     {
         // 1. Validate City exists
         var cityExists = await _cityService.GetByIdAsync(dto.CityId);
@@ -48,8 +50,14 @@ public class UserReceiverService
             await RemoveOtherDefaultAddresses(dto.UserId);
         }
 
-        // 5. Proceed with base creation
-        return await base.AddAsync(dto);
+        var entity = _mapper.Map<CreateUserReceiverDto, TbUserReceiver>(dto);
+        entity.CreatedBy = await _userService.GetLoggedInUserAsync();
+        entity.CreatedDate = DateTime.UtcNow;
+        entity.CurrentState = enEntityState.Active;
+
+        await _repository.AddAsync(entity); // NO SAVE
+
+        return Result<TbUserReceiver>.Success(entity); // ✅ Return the entity
     }
 
     // Override UpdateAsync to handle email/phone changes and default address logic

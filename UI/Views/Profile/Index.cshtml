@@ -1,0 +1,387 @@
+<!-- Breadcroumbs start -->
+<div class="wshipping-content-block wshipping-breadcroumb inner-bg-1">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 col-lg-7">
+                <h1>Customer Profile</h1>
+                <a href="index.html" title="Home">Home</a> / Customer Profile
+            </div>
+            <div class="col-12 col-lg-5 text-right">
+                <h4>
+                    We freight to all over the world
+                    The best logistic company, <span>FAST</span> and <span>SAFELY!</span>
+                </h4>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Breadcroumbs end -->
+
+<div class="wshipping-content-block">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-3">
+                <div class="right-block left-menu menu-with-title mb15">
+                    <ul class="nav flex-column" id="myTab" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="editprofile-tab" data-toggle="tab" href="#editprofile" role="tab" aria-controls="editprofile" aria-selected="true">edit profile</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="shipmenttracking-tab" data-toggle="tab" href="#shipmenttracking" role="tab" aria-controls="shipmenttracking" aria-selected="false">shipment tracking</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="CurrentShipment-tab" data-toggle="tab" href="#CurrentShipment" role="tab" aria-controls="CurrentShipment" aria-selected="false">Current Shipment</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="ShipmentHistory-tab" data-toggle="tab" href="#ShipmentHistory" role="tab" aria-controls="ShipmentHistory" aria-selected="false">Shipment History</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-lg-9">
+                <div class="tab-content" id="myTabContent">
+                    <div class="tab-pane fade show active" id="editprofile" role="tabpanel" aria-labelledby="editprofile-tab">
+                        <div class="profile-settings">
+                            <div class="row">
+                                <div class="col-12 col-md-6 col-lg-6">
+                                    <div class="customer-login-block">
+                                        <h2>User Data</h2>
+                                        <form action="profile.html">
+                                            <div class="form-group">
+                                                <div class="row">
+                                                    <div class="col-12 col-md-3 col-lg-3">
+                                                        <label for="fileToUpload">
+                                                            <div class="profile-pic" style="background-image: url('assets/images/profile.jpg')">
+                                                                <span>Change Image</span>
+                                                            </div>
+                                                        </label>
+                                                        <input type="File" name="fileToUpload" id="fileToUpload">
+                                                    </div>
+                                                    <div class="col-12 col-md-9 col-lg-9 align-content-center">
+                                                        <h4>User Name</h4>
+                                                        <h6>info@company.com</h6>
+                                                        <span>+88 01xxx 8xxx04</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <div class="row">
+                                                    <div class="col-12 col-md-6 col-lg-6">
+                                                        <label>First Name:</label>
+                                                        <input type="text" class="form-control" placeholder="first name" name="fname" />
+                                                    </div>
+                                                    <div class="col-12 col-md-6 col-lg-6">
+                                                        <label>Last Name:</label>
+                                                        <input type="text" class="form-control" placeholder="last name" name="fname" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <div class="row">
+                                                    <div class="col-12 col-md-6 col-lg-6">
+                                                        <label>Email:</label>
+                                                        <input type="email" class="form-control" placeholder="info@company.com" name="email" />
+                                                    </div>
+                                                    <div class="col-12 col-md-6 col-lg-6">
+                                                        <label>Phone:</label>
+                                                        <input type="text" class="form-control" placeholder="+88 01xxx 8xxx04" name="phone" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <button type="submit" class="btn btn-submit">Save Changes</button>
+                                        </form>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-6 col-lg-6">
+                                    <div class="customer-login-block">
+                                        <h2>Change Password</h2>
+                                        <form action="profile.html">
+                                            <div class="form-group">
+                                                <div class="row">
+                                                    <div class="col-12 col-md-6 col-lg-6">
+                                                        <label>Old Password:</label>
+                                                        <input type="password" class="form-control" name="pass" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <div class="row">
+                                                    <div class="col-12 col-md-6 col-lg-6">
+                                                        <label>New Password:</label>
+                                                        <input type="password" class="form-control" name="pass" />
+                                                    </div>
+                                                    <div class="col-12 col-md-6 col-lg-6">
+                                                        <label>Confirm Password:</label>
+                                                        <input type="password" class="form-control" name="cpass" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <button type="submit" class="btn btn-submit">Change Password</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="shipmenttracking" role="tabpanel" aria-labelledby="shipmenttracking-tab">
+                        <div class="row justify-content-center">
+                            <div class="col-12 col-lg-12">
+                                <div class="tracking-block">
+                                    <ul class="nav nav-tabs" role="tablist">
+                                        <li class="nav-item"><a class="nav-link active" href="#track-by-number" aria-controls="track-by-number" role="tab" data-toggle="tab">Track by Number</a></li>
+                                        <li class="nav-item"><a class="nav-link" href="#track-by-reference" aria-controls="track-by-reference" role="tab" data-toggle="tab">Track by Reference</a></li>
+                                    </ul>
+                                    <div class="tab-content">
+                                        <div role="tabpanel" class="tab-pane active" id="track-by-number">
+                                            <h3>Air Freight Tracking</h3>
+                                            <div class="put-track-number">
+                                                <form action="track.html">
+                                                    <input type="text" class="form-control track-id" name="trackid" placeholder="Track ID" />
+                                                    <button type="submit" class="btn btn-track">Track</button>
+                                                </form>
+                                            </div>
+                                            <div class="track-bottom-link"><a href="">Need Help?</a> <span>|</span> <a href="">Your Order list</a></div>
+                                        </div>
+                                        <div role="tabpanel" class="tab-pane" id="track-by-reference">
+                                            <div class="put-reference-number">
+                                                <form action="customer-register.html">
+                                                    <div class="form-group">
+                                                        <div class="row">
+                                                            <div class="col-12 col-md-6 col-lg-4">
+                                                                <label>Shipment Reference (BOL or PO):</label>
+                                                                <input type="text" class="form-control" name="RefNumber" required />
+                                                            </div>
+                                                            <div class="col-12 col-md-6 col-lg-4">
+                                                                <label>Shipment Date Start:</label>
+                                                                <div class="input-group date" data-provide="datepicker">
+                                                                    <input type="text" class="form-control" name="startDate" required />
+                                                                    <div class="input-group-addon"><span class="glyphicon glyphicon-th"></span></div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-12 col-md-6 col-lg-4">
+                                                                <label>Shipment Date End:</label>
+                                                                <div class="input-group date" data-provide="datepicker">
+                                                                    <input type="text" class="form-control" name="EndDate" required />
+                                                                    <div class="input-group-addon"><span class="glyphicon glyphicon-th"></span></div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <div class="row">
+                                                            <div class="col-12 col-md-6 col-lg-6">
+                                                                <label>Origin Country:</label>
+                                                                <select class="form-control" name="OriginCountry">
+                                                                    <option>United State</option>
+                                                                    <option>Canada</option>
+                                                                    <option>Maxico</option>
+                                                                    <option>Caina</option>
+                                                                </select>
+                                                            </div>
+                                                            <div class="col-12 col-md-6 col-lg-6">
+                                                                <label>Origin ZIP/Postal Code:</label>
+                                                                <input type="text" class="form-control" name="OriginZip" required />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <div class="row">
+                                                            <div class="col-12 col-md-6 col-lg-6">
+                                                                <label>Destination Country: </label>
+                                                                <select class="form-control" name="dcountry">
+                                                                    <option>United State</option>
+                                                                    <option>Canada</option>
+                                                                    <option>Maxico</option>
+                                                                    <option>Caina</option>
+                                                                </select>
+                                                            </div>
+                                                            <div class="col-12 col-md-6 col-lg-6">
+                                                                <label>Destination ZIP/Postal Code:</label>
+                                                                <input type="text" class="form-control" name="DZip" required />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <button type="submit" class="btn btn-submit">Track</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12 col-lg-12">
+                                <div class="track-result mt-3">
+                                    <h3>Shipment Track Result</h3>
+                                    <div class="track-result-block">
+                                        <div class="track-result-id"><b>Order Tracking:</b> Order No</div>
+                                        <div class="track-status">
+                                            <div class="row">
+                                                <div class="col-12 col-lg-4"><b>Shipping Via:</b> Ipsum Dolor</div>
+                                                <div class="col-12 col-lg-4"><b>Status:</b> Processing Order</div>
+                                                <div class="col-12 col-lg-4"><b>Expected Date:</b> 12-DEC-2017</div>
+                                            </div>
+                                        </div>
+                                        <div class="track-result-bar">
+                                            <ul class="track-progress">
+                                                <li class="icon-confirm-roder track-active">Confirmed Order</li>
+                                                <li class="icon-process-roder track-active">Processing Order</li>
+                                                <li class="icon-quality-check">Quality Check</li>
+                                                <li class="icon-dispatched-item">Dispatched Item</li>
+                                                <li class="icon-product-deliver">Product Delivered</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="CurrentShipment" role="tabpanel" aria-labelledby="CurrentShipment-tab">
+                        <div class="row">
+                            <div class="col-12 col-lg-12">
+                                <div class="order-list">
+                                    <h3>Your Current Order</h3>
+                                    <div class="table-responsive">
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                    <th>SL</th>
+                                                    <th>SKU#</th>
+                                                    <th>Product Name</th>
+                                                    <th>Qty</th>
+                                                    <th>Wt</th>
+                                                    <th>Tax</th>
+                                                    <th>Status</th>
+                                                    <th>Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>1</td>
+                                                    <td>U5-ZPSC-65F2</td>
+                                                    <td>The point of using Lorem Ipsum is that </td>
+                                                    <td>2</td>
+                                                    <td>10kg</td>
+                                                    <td>Y</td>
+                                                    <td>Processing</td>
+                                                    <td><a href="" title=""><i class="fa fa-check-circle" aria-hidden="true"></i></a></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>2</td>
+                                                    <td>U5-ZP3C-65F3</td>
+                                                    <td>The point of using Lorem Ipsum is that </td>
+                                                    <td>2</td>
+                                                    <td>10kg</td>
+                                                    <td>Y</td>
+                                                    <td>Confirm</td>
+                                                    <td><a href="" title=""><i class="far fa-trash-alt"></i></a></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>3</td>
+                                                    <td>U5-ZP4C-65F4</td>
+                                                    <td>The point of using Lorem Ipsum is that </td>
+                                                    <td>2</td>
+                                                    <td>10kg</td>
+                                                    <td>Y</td>
+                                                    <td>Processing</td>
+                                                    <td><a href="" title=""><i class="fa fa-check-circle" aria-hidden="true"></i></a></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="ShipmentHistory" role="tabpanel" aria-labelledby="Shipment History-tab">
+                        <div class="row">
+                            <div class="col-12 col-lg-12">
+                                <div class="order-list">
+                                    <h3>Your Shipment History</h3>
+                                    <div class="table-responsive">
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                    <th>SL</th>
+                                                    <th>SKU#</th>
+                                                    <th>Product Name</th>
+                                                    <th>Qty</th>
+                                                    <th>Wt</th>
+                                                    <th>Tax</th>
+                                                    <th>Status</th>
+                                                    <th>Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>1</td>
+                                                    <td>U5-ZPSC-65F2</td>
+                                                    <td>The point of using Lorem Ipsum is that </td>
+                                                    <td>2</td>
+                                                    <td>10kg</td>
+                                                    <td>Y</td>
+                                                    <td>Processing</td>
+                                                    <td><a href="" title=""><i class="fa fa-check-circle" aria-hidden="true"></i></a></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>2</td>
+                                                    <td>U5-ZP3C-65F3</td>
+                                                    <td>The point of using Lorem Ipsum is that </td>
+                                                    <td>2</td>
+                                                    <td>10kg</td>
+                                                    <td>Y</td>
+                                                    <td>Confirm</td>
+                                                    <td><a href="" title=""><i class="far fa-trash-alt"></i></a></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>3</td>
+                                                    <td>U5-ZP4C-65F4</td>
+                                                    <td>The point of using Lorem Ipsum is that </td>
+                                                    <td>2</td>
+                                                    <td>10kg</td>
+                                                    <td>Y</td>
+                                                    <td>Processing</td>
+                                                    <td><a href="" title=""><i class="fa fa-check-circle" aria-hidden="true"></i></a></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>4</td>
+                                                    <td>U5-ZPSC-65F2</td>
+                                                    <td>The point of using Lorem Ipsum is that </td>
+                                                    <td>2</td>
+                                                    <td>10kg</td>
+                                                    <td>Y</td>
+                                                    <td>Processing</td>
+                                                    <td><a href="" title=""><i class="fa fa-check-circle" aria-hidden="true"></i></a></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>5</td>
+                                                    <td>U5-ZP3C-65F3</td>
+                                                    <td>The point of using Lorem Ipsum is that </td>
+                                                    <td>2</td>
+                                                    <td>10kg</td>
+                                                    <td>Y</td>
+                                                    <td>Confirm</td>
+                                                    <td><a href="" title=""><i class="far fa-trash-alt"></i></a></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>6</td>
+                                                    <td>U5-ZP4C-65F4</td>
+                                                    <td>The point of using Lorem Ipsum is that </td>
+                                                    <td>2</td>
+                                                    <td>10kg</td>
+                                                    <td>Y</td>
+                                                    <td>Processing</td>
+                                                    <td><a href="" title=""><i class="fa fa-check-circle" aria-hidden="true"></i></a></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

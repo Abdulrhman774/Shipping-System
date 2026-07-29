@@ -1,22 +1,17 @@
 ﻿using BL.Common.Results;
 using BL.DTOs.Shipment;
+using Domain.Entities;
 
 namespace BL.Contract.IServices.Shipment;
 
 public interface IRateCalculator
 {
-    /// <summary>
-    /// Calculates the shipping rate for a shipment
-    /// </summary>
-    Task<Result<decimal>> CalculateShippingRateAsync(CreateShipmentDto dto);
+    public Task<Result<decimal>> CalculateStandardRateAsync(CreateShipmentDto dto, TbShippingType shippingType, decimal distance);
 
-    /// <summary>
-    /// Checks if a subscription can cover the shipment
-    /// </summary>
-    Task<Result<bool>> TryConsumeFromSubscriptionAsync(Guid subscriptionId, CreateShipmentDto dto);
 
-    /// <summary>
-    /// Updates subscription usage after shipment creation
-    /// </summary>
-    Task<Result> UpdateSubscriptionUsageAsync(Guid subscriptionId, CreateShipmentDto dto, decimal distance);
+    Task<Result<TbUserSubscription>> TryConsumeFromSubscriptionAsync(
+        Guid subscriptionId, CreateShipmentDto dto, decimal distance);
+
+    Task<Result> ApplySubscriptionUsageAsync(
+        TbUserSubscription subscription, double weight, decimal distance);
 }

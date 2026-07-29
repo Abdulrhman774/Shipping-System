@@ -15,18 +15,19 @@ public class UserSenderService
     private readonly ICityService _cityService;
 
     public UserSenderService(
+        IUnitOfWork unitOfWork,
         IGenericRepository<TbUserSender> repository,
         IMapper mapper,
         IUserService userService,
         ICityService cityService) // Inject CityService to validate CityId exists
-        : base(repository, mapper, userService)
+        : base(unitOfWork, mapper, userService)
     {
         _cityService = cityService;
     }
 
 
     // Override CreateAsync with the same logic
-    public override async Task<Result<Guid>> AddAsync(CreateUserSenderDto dto)
+    public override async Task<Result<TbUserSender>> AddAsync(CreateUserSenderDto dto)
     {
         // 1. Validate City exists
         var cityExists = await _cityService.GetByIdAsync(dto.CityId);
@@ -49,8 +50,14 @@ public class UserSenderService
             await RemoveOtherDefaultAddresses(dto.UserId);
         }
 
-        // 5. Proceed with base creation
-        return await base.AddAsync(dto);
+        var entity = _mapper.Map<CreateUserSenderDto, TbUserSender>(dto);
+        entity.CreatedBy = await _userService.GetLoggedInUserAsync();
+        entity.CreatedDate = DateTime.UtcNow;
+        entity.CurrentState = enEntityState.Active;
+
+        await _repository.AddAsync(entity); // NO SAVE
+
+        return Result<TbUserSender>.Success(entity); // ✅ Return the entity
     }
 
     // Override UpdateAsync to handle email/phone changes and default address logic

@@ -1,0 +1,62 @@
+
+<!-- Views/Services/Details.cshtml -->
+@{
+    ViewData["Title"] = "Service Details";
+}
+
+<!-- Breadcroumbs start -->
+<div class="wshipping-content-block wshipping-breadcroumb inner-bg-1">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 col-lg-7">
+                <h1>Our Services</h1>
+                <a href="@Url.Action("Index", "Home")" title="Home">Home</a> / Single Services
+            </div>
+            <div class="col-12 col-lg-5 text-right">
+                <h4>We freight to all over the world<br />The best logistic company, <span>FAST</span> and <span>SAFELY!</span></h4>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Breadcroumbs end -->
+
+<!-- Single service start -->
+<div class="wshipping-content-block">
+    <div class="container">
+        <div class="row">
+            <div class="col-12"><h2 class="text-uppercase mt0">Air Freight Shipping</h2></div>
+        </div>
+        <div class="row">
+            <!-- Single service Gallery start -->
+            <div class="col-12 col-lg-6 single-service-gallery gallery-group-popup">
+                <div class="row">
+                    <div class="col-12 l-gallery-holder">
+                        <a class="latest-gallery" href="~/assets/images/blog-image-5.jpg" data-fancybox="images" title="ThemeForest Project">
+                            <i class="fa fa-search-plus" aria-hidden="true"></i>
+                            <img src="~/assets/images/blog-image-5.jpg" alt="" />
+                        </a>
+                    </div>
+                    <!-- ... باقي الصور -->
+                </div>
+            </div>
+            <!-- Single service gallery end -->
+
+            <!-- Advantages start -->
+            <div class="col-12 col-lg-5 offset-lg-1">
+                <h3 class="heading3-border text-uppercase">Our Advantages</h3>
+                <div class="advantages">
+                    <ul>
+                        <li class="trust">
+                            <h5>We Are Trusted</h5>
+                            <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry.</p>
+                        </li>
+                        <!-- ... -->
+                    </ul>
+                </div>
+            </div>
+            <!-- Advantages end -->
+        </div>
+        <!-- ... باقي المحتوى (Download, content, quote form) -->
+    </div>
+</div>
+<!-- Single service end -->

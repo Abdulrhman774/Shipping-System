@@ -10,6 +10,6 @@ namespace BL.Services;
 public class SettingService
     : BaseService<TbSetting, SettingDto, CreateSettingDto, UpdateSettingDto>, ISettingService
 {
-    public SettingService(IGenericRepository<TbSetting> repository, IMapper mapper, IUserService userService)
-        : base(repository, mapper, userService) { }
+    public SettingService(IGenericRepository<TbSetting> repository, IMapper mapper, IUserService userService, IUnitOfWork unitOfWork)
+        : base(unitOfWork, mapper, userService) { }
 }

@@ -9,8 +9,8 @@ namespace BL.Services;
 public class CityService 
     : BaseService<TbCity, CityDto, CreateCityDto, UpdateCityDto>, ICityService
 {
-    public CityService(IGenericRepository<TbCity> repository, IMapper mapper, IUserService userService) 
-        : base(repository, mapper, userService) { }
+    public CityService(IGenericRepository<TbCity> repository, IMapper mapper, IUserService userService, IUnitOfWork unitOfWork) 
+        : base(unitOfWork, mapper, userService) { }
 
     public async Task<List<CityDto>> GetAllByCountryId(Guid CountryId)
     {

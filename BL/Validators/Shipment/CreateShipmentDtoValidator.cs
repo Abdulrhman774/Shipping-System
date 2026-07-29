@@ -40,13 +40,7 @@ public class CreateShipmentDtoValidator : AbstractValidator<CreateShipmentDto>
 
         // ===== REQUIRED ID VALIDATIONS =====
 
-        RuleFor(x => x.SenderId)
-            .NotEmpty().WithMessage("Sender is required.")
-            .Must(id => id != Guid.Empty).WithMessage("Invalid sender ID.");
-
-        RuleFor(x => x.ReceiverId)
-            .NotEmpty().WithMessage("Receiver is required.")
-            .Must(id => id != Guid.Empty).WithMessage("Invalid receiver ID.");
+        
 
         RuleFor(x => x.ShippingTypeId)
             .NotEmpty().WithMessage("Shipping type is required.")
@@ -126,10 +120,7 @@ public class CreateShipmentDtoValidator : AbstractValidator<CreateShipmentDto>
         // ===== COMPLEX VALIDATIONS =====
         // Cross-field validations
 
-        // Ensure sender and receiver are not the same
-        RuleFor(x => x)
-            .Must(x => x.SenderId != x.ReceiverId)
-            .WithMessage("Sender and receiver cannot be the same person.");
+       
 
         // Validate volumetric weight (optional - business rule)
         RuleFor(x => x)

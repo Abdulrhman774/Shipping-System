@@ -64,7 +64,9 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
             entity.CurrentState = enEntityState.Active;
             entity.CreatedDate = DateTime.UtcNow;
             await _dbSet.AddAsync(entity);
-            return await _context.SaveChangesAsync() > 0;
+
+            // The entity is added to the context, but not yet saved to the database. Call SaveChangesAsync() to persist.
+            return true;
         }
         catch (Exception ex)
         {
@@ -101,8 +103,8 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
             existingEntity.UpdatedDate = DateTime.UtcNow;
             existingEntity.CurrentState = enEntityState.Active; // تأكد أن الحالة تظل نشطة بعد التعديل
 
-            // 5. احفظ التغييرات (EF سيقوم بتحديث الحقول التي تغيرت قيمتها فعلياً فقط!)
-            return await _context.SaveChangesAsync() > 0;
+            // the entity is updated in the context, but not yet saved to the database. Call SaveChangesAsync() to persist.
+            return true;
         }
         catch (Exception ex)
         {
@@ -124,7 +126,7 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
             existingEntity.UpdatedDate = DateTime.UtcNow;
             existingEntity.UpdatedBy = DeletedBy;
 
-            return await _context.SaveChangesAsync() > 0;
+            return true;
         }
         catch (Exception ex)
         {
@@ -146,7 +148,7 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
             existingEntity.UpdatedDate = DateTime.UtcNow;
             existingEntity.UpdatedBy = updatedBy;
 
-            return await _context.SaveChangesAsync() > 0;
+            return true;
         }
         catch (Exception ex)
         {
@@ -217,18 +219,14 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
             entity.CurrentState = enEntityState.Active;
             entity.CreatedDate = DateTime.UtcNow;
 
-            // Add the entity to the DbSet
-            _dbSet.Add(entity);
+            await _dbSet.AddAsync(entity);
 
-            // Save changes to the database
-            await _context.SaveChangesAsync();
-
-            return entity?.Id ?? Guid.Empty;
+            return entity.Id;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error while adding entity of type {EntityType}", typeof(T).Name);
-            throw new DataAccessException($"Error while adding {typeof(T).Name}", ex);
+            _logger.LogError(ex, "Error while creating entity of type {EntityType}", typeof(T).Name);
+            throw new DataAccessException($"Error while creating {typeof(T).Name}", ex);
         }
     }
 

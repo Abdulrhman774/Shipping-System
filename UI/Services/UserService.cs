@@ -7,9 +7,18 @@ using UI.Endpoints;
 
 namespace UI.Services;
 
-public class UserService(GenericApiClient apiClient) : IUserService
+public class UserService : IUserService
 {
-    
+    private readonly GenericApiClient _apiClient;
+    private readonly IHttpContextAccessor _httpContextAccessor;
+
+    public UserService(
+        GenericApiClient apiClient,
+        IHttpContextAccessor httpContextAccessor)
+    {
+        _apiClient = apiClient;
+        _httpContextAccessor = httpContextAccessor;
+    }
 
     public Task<Result> DeleteAccountAsync(string userId)
     {
@@ -18,12 +27,12 @@ public class UserService(GenericApiClient apiClient) : IUserService
 
     public async Task<ApiResponse<IEnumerable<UserDto>>> GetAllUsersAsync()
     {
-        return await apiClient.GetAsync<IEnumerable<UserDto>>(stUserEndpoints.GetAll);
+        return await _apiClient.GetAsync<IEnumerable<UserDto>>(stUserEndpoints.GetAll);
     }
 
     public async Task<ApiResponse<UserDto>> GetByIdAsync(Guid id)
     {
-        return await apiClient.GetAsync<UserDto>($"{stUserEndpoints.GetById}/{id}");
+        return await _apiClient.GetAsync<UserDto>($"{stUserEndpoints.GetById}/{id}");
     }
 
     public Task<Result<UserDto>> GetByIdAsync(string id)
@@ -33,18 +42,23 @@ public class UserService(GenericApiClient apiClient) : IUserService
 
     public async Task<Guid> GetLoggedInUserAsync()
     {
-        //var userId = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var user = _httpContextAccessor.HttpContext?.User;
 
-        //return !string.IsNullOrEmpty(userId) ? Guid.Parse(userId) : Guid.Empty;
+        if (user?.Identity?.IsAuthenticated != true)
+            return Guid.Empty;
 
-        return Guid.NewGuid();
-        //throw new NotImplementedException();
+        // جيب الـ UserId من الـ Claims
+        var userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
+        if (string.IsNullOrEmpty(userIdClaim))
+            return Guid.Empty;
+
+        return Guid.TryParse(userIdClaim, out var userId) ? userId : Guid.Empty;
     }
 
     public async Task<ApiResponse<UserDto>> GetUserByEmailOrUsernameAsync(string search)
     {
-        return await apiClient.GetAsync<UserDto>(
+        return await _apiClient.GetAsync<UserDto>(
             $"{stUserEndpoints.Search}?emailOrUsername={search}");
     }
 

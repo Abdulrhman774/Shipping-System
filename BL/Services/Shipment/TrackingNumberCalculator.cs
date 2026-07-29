@@ -1,4 +1,5 @@
-﻿using BL.Contract.IServices.Shipment;
+﻿using BL.Common.Results;
+using BL.Contract.IServices.Shipment;
 using DAL.Contracts;
 using Domain.Entities;
 
@@ -14,20 +15,19 @@ public class TrackingNumberCalculator : ITrackingNumberCalculator
         _shipmentRepository = shipmentRepository;
     }
 
-    public async Task<string> GenerateTrackingNumber()
+    public async Task<Result<string>> GenerateTrackingNumber()
     {
         for (int attempt = 0; attempt < MaxRetries; attempt++)
         {
             var candidate = BuildCandidate();
 
-            var exists = await _shipmentRepository
-                .ExistsAsync(s => s.TrackingNumber == candidate);
+            var exists = await _shipmentRepository.ExistsAsync(s => s.TrackingNumber == candidate);
 
             if (!exists)
-                return candidate;
+                return Result<string>.Success(candidate);
         }
 
-        throw new InvalidOperationException(
+        return Error.Unexpected("TrackingNumber.GenerationFailed",
             $"Failed to generate a unique tracking number after {MaxRetries} attempts.");
     }
 

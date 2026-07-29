@@ -24,9 +24,10 @@ public class CreateUserReceiverViewModel
     [Display(Name = "Postal Code")]
     public string PostalCode { get; set; } = string.Empty;
 
+    [Required]
     [StringLength(200)]
     [Display(Name = "Contact")]
-    public string? Contact { get; set; }
+    public string Contact { get; set; } = null!;
 
     [Required(ErrorMessage = "Please select a city.")]
     [Display(Name = "City")]

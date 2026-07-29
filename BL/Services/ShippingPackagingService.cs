@@ -13,6 +13,6 @@ namespace BL.Services;
 public class ShippingPackagingService
     : BaseService<TbShippingPackaging, ShippingPackagingDto, CreateShippingPackagingDto, UpdateShippingPackagingDto>, IShippingPackagingService
 {
-    public ShippingPackagingService(IGenericRepository<TbShippingPackaging> repository, IMapper mapper, IUserService userService)
-        : base(repository, mapper, userService) { }
+    public ShippingPackagingService(IGenericRepository<TbShippingPackaging> repository, IMapper mapper, IUserService userService, IUnitOfWork unitOfWork)
+        : base(unitOfWork, mapper, userService) { }
 }

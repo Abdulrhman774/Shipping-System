@@ -1,0 +1,58 @@
+<!-- Views/Blog/Details.cshtml -->
+@{
+    ViewData["Title"] = "Blog Details";
+}
+
+<!-- Breadcroumbs start -->
+<div class="wshipping-content-block wshipping-breadcroumb inner-bg-1">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 col-lg-7">
+                <h1>Blog</h1>
+                <a href="@Url.Action("Index", "Home")" title="Home">Home</a> / Blog
+            </div>
+            <div class="col-12 col-lg-5 text-right">
+                <h4>We freight to all over the world<br />The best logistic company, <span>FAST</span> and <span>SAFELY!</span></h4>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Breadcroumbs end -->
+
+<!-- Blog Details start -->
+<div class="wshipping-content-block">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 col-lg-8">
+                <!-- Blog content start -->
+                <div class="single-blog-details">
+                    <img src="~/assets/images/single-blog-pic1.jpg" class="img-responsive single-blog-img" alt="" />
+                    <div class="single-blog-content">
+                        <h2>My Daily Reading List</h2>
+                        <h6>Posted on 8 March 2015 by Mike Ross</h6>
+                        <div class="blog-post-by">
+                            <ul>
+                                <li><i class="fa fa-eye"></i> 20 View</li>
+                                <li><i class="fa fa-comment"></i> 12 comments</li>
+                                <!-- ... -->
+                            </ul>
+                        </div>
+                        <p>Lorem ipsum dolor sit amet...</p>
+                        <!-- باقي النص -->
+                    </div>
+                </div>
+                <!-- Blog content end -->
+
+                <!-- Related blog, Comments, Comment form -->
+                <!-- ... -->
+            </div>
+            <!-- Blog sidebar start -->
+            <div class="col-12 col-lg-4">
+                <!-- Search, Categories, Latest post, Tags -->
+                <!-- ... -->
+            </div>
+            <!-- Blog sidebar end -->
+        </div>
+    </div>
+</div>
+<!-- Blog Details end -->

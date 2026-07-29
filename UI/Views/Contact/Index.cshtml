@@ -1,0 +1,64 @@
+
+<!-- Views/Contact/Index.cshtml -->
+@{
+    ViewData["Title"] = "Contact Us";
+}
+
+<!-- Breadcroumbs start -->
+<div class="wshipping-content-block wshipping-breadcroumb inner-bg-1">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 col-lg-7">
+                <h1>Contact Us</h1>
+                <a href="@Url.Action("Index", "Home")" title="Home">Home</a> / Contact Us
+            </div>
+            <div class="col-12 col-lg-5 text-right">
+                <h4>We freight to all over the world<br />The best logistic company, <span>FAST</span> and <span>SAFELY!</span></h4>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Breadcroumbs end -->
+
+<!-- Contact Start -->
+<div class="wshipping-content-block">
+    <div class="container">
+        <div class="row flex-lg-row-reverse">
+            <div class="col-12 col-lg-4">
+                <div class="address">
+                    <h3>Corporate Office</h3>
+                    <div class="address-block">
+                        <ul>
+                            <li class="address-icon"><strong>Address:</strong><br>Lorem Ipsum is simply dummy text</li>
+                            <li class="phone-icon"><strong>Telephone No:</strong><br>+88 01xxx 8xxx04</li>
+                            <!-- ... -->
+                        </ul>
+                    </div>
+                </div>
+                <!-- Section Office -->
+                <!-- ... -->
+            </div>
+            <div class="col-12 col-lg-8">
+                <div class="contact-text">
+                    <h3>We are Always with <span>you :)</span></h3>
+                    <img src="~/assets/images/contact-image.jpg" alt="" />
+                </div>
+                <div class="contact-form">
+                    <h3 class="heading3-border text-uppercase">Quick Feedback Form</h3>
+                    <form action="#">
+                        <!-- نموذج الاتصال -->
+                        <!-- ... -->
+                        <button type="submit" class="btn btn-submit">Submit</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Contact end -->
+
+<!-- Map start -->
+<div class="map">
+    <iframe src="https://www.google.com/maps?f=q&source=s_q&hl=en&geocode=&q=++Gulshan-1,+Dhaka-1212.&aq=&sll=23.78024,90.418081&sspn=0.01076,0.018475&ie=UTF8&hq=&hnear=1+Gulshan+Ave,+Gulshan,+Dhaka,+Dhaka+Division+1212,+Bangladesh&t=m&z=14&ll=23.780244,90.418078&output=embed"></iframe>
+</div>
+<!-- Map end -->

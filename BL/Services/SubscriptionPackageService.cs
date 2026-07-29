@@ -9,6 +9,6 @@ namespace BL.Services;
 public class SubscriptionPackageService 
     : BaseService<TbSubscriptionPackage, SubscriptionPackageDto, CreateSubscriptionPackageDto, UpdateSubscriptionPackageDto>, ISubscriptionPackageService
 {
-    public SubscriptionPackageService(IGenericRepository<TbSubscriptionPackage> repository, IMapper mapper, IUserService userService)
-        : base(repository, mapper, userService) { }
+    public SubscriptionPackageService(IGenericRepository<TbSubscriptionPackage> repository, IMapper mapper, IUserService userService, IUnitOfWork unitOfWork)
+        : base(unitOfWork, mapper, userService) { }
 }

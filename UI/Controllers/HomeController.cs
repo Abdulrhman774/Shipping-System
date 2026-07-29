@@ -90,5 +90,68 @@ namespace UI.Controllers
             3 => "badge-delivered",
             _ => "badge-unknown"
         };
+
+
+
+        // صفحة من نحن (About)
+        public IActionResult About()
+        {
+            return View();
+        }
+
+        // صفحة الخدمات (Services)
+        public IActionResult Services()
+        {
+            return View();
+        }
+
+        // تفاصيل خدمة معينة (سيتم نقلها لاحقاً إلى ServicesController)
+        public IActionResult ServiceDetails(int id)
+        {
+            // يمكنك هنا تمرير البيانات الخاصة بالخدمة id
+            return View("ServiceDetails");
+        }
+
+        // صفحة المدونة (Blog)
+        public IActionResult Blog()
+        {
+            return View("Blog");
+        }
+
+        // تفاصيل مقال معين
+        public IActionResult BlogDetails(int id)
+        {
+            return View("BlogDetails");
+        }
+
+        // صفحة الاتصال (Contact)
+        public IActionResult Contact()
+        {
+            return View();
+        }
+
+        // صفحة التتبع (Tracking)
+        public IActionResult Tracking()
+        {
+            return View();
+        }
+
+        // نتيجة التتبع
+        public IActionResult TrackingResult()
+        {
+            return View("TrackingResult");
+        }
+
+        // صفحة الملف الشخصي (Profile)
+        public IActionResult Profile()
+        {
+            return View();
+        }
+
+        // صفحة الخطأ 404
+        public IActionResult Error404()
+        {
+            return View();
+        }
     }
 }

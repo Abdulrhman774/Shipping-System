@@ -9,6 +9,6 @@ namespace BL.Services;
 public class ShippingTypeService 
     : BaseService<TbShippingType, ShippingTypeDto, CreateShippingTypeDto, UpdateShippingTypeDto>, IShippingTypeService
 {
-    public ShippingTypeService(IGenericRepository<TbShippingType> repository, IMapper mapper, IUserService userService)
-        : base(repository, mapper, userService) { }
+    public ShippingTypeService(IGenericRepository<TbShippingType> repository, IMapper mapper, IUserService userService, IUnitOfWork unitOfWork)
+        : base(unitOfWork, mapper, userService) { }
 }
