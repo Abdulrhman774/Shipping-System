@@ -43,7 +43,8 @@ public class RefreshTokenService : IRefreshTokenService
             CreatedDate = DateTime.UtcNow,
             CurrentState = enEntityState.Active
         };
-        return await _refreshRepo.CreateAsync(entity) != Guid.Empty;
+
+        return await _refreshRepo.CreateAsync(entity, AutoSave: true) != Guid.Empty;
     }
 
     public async Task<bool> RevokeTokensAsync(string userId)
@@ -53,7 +54,7 @@ public class RefreshTokenService : IRefreshTokenService
         foreach (var token in tokenList)
         {
             if (token.CurrentState is enEntityState.Active)
-                await _refreshRepo.ChangeStatusAsync(token.Id, Guid.Parse(userId), enEntityState.Inactive);
+                await _refreshRepo.ChangeStatusAsync(token.Id, Guid.Parse(userId), enEntityState.Inactive, AutoSave: true);
 
         }
 
@@ -66,7 +67,7 @@ public class RefreshTokenService : IRefreshTokenService
 
         if (RevokedToken == null || RevokedToken.CurrentState is not enEntityState.Active) return false;
 
-        return await _refreshRepo.ChangeStatusAsync(RevokedToken.Id, Guid.Parse(userId), enEntityState.Inactive);
+        return await _refreshRepo.ChangeStatusAsync(RevokedToken.Id, Guid.Parse(userId), enEntityState.Inactive, AutoSave: true);
     }
     
 }

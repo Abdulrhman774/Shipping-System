@@ -42,19 +42,4 @@ public class TestController(IShipmentService shipmentService) : ControllerBase
     {
         return Ok("✅ You have the User role.");
     }
-
-
-    [HttpPost("CreateShipment")]
-    //    [Authorize(Roles = "User")]
-    [AllowAnonymous]
-    public async Task<IActionResult> CreateShipment([FromBody] CreateShipmentDto dto)
-    {
-        var result = await _shipmentService.CreateShipment(dto);
-
-        if (result.IsFailure)
-            return BadRequest(result.Errors);
-
-        return Ok(result.Value);
-    }
-
 }

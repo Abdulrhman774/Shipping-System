@@ -6,10 +6,6 @@ namespace BL.DTOs.Shipment
 {
     public class CreateShipmentDto
     {
-        public CreateUserSenderDto Sender { get; set; } = null!;
-        public CreateUserReceiverDto Receiver { get; set; } = null!;
-
-
         public DateTime ShippingDate { get; set; }
         public DateTime? DeliveryDate { get; set; }
 

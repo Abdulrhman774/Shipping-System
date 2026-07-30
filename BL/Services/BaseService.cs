@@ -13,7 +13,7 @@ public class BaseService<T, TDto, TCreateDto, TUpdateDto> : IBaseService<T, TDto
     protected readonly IMapper _mapper;
     protected readonly IUserService _userService;
     protected readonly IUnitOfWork _unitOfWork;
-
+    protected virtual bool AutoSave { get; set; } = false;
     public BaseService(IUnitOfWork unitOfWork, IMapper mapper, IUserService userService)
     {
         _mapper = mapper;
@@ -39,14 +39,15 @@ public class BaseService<T, TDto, TCreateDto, TUpdateDto> : IBaseService<T, TDto
         return _mapper.Map<T, TDto>(entity);
     }
 
-    public virtual async Task<Result> UpdateAsync(Guid id, TUpdateDto dto)
+    public virtual async Task<Result> UpdateAsync(Guid id, TUpdateDto dto, bool? autoSave = null)
     {
         var entity = _mapper.Map<TUpdateDto, T>(dto);
 
         entity.Id = id;
         entity.UpdatedBy = await _userService.GetLoggedInUserAsync();
 
-        var updated = await _repository.UpdateAsync(id, entity);
+        var shouldSave = autoSave ?? AutoSave;
+        var updated = await _repository.UpdateAsync(id, entity, shouldSave);
 
         if (!updated)
             return Error.NotFound(
@@ -56,8 +57,9 @@ public class BaseService<T, TDto, TCreateDto, TUpdateDto> : IBaseService<T, TDto
         return Result.Success();
     }
 
-    public virtual async Task<Result> DeleteAsync(Guid id)
+    public virtual async Task<Result> DeleteAsync(Guid id, bool? autoSave = null)
     {
+        var shouldSave = autoSave ?? AutoSave;
         var deleted = await _repository.DeleteAsync(
             id,
             await _userService.GetLoggedInUserAsync());
@@ -70,8 +72,9 @@ public class BaseService<T, TDto, TCreateDto, TUpdateDto> : IBaseService<T, TDto
         return Result.Success();
     }
 
-    public virtual async Task<Result> ChangeStatusAsync(Guid id, enEntityState status = enEntityState.Active)
+    public virtual async Task<Result> ChangeStatusAsync(Guid id, enEntityState status = enEntityState.Active, bool? autoSave = null)
     {
+        var shouldSave = autoSave ?? AutoSave;
         var changed = await _repository.ChangeStatusAsync(
             id,
             await _userService.GetLoggedInUserAsync(),
@@ -85,7 +88,7 @@ public class BaseService<T, TDto, TCreateDto, TUpdateDto> : IBaseService<T, TDto
         return Result.Success();
     }
 
-    public virtual async Task<Result<T>> AddAsync(TCreateDto dto)
+    public virtual async Task<Result<T>> AddAsync(TCreateDto dto, bool? autoSave = null)
     {
         var entity = _mapper.Map<TCreateDto, T>(dto);
 
@@ -93,7 +96,8 @@ public class BaseService<T, TDto, TCreateDto, TUpdateDto> : IBaseService<T, TDto
         entity.CreatedDate = DateTime.UtcNow;
         entity.CurrentState = enEntityState.Active;
 
-        await _repository.CreateAsync(entity);
+        var shouldSave = autoSave ?? AutoSave;
+        await _repository.CreateAsync(entity, shouldSave);
 
         return Result<T>.Success(entity);
     }

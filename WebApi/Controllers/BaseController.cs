@@ -36,28 +36,28 @@ public abstract class BaseController<TService, T, TDto, TCreateDto, TUpdateDto> 
     [HttpPost]
     public virtual async Task<IActionResult> Create([FromBody] TCreateDto dto)
     {
-        var result = await _service.AddAsync(dto);
+        var result = await _service.AddAsync(dto, autoSave: true);
         return result.ToActionResult(this);
     }
 
     [HttpPut("{id:guid}")]
     public virtual async Task<IActionResult> Update(Guid id, [FromBody] TUpdateDto dto)
     {
-        var result = await _service.UpdateAsync(id, dto);
+        var result = await _service.UpdateAsync(id, dto, autoSave: true);
         return result.ToActionResult(this);
     }
 
     [HttpDelete]
     public virtual async Task<IActionResult> Delete([FromBody] Guid id)
     {
-        var result = await _service.DeleteAsync(id);
+        var result = await _service.DeleteAsync(id, autoSave: true);
         return result.ToActionResult(this);
     }
 
     [HttpPatch("{id:guid}/status")]
     public virtual async Task<IActionResult> ChangeStatus(Guid id, [FromQuery] enEntityState status = enEntityState.Active)
     {
-        var result = await _service.ChangeStatusAsync(id, status);
+        var result = await _service.ChangeStatusAsync(id, status, autoSave: true);
         return result.ToActionResult(this);
     }
 }

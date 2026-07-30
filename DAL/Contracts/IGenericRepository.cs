@@ -15,10 +15,10 @@ public interface IGenericRepository<T> where T : BaseEntity
     Task<bool> ExistsAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default);
     Task<int> CountAsync(Expression<Func<T, bool>>? predicate = null, CancellationToken cancellationToken = default);
 
-    Task<Guid> CreateAsync(T entity, CancellationToken cancellationToken = default);
-    Task<bool> UpdateAsync(Guid id, T entity, CancellationToken cancellationToken = default);
-    Task<bool> DeleteAsync(Guid id, Guid deletedBy, CancellationToken cancellationToken = default);
-    Task<bool> ChangeStatusAsync(Guid id, Guid updatedBy, enEntityState status = enEntityState.Active, CancellationToken cancellationToken = default);
+    Task<Guid> CreateAsync(T entity, bool AutoSave = false, CancellationToken cancellationToken = default);
+    Task<bool> UpdateAsync(Guid id, T entity, bool AutoSave = false, CancellationToken cancellationToken = default);
+    Task<bool> DeleteAsync(Guid id, Guid deletedBy, bool AutoSave = false, CancellationToken cancellationToken = default);
+    Task<bool> ChangeStatusAsync(Guid id, Guid updatedBy, enEntityState status = enEntityState.Active, bool AutoSave = false, CancellationToken cancellationToken = default);
 
     Task<(IEnumerable<T> Data, int TotalCount)> GetPagedAsync(
         int pageNumber,

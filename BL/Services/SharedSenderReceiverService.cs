@@ -26,7 +26,7 @@ public abstract class SharedSenderReceiverService<TEntity, TDto, TCreateDto, TUp
         _cityService = cityService;
     }
 
-    public override async Task<Result<TEntity>> AddAsync(TCreateDto dto)
+    public override async Task<Result<TEntity>> AddAsync(TCreateDto dto, bool? autoSave = null)
     {
         var cityExists = await _cityService.GetByIdAsync(dto.CityId);
         if (cityExists.IsFailure)
@@ -44,13 +44,13 @@ public abstract class SharedSenderReceiverService<TEntity, TDto, TCreateDto, TUp
 
         if (dto.IsDefaultAddress && !string.IsNullOrWhiteSpace(dto.UserId))
         {
-            await RemoveOtherDefaultAddresses(dto.UserId);
+            await RemoveOtherDefaultAddresses(dto.UserId, null);
         }
 
         return await base.AddAsync(dto);
     }
 
-    public override async Task<Result> UpdateAsync(Guid id, TUpdateDto dto)
+    public override async Task<Result> UpdateAsync(Guid id, TUpdateDto dto, bool? autoSave = null)
     {
         var entity = await _repository.GetByIdAsync(id);
 
@@ -85,7 +85,7 @@ public abstract class SharedSenderReceiverService<TEntity, TDto, TCreateDto, TUp
 
     protected async Task RemoveOtherDefaultAddresses(string userId, Guid? excludeId = null)
     {
-        var addresses = await _repository.GetListAsync(x => x.UserId == userId);
+        var addresses = await _repository.GetListAsync(x => x.UserId == userId, tracking: true);
 
         foreach (var address in addresses)
         {
@@ -93,7 +93,6 @@ public abstract class SharedSenderReceiverService<TEntity, TDto, TCreateDto, TUp
                 (excludeId == null || address.Id != excludeId))
             {
                 address.IsDefaultAddress = false;
-                await _repository.UpdateAsync(address.Id, address);
             }
         }
     }

@@ -16,6 +16,7 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
     protected readonly DbSet<T> _dbSet;
     protected readonly ILogger<GenericRepository<T>> _logger;
 
+
     public GenericRepository(ShippingDbContext context, ILogger<GenericRepository<T>> logger)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
@@ -250,7 +251,7 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
     /// <param name="cancellationToken">A token to observe for cancellation requests.</param>
     /// <returns>The identifier of the newly created entity, or <see cref="Guid.Empty"/> if the operation fails.</returns>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="entity"/> is null.</exception>
-    public virtual async Task<Guid> CreateAsync(T entity, CancellationToken cancellationToken = default)
+    public virtual async Task<Guid> CreateAsync(T entity, bool AutoSave = false, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -260,6 +261,9 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
             entity.CreatedDate = DateTime.UtcNow;
 
             await _dbSet.AddAsync(entity, cancellationToken);
+
+            if (AutoSave)
+                await _context.SaveChangesAsync(cancellationToken);
 
             return entity.Id;
         }
@@ -285,7 +289,7 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
     /// <param name="cancellationToken">A token to observe for cancellation requests.</param>
     /// <returns>True if the update succeeded; false if the entity was not found.</returns>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="entity"/> is null.</exception>
-    public virtual async Task<bool> UpdateAsync(Guid id, T entity, CancellationToken cancellationToken = default)
+    public virtual async Task<bool> UpdateAsync(Guid id, T entity, bool AutoSave = false, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -300,9 +304,13 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
             // Prevent modification of these fields even if they come with values in the entity
             _context.Entry(existingEntity).Property(x => x.CreatedDate).IsModified = false;
             _context.Entry(existingEntity).Property(x => x.CreatedBy).IsModified = false;
+            _context.Entry(existingEntity).Property(x => x.CurrentState).IsModified = false;
+
 
             existingEntity.UpdatedDate = DateTime.UtcNow;
-            existingEntity.CurrentState = enEntityState.Active;
+
+            if (AutoSave)
+                await _context.SaveChangesAsync(cancellationToken);
 
             return true;
         }
@@ -327,7 +335,7 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
     /// <param name="deletedBy">The identifier of the user performing the deletion.</param>
     /// <param name="cancellationToken">A token to observe for cancellation requests.</param>
     /// <returns>True if the deletion succeeded; false if the entity was not found.</returns>
-    public virtual async Task<bool> DeleteAsync(Guid id, Guid deletedBy, CancellationToken cancellationToken = default)
+    public virtual async Task<bool> DeleteAsync(Guid id, Guid deletedBy, bool AutoSave = false, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -342,6 +350,9 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
             existingEntity.CurrentState = enEntityState.Deleted;
             existingEntity.UpdatedDate = DateTime.UtcNow;
             existingEntity.UpdatedBy = deletedBy;
+
+            if (AutoSave)
+                await _context.SaveChangesAsync(cancellationToken);
 
             return true;
         }
@@ -368,6 +379,7 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
         Guid id,
         Guid updatedBy,
         enEntityState status = enEntityState.Active,
+        bool AutoSave = false,
         CancellationToken cancellationToken = default)
     {
         try
@@ -383,6 +395,9 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
             existingEntity.CurrentState = status;
             existingEntity.UpdatedDate = DateTime.UtcNow;
             existingEntity.UpdatedBy = updatedBy;
+
+            if (AutoSave)
+                await _context.SaveChangesAsync(cancellationToken);
 
             return true;
         }
@@ -483,6 +498,16 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
 
         if (pageSize <= 0)
             throw new ArgumentException("Page size must be greater than zero.", nameof(pageSize));
+    }
+
+    #endregion
+
+    #region Save (للتسريع)
+
+    // Saves all changes made in this context to the database.
+    public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        return await _context.SaveChangesAsync(cancellationToken);
     }
 
     #endregion

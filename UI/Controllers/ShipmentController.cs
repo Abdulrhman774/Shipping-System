@@ -108,9 +108,9 @@ public class ShipmentController : Controller
 
         var currentUserId = GetCurrentUserId();
 
-        var dto = new CreateShipmentDto
+        var dto = new CreateShipmentRequestDto
         {
-            Sender = new CreateUserSenderDto
+            SenderDto = new CreateUserSenderDto
             {
                 UserId = currentUserId,
                 Name = model.Sender.SenderName,
@@ -123,7 +123,7 @@ public class ShipmentController : Controller
                 PostalCode = model.Sender.PostalCode,
                 IsDefaultAddress = model.Sender.IsDefaultAddress
             },
-            Receiver = new CreateUserReceiverDto
+            ReceiverDto = new CreateUserReceiverDto
             {
                 UserId = currentUserId,
                 Name = model.Receiver.ReceiverName,
@@ -136,17 +136,20 @@ public class ShipmentController : Controller
                 PostalCode = model.Receiver.PostalCode,
                 IsDefaultAddress = model.Receiver.IsDefaultAddress
             },
-            ShippingDate = model.Shipment.ShippingDate,
-            DeliveryDate = model.Shipment.DeliveryDate,
-            ShippingTypeId = model.Shipment.ShippingTypeId,
-            ShippingPackagingId = model.Shipment.ShippingPackagingId,
-            Width = model.Shipment.Width,
-            Height = model.Shipment.Height,
-            Weight = model.Shipment.Weight,
-            Length = model.Shipment.Length,
-            PackageValue = model.Shipment.PackageValue,
-            PaymentMethodId = model.Shipment.PaymentMethodId,
-            UserSubscriptionId = model.Shipment.UserSubscriptionId
+            ShipmentDto = new CreateShipmentDto
+            {
+                ShippingDate = model.Shipment.ShippingDate,
+                DeliveryDate = model.Shipment.DeliveryDate,
+                ShippingTypeId = model.Shipment.ShippingTypeId,
+                ShippingPackagingId = model.Shipment.ShippingPackagingId,
+                Width = model.Shipment.Width,
+                Height = model.Shipment.Height,
+                Weight = model.Shipment.Weight,
+                Length = model.Shipment.Length,
+                PackageValue = model.Shipment.PackageValue,
+                PaymentMethodId = model.Shipment.PaymentMethodId,
+                UserSubscriptionId = model.Shipment.UserSubscriptionId
+            }
         };
 
         var result = await _shipmentService.CreateShipment(dto);
@@ -160,7 +163,7 @@ public class ShipmentController : Controller
         }
 
         TempData["SuccessMessage"] = "Shipment created successfully!";
-        return RedirectToAction("Confirmation", new { id = result.Value });
+        return RedirectToAction("Confirmation", new { id = result.Value.Id });
     }
 
     [HttpGet]

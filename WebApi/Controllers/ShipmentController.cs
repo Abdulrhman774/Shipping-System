@@ -14,9 +14,8 @@ public class ShipmentController : BaseController<IShipmentService, TbShipment, S
     public ShipmentController(IShipmentService service) : base(service) { _shipmentService = service; }
 
     [HttpPost("CreateShipment")]
-    //    [Authorize(Roles = "User")]
     [AllowAnonymous]
-    public async Task<IActionResult> CreateShipment([FromBody] CreateShipmentDto dto)
+    public async Task<IActionResult> CreateShipment([FromBody] CreateShipmentRequestDto dto)
     {
         var result = await _shipmentService.CreateShipment(dto);
 

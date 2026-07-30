@@ -6,8 +6,8 @@ public interface IBaseService<T, TDto, TCreateDto, TUpdateDto> where T : BaseEnt
 {
     Task<Result<IEnumerable<TDto>>> GetAllAsync();
     Task<Result<TDto>> GetByIdAsync(Guid id);
-    Task<Result<T>> AddAsync(TCreateDto dto);
-    Task<Result> UpdateAsync(Guid id, TUpdateDto dto);
-    Task<Result> DeleteAsync(Guid id);
-    Task<Result> ChangeStatusAsync(Guid id, enEntityState status = enEntityState.Active);
+    Task<Result<T>> AddAsync(TCreateDto dto, bool? autoSave = null);
+    Task<Result> UpdateAsync(Guid id, TUpdateDto dto, bool? autoSave = null);
+    Task<Result> DeleteAsync(Guid id, bool? autoSave = null);
+    Task<Result> ChangeStatusAsync(Guid id, enEntityState status = enEntityState.Active, bool? autoSave = null);
 }
