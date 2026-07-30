@@ -30,7 +30,7 @@ public class RefreshTokenService : IRefreshTokenService
 
     public async Task<string?> GetRefreshTokenByUserIdAsync(string userId)
     {
-        return (await _refreshRepo.GetFirstOrDefaultAsync(rt => rt.UserId == userId)).Token;
+        return (await _refreshRepo.GetFirstOrDefaultAsync(rt => rt.UserId == userId))?.Token;
     }
 
     public async Task<bool> SaveTokenAsync(string userId, string token, DateTime expires)
@@ -43,7 +43,7 @@ public class RefreshTokenService : IRefreshTokenService
             CreatedDate = DateTime.UtcNow,
             CurrentState = enEntityState.Active
         };
-        return await _refreshRepo.AddAsync(entity);
+        return await _refreshRepo.CreateAsync(entity) != Guid.Empty;
     }
 
     public async Task<bool> RevokeTokensAsync(string userId)
@@ -64,7 +64,7 @@ public class RefreshTokenService : IRefreshTokenService
     {
         var RevokedToken = await _refreshRepo.GetFirstOrDefaultAsync(rt => rt.UserId == userId && rt.Token == token);
 
-        if (RevokedToken.CurrentState is not enEntityState.Active) return false;
+        if (RevokedToken == null || RevokedToken.CurrentState is not enEntityState.Active) return false;
 
         return await _refreshRepo.ChangeStatusAsync(RevokedToken.Id, Guid.Parse(userId), enEntityState.Inactive);
     }

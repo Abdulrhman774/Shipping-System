@@ -91,8 +91,8 @@
                             <tr>
                                 <td> @(i + 1) </td>
                                 <td class="font-weight-bold"> @shipment.TrackingNumber </td>
-                                <td> @(shipment.Sender?.SenderName ?? "N/A") </td>
-                                <td> @(shipment.Receiver?.ReceiverName ?? "N/A") </td>
+                                <td> @(shipment.Sender?.Name ?? "N/A") </td>
+                                <td> @(shipment.Receiver?.Name ?? "N/A") </td>
                                 <td> @(shipment.ShippingType?.ShippingTypeEname ?? "N/A") </td>
                                 <td> @shipment.ShippingDate.ToString("yyyy-MM-dd") </td>
                                 <td> @shipment.ShippingRate.ToString("C") </td>

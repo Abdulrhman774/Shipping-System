@@ -113,7 +113,7 @@ public class ShipmentController : Controller
             Sender = new CreateUserSenderDto
             {
                 UserId = currentUserId,
-                SenderName = model.Sender.SenderName,
+                Name = model.Sender.SenderName,
                 Email = model.Sender.Email,
                 Phone = model.Sender.Phone,
                 CityId = model.Sender.CityId,
@@ -126,7 +126,7 @@ public class ShipmentController : Controller
             Receiver = new CreateUserReceiverDto
             {
                 UserId = currentUserId,
-                ReceiverName = model.Receiver.ReceiverName,
+                Name = model.Receiver.ReceiverName,
                 Email = model.Receiver.Email,
                 Phone = model.Receiver.Phone,
                 CityId = model.Receiver.CityId,

@@ -5,14 +5,27 @@ namespace DAL.Contracts;
 
 public interface IGenericRepository<T> where T : BaseEntity
 {
-    Task<List<T>> GetAllAsync();
-    Task<T> GetByIdAsync(Guid id);
-    Task<bool> AddAsync(T entity);
-    Task<Guid> CreateAsync(T entity);
-    Task<bool> UpdateAsync(Guid id, T entity);
-    Task<bool> DeleteAsync(Guid id, Guid DeletedBy);
-    Task<bool> ChangeStatusAsync(Guid id, Guid updatedBy, enEntityState status = enEntityState.Active);
-    Task<T> GetFirstOrDefaultAsync(Expression<Func<T, bool>> filter);
-    Task<List<T>> GetListAsync(Expression<Func<T, bool>> filter);
-    Task<bool> ExistsAsync(Expression<Func<T, bool>> filter);
+    Task<IEnumerable<T>> GetAllAsync(bool tracking = false, CancellationToken cancellationToken = default);
+    Task<T?> GetByIdAsync(Guid id, bool tracking = false, CancellationToken cancellationToken = default);
+    Task<T?> GetFirstOrDefaultAsync(Expression<Func<T, bool>> predicate, bool tracking = false, CancellationToken cancellationToken = default);
+    Task<IEnumerable<T>> GetListAsync(Expression<Func<T, bool>> predicate, bool tracking = false, CancellationToken cancellationToken = default);
+    IQueryable<T> GetQueryable(bool tracking = false);
+
+    Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<bool> ExistsAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default);
+    Task<int> CountAsync(Expression<Func<T, bool>>? predicate = null, CancellationToken cancellationToken = default);
+
+    Task<Guid> CreateAsync(T entity, CancellationToken cancellationToken = default);
+    Task<bool> UpdateAsync(Guid id, T entity, CancellationToken cancellationToken = default);
+    Task<bool> DeleteAsync(Guid id, Guid deletedBy, CancellationToken cancellationToken = default);
+    Task<bool> ChangeStatusAsync(Guid id, Guid updatedBy, enEntityState status = enEntityState.Active, CancellationToken cancellationToken = default);
+
+    Task<(IEnumerable<T> Data, int TotalCount)> GetPagedAsync(
+        int pageNumber,
+        int pageSize,
+        Expression<Func<T, bool>>? filter = null,
+        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
+        bool tracking = false,
+        CancellationToken cancellationToken = default);
+
 }

@@ -32,7 +32,7 @@ namespace UI.Areas.Admin.Controllers
                 {
                     Id = Guid.Parse("11111111-eeee-eeee-eeee-111111111111"),
                     UserId = "aa11bb22-33cc-44dd-55ee-66ff77aa88bb",
-                    SenderName = "أحمد محمد (Ahmed Mohamed)",
+                    Name = "أحمد محمد (Ahmed Mohamed)",
                     Email = "ahmed.mohamed@example.com",
                     Phone = "+201001234567",
                     CityId = Guid.Parse("f1a2b3c4-d5e6-7f8a-9b0c-1d2e3f4a5b6c"),
@@ -45,7 +45,7 @@ namespace UI.Areas.Admin.Controllers
                 {
                     Id = Guid.Parse("22222222-ffff-ffff-ffff-222222222222"),
                     UserId = "bb22cc33-44dd-55ee-66ff-77aa88bb99cc",
-                    SenderName = "خالد عبدالله (Khalid Abdullah)",
+                    Name = "خالد عبدالله (Khalid Abdullah)",
                     Email = "khalid.a@example.com",
                     Phone = "+966501234567",
                     CityId = Guid.Parse("e2f3a4b5-c6d7-8e9f-0a1b-2c3d4e5f6a7b"),
@@ -58,7 +58,7 @@ namespace UI.Areas.Admin.Controllers
                 {
                     Id = Guid.Parse("33333333-0000-0000-0000-333333333333"),
                     UserId = "cc33dd44-55ee-66ff-77aa-88bb99cc00dd",
-                    SenderName = "جون دو (John Doe)",
+                    Name = "جون دو (John Doe)",
                     Email = "john.doe@example.com",
                     Phone = "+12025550143",
                     CityId = Guid.Parse("d3e4f5a6-b7c8-9d0e-1f2a-3b4c5d6e7f8a"),
@@ -80,7 +80,7 @@ namespace UI.Areas.Admin.Controllers
             {
                 Id = id,
                 UserId = "aa11bb22-33cc-44dd-55ee-66ff77aa88bb",
-                SenderName = "أحمد محمد (Ahmed Mohamed)",
+                Name = "أحمد محمد (Ahmed Mohamed)",
                 Email = "ahmed.mohamed@example.com",
                 Phone = "+201001234567",
                 CityId = Guid.Parse("f1a2b3c4-d5e6-7f8a-9b0c-1d2e3f4a5b6c"),
@@ -127,7 +127,7 @@ namespace UI.Areas.Admin.Controllers
             var dto = new UpdateUserSenderDto
             {
                 UserId = "aa11bb22-33cc-44dd-55ee-66ff77aa88bb",
-                SenderName = "أحمد محمد (Ahmed Mohamed)",
+                Name = "أحمد محمد (Ahmed Mohamed)",
                 Email = "ahmed.mohamed@example.com",
                 Phone = "+201001234567",
                 CityId = Guid.Parse("f1a2b3c4-d5e6-7f8a-9b0c-1d2e3f4a5b6c"),

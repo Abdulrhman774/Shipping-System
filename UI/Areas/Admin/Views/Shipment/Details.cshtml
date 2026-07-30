@@ -98,13 +98,13 @@
                     <div class="row mb-4 bg-light p-3 rounded mx-0">
                         <div class="col-md-6 border-end">
                             <h5 class="font-weight-bold mb-3"><i class="mdi mdi-upload me-2 text-primary"></i>From (Sender)</h5>
-                            <p class="mb-1 font-weight-bold">@(Model.Sender?.SenderName ?? "N/A")</p>
+                            <p class="mb-1 font-weight-bold">@(Model.Sender?.Name ?? "N/A")</p>
                             <p class="mb-1 text-muted small"><i class="mdi mdi-phone me-1"></i>@(Model.Sender?.Phone ?? "N/A")</p>
                             <p class="mb-0 text-muted small"><i class="mdi mdi-map-marker me-1"></i>Sender Address Info...</p>
                         </div>
                         <div class="col-md-6 pl-md-4">
                             <h5 class="font-weight-bold mb-3"><i class="mdi mdi-download me-2 text-info"></i>To (Receiver)</h5>
-                            <p class="mb-1 font-weight-bold">@(Model.Receiver?.ReceiverName ?? "N/A")</p>
+                            <p class="mb-1 font-weight-bold">@(Model.Receiver?.Name ?? "N/A")</p>
                             <p class="mb-1 text-muted small"><i class="mdi mdi-phone me-1"></i>@(Model.Receiver?.Phone ?? "N/A")</p>
                             <p class="mb-0 text-muted small"><i class="mdi mdi-map-marker me-1"></i>@(Model.Receiver?.Address ?? "N/A")</p>
                         </div>

@@ -208,6 +208,9 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddScoped<IValidator<CreateUserSenderDto>, CreateUserSenderDtoValidator>();
             services.AddScoped<IValidator<UpdateUserSenderDto>, UpdateUserSenderDtoValidator>();
 
+            services.AddScoped<IValidator<CreateUserReceiverDto>, CreateUserReceiverDtoValidator>();
+            services.AddScoped<IValidator<UpdateUserReceiverDto>, UpdateUserReceiverDtoValidator>();
+
             services.AddScoped<IValidator<CreateUserSubscriptionDto>, CreateUserSubscriptionDtoValidator>();
             services.AddScoped<IValidator<UpdateUserSubscriptionDto>, UpdateUserSubscriptionDtoValidator>();
 

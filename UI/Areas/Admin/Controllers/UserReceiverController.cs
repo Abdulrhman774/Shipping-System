@@ -32,7 +32,7 @@ namespace UI.Areas.Admin.Controllers
                 {
                     Id = Guid.Parse("44444444-1111-1111-1111-444444444444"),
                     UserId = "dd44ee55-66ff-77aa-88bb-99cc00dd11ee",
-                    ReceiverName = "سارة أحمد (Sarah Ahmed)",
+                    Name = "سارة أحمد (Sarah Ahmed)",
                     Email = "sarah.ahmed@example.com",
                     Phone = "+201009876543",
                     CityId = Guid.Parse("f1a2b3c4-d5e6-7f8a-9b0c-1d2e3f4a5b6c"),
@@ -45,7 +45,7 @@ namespace UI.Areas.Admin.Controllers
                 {
                     Id = Guid.Parse("55555555-2222-2222-2222-555555555555"),
                     UserId = "ee55ff66-77aa-88bb-99cc-00dd11ee22ff",
-                    ReceiverName = "علي حسن (Ali Hassan)",
+                    Name = "علي حسن (Ali Hassan)",
                     Email = "ali.hassan@example.com",
                     Phone = "+966509876543",
                     CityId = Guid.Parse("e2f3a4b5-c6d7-8e9f-0a1b-2c3d4e5f6a7b"),
@@ -58,7 +58,7 @@ namespace UI.Areas.Admin.Controllers
                 {
                     Id = Guid.Parse("66666666-3333-3333-3333-666666666666"),
                     UserId = "ff66aa77-88bb-99cc-00dd-11ee22ff33aa",
-                    ReceiverName = "فاطمة عمر (Fatima Omar)",
+                    Name = "فاطمة عمر (Fatima Omar)",
                     Email = "fatima.omar@example.com",
                     Phone = "+12025550199",
                     CityId = Guid.Parse("d3e4f5a6-b7c8-9d0e-1f2a-3b4c5d6e7f8a"),
@@ -80,7 +80,7 @@ namespace UI.Areas.Admin.Controllers
             {
                 Id = id,
                 UserId = "dd44ee55-66ff-77aa-88bb-99cc00dd11ee",
-                ReceiverName = "سارة أحمد (Sarah Ahmed)",
+                Name = "سارة أحمد (Sarah Ahmed)",
                 Email = "sarah.ahmed@example.com",
                 Phone = "+201009876543",
                 CityId = Guid.Parse("f1a2b3c4-d5e6-7f8a-9b0c-1d2e3f4a5b6c"),
@@ -126,7 +126,7 @@ namespace UI.Areas.Admin.Controllers
             var dto = new UpdateUserReceiverDto
             {
                 UserId = "dd44ee55-66ff-77aa-88bb-99cc00dd11ee",
-                ReceiverName = "سارة أحمد (Sarah Ahmed)",
+                Name = "سارة أحمد (Sarah Ahmed)",
                 Email = "sarah.ahmed@example.com",
                 Phone = "+201009876543",
                 CityId = Guid.Parse("f1a2b3c4-d5e6-7f8a-9b0c-1d2e3f4a5b6c"),
