@@ -8,6 +8,7 @@ using BL.Mapping;
 using DAL.Context;
 using DAL.Contracts;
 using Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 
 namespace BL.Services.Shipment;
@@ -25,12 +26,11 @@ public class ShipmentService
     private readonly IUserSenderService _userSenderService;
     private readonly IUserReceiverService _userReceiverService;
     private readonly IGenericRepository<TbShippingType> _shippingTypeRepository;
-    private readonly ShippingDbContext _shippingContext;
     #endregion
 
     public ShipmentService(
         ShippingDbContext shippingContext,
-        IMapper mapper,
+        IBaseMapper mapper,
         IUserService userService,
         ITrackingNumberCalculator trackingNumberCalculator,
         IRateCalculator rateCalculator,
@@ -51,7 +51,6 @@ public class ShipmentService
         _shippingPackagingService = shippingPackagingService;
         _userSenderService = userSenderservice;
         _userReceiverService = userReceiverService;
-        _shippingContext = shippingContext;
 
         // ✅ Get repository from UnitOfWork
         _shippingTypeRepository = unitOfWork.Repository<TbShippingType>();
@@ -59,7 +58,9 @@ public class ShipmentService
 
 
 
-
+    // ================================================================
+    // ✅ CREATE SHIPMENT
+    // ================================================================
     public async Task<Result<ShipmentDto>> CreateShipment(CreateShipmentRequestDto requestDto)
     {
         await _unitOfWork.BeginTransactionAsync();
@@ -225,341 +226,153 @@ public class ShipmentService
             throw;
         }
     }
-    //public async Task<Result<Guid>> CreateShipment(CreateShipmentDto dto)
-    //{
-    //    await _unitOfWork.BeginTransactionAsync();
 
-    //    try
-    //    {
-    //        var userId = await _userService.GetLoggedInUserAsync();
-    //        if (string.IsNullOrEmpty(userId.ToString()))
-    //            return Error.Unauthorized("User.NotLoggedIn", "User must be logged in to create a shipment.");
 
-    //        // 1. Create Sender ✅
-    //        var senderResult = await _userSenderService.AddAsync(dto.Sender);
-    //        if (senderResult.IsFailure)
-    //        {
-    //            await _unitOfWork.RollbackTransactionAsync();
-    //            return senderResult.Errors.ToList();
-    //        }
-    //        var sender = senderResult.Value; // ✅ الـ Entity المتتبع
+    // ================================================================
+    // ✅ UPDATE SHIPMENT (OVERRIDE)
+    // ================================================================
+    public async Task<Result> UpdateShipment(Guid id, UpdateShipmentRequestDto dto)
+    {
+        await _unitOfWork.BeginTransactionAsync();
 
-    //        // 2. Create Receiver ✅
-    //        var receiverResult = await _userReceiverService.AddAsync(dto.Receiver);
-    //        if (receiverResult.IsFailure)
-    //        {
-    //            await _unitOfWork.RollbackTransactionAsync();
-    //            return receiverResult.Errors.ToList();
-    //        }
-    //        var receiver = receiverResult.Value; // ✅ الـ Entity المتتبع
-
+        try
+        {
+            // 1. جلب الشحنة الحالية
+            var existingShipment = await _unitOfWork.Repository<TbShipment>()
+                        .GetQueryable()
+                        .Include(s => s.Sender)
+                        .Include(s => s.Receiver)
+                        .FirstOrDefaultAsync(s => s.Id == id);
             
-    //        // 4-8. باقي المنطق (References, Distance, Subscription, Rate, Tracking)
-    //        // ...
+            if (existingShipment is null)
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                return Error.NotFound("Shipment.NotFound", "Shipment was not found.");
+            }
 
-    //        // 9. Create Shipment ✅
-    //        var shipment = _mapper.Map<CreateShipmentDto, TbShipment>(dto);
-    //        shipment.Sender = sender;    
-    //        shipment.Receiver = receiver;
+            // 2. التحقق من أن المستخدم الحالي هو منشئ الشحنة
+            var userId = await _userService.GetLoggedInUserAsync();
+            if (existingShipment.CreatedBy != userId)
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                return Error.Unauthorized("Shipment.Unauthorized", "You are not authorized to edit this shipment.");
+            }
 
-    //        // 10. Add Shipment ✅
-    //        await _repository.CreateAsync(shipment); // NO SAVE
+            // 3. التحقق من أن الشحنة غير مكتملة (قابلة للتعديل)
+            if (existingShipment.CurrentState == enEntityState.Inactive)
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                return Error.Validation("Shipment.Inactive", "Cannot edit an inactive shipment.");
+            }
 
-    //        // 11. Update Subscription
-    //        // ...
+            // 4. تحديث بيانات Sender
+            if (dto.ShipmentDto.SenderId != Guid.Empty)
+            {
+                var senderUpdateResult = await _userSenderService.UpdateAsync(dto.ShipmentDto.SenderId, new UpdateUserSenderDto
+                {
+                    Name = dto.SenderDto.Name ?? existingShipment.Sender.Name,
+                    Email = dto.SenderDto.Email ?? existingShipment.Sender.Email,
+                    Phone = dto.SenderDto.Phone ?? existingShipment.Sender.Phone,
+                    Address = dto.SenderDto.Address ?? existingShipment.Sender.Address,
+                    PostalCode = dto.SenderDto.PostalCode ?? existingShipment.Sender.PostalCode,
+                    Contact = dto.SenderDto.Contact ?? existingShipment.Sender.Contact,
+                    OtherAddress = dto.SenderDto.OtherAddress ?? existingShipment.Sender.OtherAddress,
+                    CityId = (dto.SenderDto.CityId == Guid.Empty) ? existingShipment.Sender.CityId : dto.SenderDto.CityId,
+                    IsDefaultAddress = dto.SenderDto.IsDefaultAddress
+                });
 
-    //        // 12. SAVE EVERYTHING ✅
-    //        await _unitOfWork.CommitTransactionAsync();
+                if (senderUpdateResult.IsFailure)
+                {
+                    await _unitOfWork.RollbackTransactionAsync();
+                    return senderUpdateResult.Errors.ToList();
+                }
+            }
 
-    //        return Result<Guid>.Success(shipment.Id);
-    //    }
-    //    catch
-    //    {
-    //        await _unitOfWork.RollbackTransactionAsync();
-    //        throw;
-    //    }
-    //}
-    //public async Task<Result<Guid>> CreateShipmentv2(CreateShipmentDto dto)
-    //{
-    //    await _unitOfWork.BeginTransactionAsync();
+            // 5. تحديث بيانات Receiver
+            if (dto.ShipmentDto.ReceiverId != Guid.Empty)
+            {
+                var receiverUpdateResult = await _userReceiverService.UpdateAsync(dto.ShipmentDto.ReceiverId, new UpdateUserReceiverDto
+                {
+                    Name = dto.ReceiverDto.Name ?? existingShipment.Receiver.Name,
+                    Email = dto.ReceiverDto.Email ?? existingShipment.Receiver.Email,
+                    Phone = dto.ReceiverDto.Phone ?? existingShipment.Receiver.Phone,
+                    Address = dto.ReceiverDto.Address ?? existingShipment.Receiver.Address,
+                    PostalCode = dto.ReceiverDto.PostalCode ?? existingShipment.Receiver.PostalCode,
+                    Contact = dto.ReceiverDto.Contact ?? existingShipment.Receiver.Contact,
+                    OtherAddress = dto.ReceiverDto.OtherAddress ?? existingShipment.Receiver.OtherAddress,
+                    CityId = (dto.ReceiverDto.CityId == Guid.Empty) ? existingShipment.Receiver.CityId : dto.ReceiverDto.CityId,
+                    IsDefaultAddress = dto.ReceiverDto.IsDefaultAddress
+                });
 
-    //    try
-    //    {
-    //        var userId = await _userService.GetLoggedInUserAsync();
-    //        if (string.IsNullOrEmpty(userId.ToString()))
-    //            return Error.Unauthorized("User.NotLoggedIn", "User must be logged in to create a shipment.");
+                if (receiverUpdateResult.IsFailure)
+                {
+                    await _unitOfWork.RollbackTransactionAsync();
+                    return receiverUpdateResult.Errors.ToList();
+                }
+            }
 
-    //        // ================================================================
-    //        // 1. Create Sender Entity (NO SAVE - just tracked by DbContext)
-    //        // ================================================================
+            // 6. تحديث بيانات الشحنة
+            existingShipment.ShippingDate = dto.ShipmentDto.ShippingDate;
+            existingShipment.DeliveryDate = dto.ShipmentDto.DeliveryDate;
+            existingShipment.ShippingTypeId = dto.ShipmentDto.ShippingTypeId;
+            existingShipment.ShippingPackagingId = dto.ShipmentDto.ShippingPackagingId;
+            existingShipment.Width = dto.ShipmentDto.Width;
+            existingShipment.Height = dto.ShipmentDto.Height;
+            existingShipment.Weight = dto.ShipmentDto.Weight;
+            existingShipment.Length = dto.ShipmentDto.Length;
+            existingShipment.PackageValue = dto.ShipmentDto.PackageValue;
+            existingShipment.PaymentMethodId = dto.ShipmentDto.PaymentMethodId;
+            existingShipment.UserSubscriptionId = dto.ShipmentDto.UserSubscriptionId;
+            existingShipment.ReferenceId = dto.ShipmentDto.ReferenceId;
+            existingShipment.UpdatedDate = DateTime.UtcNow;
+            existingShipment.UpdatedBy = userId;
 
-    //        var senderResult = await _userSenderService.AddAsync(dto.Sender);
+            // 7. إعادة حساب السعر (لو تغير الوزن أو المسافة)
+            var shippingType = await _shippingTypeRepository.GetByIdAsync(dto.ShipmentDto.ShippingTypeId);
+            if (shippingType is not null)
+            {
+                var distance = await _distanceService.GetDistanceBetweenCitiesAsync(
+                    existingShipment.Sender.CityId,
+                    existingShipment.Receiver.CityId
+                );
 
-    //        if (senderResult.IsFailure)
-    //        {
-    //            await _shippingContext.Database.RollbackTransactionAsync();
-    //            return senderResult.Errors.ToList();
-    //        }
+                var rateResult = await _rateCalculator.CalculateStandardRateAsync(
+                    new CreateShipmentDto
+                    {
+                        Weight = dto.ShipmentDto.Weight,
+                        Width = dto.ShipmentDto.Width,
+                        Height = dto.ShipmentDto.Height,
+                        Length = dto.ShipmentDto.Length,
+                        PackageValue = dto.ShipmentDto.PackageValue
+                    },
+                    shippingType,
+                    distance
+                );
 
-    //        var sender = senderResult.Value; // ✅ Tracked entity
+                if (rateResult.IsSuccess)
+                {
+                    existingShipment.ShippingRate = rateResult.Value;
+                }
+            }
 
+            // 8. حفظ التغييرات
+            var updated = await _repository.UpdateAsync(id, existingShipment);
+            if (!updated)
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                return Error.Unexpected("Shipment.UpdateFailed", "Failed to update shipment.");
+            }
 
-    //        // ✅ DON'T assign dto.SenderId yet - we'll use navigation property
+            await _unitOfWork.CommitTransactionAsync();
+            return Result.Success();
+        }
+        catch (Exception ex)
+        {
+            await _unitOfWork.RollbackTransactionAsync();
+            return Error.Unexpected("Shipment.UpdateError", $"An error occurred: {ex.Message}");
+        }
+    }
 
-    //        // ================================================================
-    //        // 2. Create Receiver Entity (NO SAVE - just tracked by DbContext)
-    //        // ================================================================
-    //        var receiverResult = await _userReceiverService.AddAsync(dto.Receiver);
-                        
-    //        if (receiverResult.IsFailure)
-    //        {
-    //            await _shippingContext.Database.RollbackTransactionAsync();
-    //            return receiverResult.Errors.ToList();
-    //        }
-
-    //        var receiver = receiverResult.Value; // ✅ Tracked entity
-
-    //        // ✅ DON'T assign dto.ReceiverId yet - we'll use navigation property
-
-    //        // ================================================================
-    //        // 3. Validate References (ShippingType, PaymentMethod, etc.)
-    //        // ================================================================
-    //        var referencesResult = await ValidateShipmentReferencesAsync(dto);
-    //        if (referencesResult.IsFailure)
-    //        {
-    //            await _shippingContext.Database.RollbackTransactionAsync();
-    //            return referencesResult.Errors.ToList();
-    //        }
-    //        var shippingType = referencesResult.Value;
-
-    //        // ================================================================
-    //        // 4. Get Distance (using navigation properties - no IDs needed)
-    //        // ================================================================
-    //        var distance = await _distanceService.GetDistanceBetweenCitiesAsync(
-    //            dto.Sender.CityId,   // ✅ Use the entity directly
-    //            dto.Receiver.CityId  // ✅ Use the entity directly
-    //        );
-
-    //        // ================================================================
-    //        // 5. Subscription (Optional)
-    //        // ================================================================
-    //        TbUserSubscription? consumedSubscription = null;
-
-    //        if (dto.UserSubscriptionId is { } subId && subId != Guid.Empty)
-    //        {
-    //            var subscriptionResult = await _rateCalculator.TryConsumeFromSubscriptionAsync(subId, dto, distance);
-
-    //            if (subscriptionResult.IsSuccess)
-    //                consumedSubscription = subscriptionResult.Value;
-    //            else
-    //                dto.UserSubscriptionId = null;
-    //        }
-
-    //        // ================================================================
-    //        // 6. Calculate Rate
-    //        // ================================================================
-    //        decimal rate;
-    //        if (consumedSubscription is not null)
-    //        {
-    //            rate = 0m;
-    //        }
-    //        else
-    //        {
-    //            var rateResult = await _rateCalculator.CalculateStandardRateAsync(dto, shippingType, distance);
-    //            if (rateResult.IsFailure)
-    //            {
-    //                await _shippingContext.Database.RollbackTransactionAsync();
-    //                return rateResult.Errors.ToList();
-    //            }
-    //            rate = rateResult.Value;
-    //        }
-    //        dto.ShippingRate = rate;
-
-    //        // ================================================================
-    //        // 7. Generate Tracking Number
-    //        // ================================================================
-    //        var trackingResult = await _trackingNumberCalculator.GenerateTrackingNumber();
-    //        if (trackingResult.IsFailure)
-    //        {
-    //            await _shippingContext.Database.RollbackTransactionAsync();
-    //            return trackingResult.FirstError!;
-    //        }
-    //        dto.TrackingNumber = trackingResult.Value;
-
-    //        // ================================================================
-    //        // 8. Create Shipment Entity with Navigation Properties
-    //        // ================================================================
-    //        var shipment = _mapper.Map<CreateShipmentDto, TbShipment>(dto);
-    //        shipment.Sender = sender;   // ✅ Navigation property (FK will be auto-set)
-    //        shipment.Receiver = receiver; // ✅ Navigation property (FK will be auto-set)
-
-    //        // The DTO already has SenderId/ReceiverId, but we don't use them
-    //        // EF Core will automatically set the correct FK values when saving
-
-    //        // ================================================================
-    //        // 9. Add Shipment to DbContext (NO SAVE yet)
-    //        // ================================================================
-    //        var result = await AddAsync(dto);  // Your BaseService.AddAsync
-    //        if (result.IsFailure)
-    //        {
-    //            await _shippingContext.Database.RollbackTransactionAsync();
-    //            return result.Value.Id;
-    //        }
-
-    //        // ================================================================
-    //        // 10. Update Subscription Usage (if used)
-    //        // ================================================================
-    //        if (consumedSubscription is not null)
-    //        {
-    //            var updateResult = await _rateCalculator.ApplySubscriptionUsageAsync(
-    //                consumedSubscription,
-    //                dto.Weight,
-    //                distance
-    //            );
-    //            if (updateResult.IsFailure)
-    //            {
-    //                await _shippingContext.Database.RollbackTransactionAsync();
-    //                return updateResult.Errors.ToList();
-    //            }
-    //        }
-
-    //        // ================================================================
-    //        // 11. SAVE EVERYTHING IN ONE SHOT + COMMIT
-    //        // ================================================================
-    //        await _unitOfWork.CommitTransactionAsync();
-
-    //        // ✅ Now all entities have real IDs from the database
-    //        // result.Value contains the Shipment ID
-
-    //        return result.Value.Id;
-    //    }
-    //    catch
-    //    {
-    //        await _shippingContext.Database.RollbackTransactionAsync();
-    //        throw;
-    //    }
-    //}
-
-    //public async Task<Result<Guid>> CreateShipmentv1(CreateShipmentDto dto)
-    //{
-    //    await _unitOfWork.BeginTransactionAsync();
-
-    //    try
-    //    {
-    //        var userId = await _userService.GetLoggedInUserAsync();
-
-
-    //        if (string.IsNullOrEmpty(userId.ToString()))
-    //            return Error.Unauthorized("User.NotLoggedIn", "User must be logged in to create a shipment.");
-
-    //        // 1. إنشاء الـ Sender
-    //        var senderResult = await _userSenderService.AddAsync(dto.Sender);
-    //        if (senderResult.IsFailure)
-    //        {
-    //            await _shippingContext.Database.RollbackTransactionAsync();
-    //            return senderResult.Errors.ToList();
-    //        }
-    //        //dto.SenderId = senderResult.Value;
-
-    //        // 2. إنشاء الـ Receiver
-    //        var receiverResult = await _userReceiverService.AddAsync(dto.Receiver);
-    //        if (receiverResult.IsFailure)
-    //        {
-    //            await _shippingContext.Database.RollbackTransactionAsync();
-    //            return receiverResult.Errors.ToList();
-    //        }
-    //        //dto.ReceiverId = receiverResult.Value;
-
-    //        //if (dto.SenderId == dto.ReceiverId)
-    //        //{
-    //        //    await _shippingContext.Database.RollbackTransactionAsync();
-    //        //    return Error.Validation("SameSenderReceiver", "Sender and receiver cannot be the same person.");
-    //        //}
-
-    //        // 3. باقي المراجع (ShippingType, PaymentMethod, Subscription, Packaging, Reference)
-    //        var referencesResult = await ValidateShipmentReferencesAsync(dto);
-    //        if (referencesResult.IsFailure)
-    //        {
-    //            await _shippingContext.Database.RollbackTransactionAsync();
-    //            return referencesResult.Errors.ToList();
-    //        }
-    //        var shippingType = referencesResult.Value;
-
-    //        // 4. Entities كاملة بتاعة الـ Sender/Receiver (للحسابات - Rate/Distance)
-    //        var sender = await _userSenderService.GetByIdAsync(dto.SenderId);
-    //        var receiver = await _userReceiverService.GetByIdAsync(dto.ReceiverId);
-
-    //        var distance = await _distanceService.GetDistanceBetweenCitiesAsync(sender.Value.CityId, receiver.Value.CityId);
-
-    //        // 5. Subscription (اختياري)
-    //        TbUserSubscription? consumedSubscription = null;
-
-    //        if (dto.UserSubscriptionId is { } subId && subId != Guid.Empty)
-    //        {
-    //            var subscriptionResult = await _rateCalculator.TryConsumeFromSubscriptionAsync(subId, dto, distance);
-
-    //            if (subscriptionResult.IsSuccess)
-    //                consumedSubscription = subscriptionResult.Value;
-    //            else
-    //                dto.UserSubscriptionId = null;
-    //        }
-
-    //        // 6. حساب السعر
-    //        decimal rate;
-    //        if (consumedSubscription is not null)
-    //        {
-    //            rate = 0m;
-    //        }
-    //        else
-    //        {
-    //            var rateResult = await _rateCalculator.CalculateStandardRateAsync(dto, shippingType, distance);
-    //            if (rateResult.IsFailure)
-    //            {
-    //                await _shippingContext.Database.RollbackTransactionAsync();
-    //                return rateResult.Errors.ToList();
-    //            }
-    //            rate = rateResult.Value;
-    //        }
-    //        dto.ShippingRate = rate;
-
-    //        // 7. رقم التتبع
-    //        var trackingResult = await _trackingNumberCalculator.GenerateTrackingNumber();
-    //        if (trackingResult.IsFailure)
-    //        {
-    //            await _shippingContext.Database.RollbackTransactionAsync();
-    //            return trackingResult.FirstError!;
-    //        }
-    //        dto.TrackingNumber = trackingResult.Value;
-
-    //        // 8. إنشاء الشحنة نفسها - AddAsync القياسية، هتاخد SenderId/ReceiverId من الـ dto تلقائي
-    //        var result = await AddAsync(dto);
-    //        if (result.IsFailure)
-    //        {
-    //            await _shippingContext.Database.RollbackTransactionAsync();
-    //            return result.Value.Id;
-    //        }
-
-    //        // 9. تحديث استهلاك الاشتراك لو اتستخدم
-    //        if (consumedSubscription is not null)
-    //        {
-    //            var updateResult = await _rateCalculator.ApplySubscriptionUsageAsync(consumedSubscription, dto.Weight, distance);
-    //            if (updateResult.IsFailure)
-    //            {
-    //                await _shippingContext.Database.RollbackTransactionAsync();
-    //                return updateResult.Errors.ToList();
-    //            }
-    //        }
-
-    //        await _unitOfWork.CommitTransactionAsync();
-    //        return result.Value.Id;
-    //    }
-    //    catch
-    //    {
-    //        await _shippingContext.Database.RollbackTransactionAsync();
-    //        throw;
-    //    }
-    //}
-    
     #region Private Methods
 
 

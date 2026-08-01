@@ -1,22 +1,23 @@
 using AutoMapper;
-using Domain.Entities;
 using BL.DTOs.Carrier;
 using BL.DTOs.City;
 using BL.DTOs.Country;
 using BL.DTOs.Log;
 using BL.DTOs.PaymentMethod;
+using BL.DTOs.RefreshToken;
 using BL.DTOs.Setting;
-using BL.DTOs.ShippingType;
 using BL.DTOs.Shipment;
+using BL.DTOs.ShipmentStatus;
 using BL.DTOs.ShippingPackaging;
+using BL.DTOs.ShippingType;
 using BL.DTOs.SubscriptionPackage;
 using BL.DTOs.UserReceiver;
 using BL.DTOs.UserSender;
 using BL.DTOs.UserSubscription;
-using Domain.Entities.Views;
 using BL.DTOs.Views;
-using BL.DTOs.RefreshToken;
-using BL.DTOs.ShipmentStatus;
+using Domain.Entities;
+using Domain.Entities.Views;
+using Domain.Entities.Views.Shipment.Statistics_Views;
 
 namespace BL.Mapping
 {
@@ -101,7 +102,11 @@ namespace BL.Mapping
 
             // Views
             CreateMap<VwCitiesCountries, VwCitiesCountriesDto>();
-            
+            CreateMap<vw_ShipmentDetails, ShipmentDetailsDto>();
+            CreateMap<vw_ShipmentStats, ShipmentStatsDto>();
+            CreateMap<VwMonthlyShipments, MonthlyShipmentsDto>();
+            CreateMap<VwShipmentsByType, ShipmentsByTypeDto>();
+
         }
     }
 }

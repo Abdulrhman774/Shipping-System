@@ -1,3 +1,4 @@
+using BL.Contract.IvwServices;
 using BL.DTOs.Shipment;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,54 +15,33 @@ namespace UI.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly MvcShipmentService _shipmentService;
+        private readonly IShipmentViewService _shipmentViewService;
 
-        public HomeController(ILogger<HomeController> logger, MvcShipmentService shipmentService)
+        public HomeController(ILogger<HomeController> logger, MvcShipmentService shipmentService, IShipmentViewService shipmentViewService)
         {
             _logger = logger;
             _shipmentService = shipmentService;
+            _shipmentViewService = shipmentViewService; 
         }
 
         public async Task<IActionResult> Index()
         {
-            // 1. Fetch all shipments from the API
-            var response = await _shipmentService.GetAllShipmentsAsync();
+            var userId = GetCurrentUserId();
 
-            if (!response.Success || response.Data is null)
-            {
-                _logger.LogWarning("Failed to load shipments for dashboard. Error: {Error}", response.Error);
-                return View(new HomeDashboardViewModel());
-            }
+            // 1. إحصائيات الشحنات
+            var statsResult = await _shipmentViewService.GetShipmentStatsAsync();
+            ViewBag.ShipmentStats = statsResult.IsSuccess ? statsResult.Value : null;
 
-            var allShipments = response.Data;
+            // 2. آخر 5 شحنات
+            var recentResult = await _shipmentViewService.GetShipmentsByUserAsync(Guid.Parse(userId));
+            ViewBag.RecentShipments = recentResult.IsSuccess ? recentResult.Value.Take(5) : null;
 
-            // 2. Build statistics (enEntityState: Active=1, Inactive=2, Deleted=3)
-            var model = new HomeDashboardViewModel
-            {
-                TotalShipments    = allShipments.Count,
-                PendingShipments  = allShipments.Count(s => (int)s.CurrentState == 1),
-                InTransitShipments= allShipments.Count(s => (int)s.CurrentState == 2),
-                DeliveredShipments= allShipments.Count(s => (int)s.CurrentState == 3),
+            // 3. الشحنات الشهرية
+            var monthlyResult = await _shipmentViewService.GetMonthlyShipmentsAsync();
+            ViewBag.MonthlyShipments = monthlyResult.IsSuccess ? monthlyResult.Value.Take(12) : null;
 
-                // 3. Last 5 shipments ordered by CreatedDate descending
-                RecentShipments = allShipments
-                    .OrderByDescending(s => s.CreatedDate)
-                    .Take(5)
-                    .Select(s => new DashboardShipmentRow
-                    {
-                        Id             = s.Id,
-                        TrackingNumber = s.TrackingNumber ?? "N/A",
-                        SenderId       = s.SenderId,
-                        ReceiverId     = s.ReceiverId,
-                        ShippingDate   = s.ShippingDate,
-                        Status         = GetStatusLabel((int)s.CurrentState),
-                        BadgeClass     = GetBadgeClass((int)s.CurrentState)
-                    })
-                    .ToList()
-            };
-
-            return View(model);
+            return View();
         }
-
         public IActionResult Privacy()
         {
             return View();
@@ -91,7 +71,14 @@ namespace UI.Controllers
             _ => "badge-unknown"
         };
 
+        // ✅ إضافة هذه الطريقة
+        private string GetCurrentUserId()
+        {
+            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier)
+                ?? User.FindFirstValue("UserId");
 
+            return userIdString ?? string.Empty;
+        }
 
         // صفحة من نحن (About)
         public IActionResult About()
@@ -152,6 +139,42 @@ namespace UI.Controllers
         public IActionResult Error404()
         {
             return View();
+        }
+
+        // إضافة أكشن الـ Newsletter Subscribe
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Subscribe(string email)
+        {
+            if (string.IsNullOrEmpty(email))
+            {
+                TempData["ErrorMessage"] = "Please enter a valid email address.";
+                return RedirectToAction("Index");
+            }
+
+            try
+            {
+                // TODO: استدعاء الـ API لحفظ الـ email
+                // var response = await _apiClient.PostAsync<object>("Api/Newsletter/Subscribe", new { Email = email });
+                // if (response.Success)
+                // {
+                //     TempData["SuccessMessage"] = "Thank you for subscribing!";
+                // }
+                // else
+                // {
+                //     TempData["ErrorMessage"] = "Failed to subscribe. Please try again.";
+                // }
+
+                // مؤقتاً
+                TempData["SuccessMessage"] = "Thank you for subscribing!";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error subscribing email {Email}", email);
+                TempData["ErrorMessage"] = "An error occurred. Please try again.";
+            }
+
+            return RedirectToAction("Index");
         }
     }
 }

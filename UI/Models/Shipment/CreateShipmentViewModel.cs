@@ -46,6 +46,7 @@ public class CreateShipmentViewModel
     public Guid? PaymentMethodId { get; set; }
 
     public Guid? UserSubscriptionId { get; set; }
+    public Guid? ReferenceId { get; set; }
 
     // ── Dropdown sources (not submitted) ──
     public List<SelectListItem>? ShippingTypes { get; set; }

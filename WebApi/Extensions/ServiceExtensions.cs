@@ -39,6 +39,7 @@ using DAL.Contracts;
 using DAL.Contracts.IRepositories;
 using DAL.Repositories;
 using DAL.Repositories.Generic;
+using DAL.Repositories.View;
 using Domain.Entities;
 using FluentValidation;
 using FluentValidation.AspNetCore;
@@ -113,6 +114,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddScoped<IUserReceiverRepository, UserReceiverRepository>();
             services.AddScoped<IUserSenderRepository, UserSenderRepository>();
             services.AddScoped<IUserSubscriptionRepository, UserSubscriptionRepository>();
+            services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 
             return services;
         }
@@ -124,11 +126,14 @@ namespace Microsoft.Extensions.DependencyInjection
 
             #region Views-specific services
             services.AddScoped<IVwCitiesCountriesService, VwCitiesCountriesService>();
+            services.AddScoped<IShipmentViewRepository, ShipmentViewRepository>();
+            services.AddScoped<IShipmentViewService, ShipmentViewService>();
+
             #endregion
 
             #region Mapping services
             services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
-            services.AddScoped<BL.Mapping.IMapper, BL.Mapping.AutoMapper>();
+            services.AddScoped<BL.Mapping.IBaseMapper, BL.Mapping.AutoMapper>();
             #endregion
 
             #region Auth - UserManager, SignInManager, etc. services

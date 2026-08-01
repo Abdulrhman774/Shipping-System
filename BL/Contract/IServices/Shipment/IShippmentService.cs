@@ -13,4 +13,5 @@ public interface IShipmentService
     //Task<Result<Guid>> CreateShipment(CreateShipmentDto dto);
     Task<Result<ShipmentDto>> GetShipmentByTrackingNumberAsync(string trackingNumber);
     Task<Result<IEnumerable<ShipmentDto>>> GetShipmentsForUserAsync(string userId);
+    Task<Result> UpdateShipment(Guid id, UpdateShipmentRequestDto dto);
 }

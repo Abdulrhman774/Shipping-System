@@ -10,11 +10,11 @@ namespace BL.Services;
 public class BaseService<T, TDto, TCreateDto, TUpdateDto> : IBaseService<T, TDto, TCreateDto, TUpdateDto> where T : BaseEntity
 {
     protected readonly IGenericRepository<T> _repository;
-    protected readonly IMapper _mapper;
+    protected readonly IBaseMapper _mapper;
     protected readonly IUserService _userService;
     protected readonly IUnitOfWork _unitOfWork;
     protected virtual bool AutoSave { get; set; } = false;
-    public BaseService(IUnitOfWork unitOfWork, IMapper mapper, IUserService userService)
+    public BaseService(IUnitOfWork unitOfWork, IBaseMapper mapper, IUserService userService)
     {
         _mapper = mapper;
         _userService = userService;

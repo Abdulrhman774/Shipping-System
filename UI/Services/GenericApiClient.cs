@@ -19,13 +19,15 @@ public class GenericApiClient
     private readonly ITokenProvider _tokenProvider;
     private readonly ILogger<GenericApiClient> _logger;
     private readonly ITokenRefreshService _tokenRefreshService;
+    private readonly IRefreshTokenProvider _refreshTokenProvider;
 
     public GenericApiClient(
         IHttpClientFactory httpClientFactory,
         IConfiguration configuration,
         ITokenProvider tokenProvider,
         ILogger<GenericApiClient> logger,
-        ITokenRefreshService tokenRefreshService)
+        ITokenRefreshService tokenRefreshService,
+        IRefreshTokenProvider refreshTokenProvider)
     {
         ArgumentNullException.ThrowIfNull(httpClientFactory, nameof(httpClientFactory));
         ArgumentNullException.ThrowIfNull(configuration, nameof(configuration));
@@ -34,6 +36,7 @@ public class GenericApiClient
         _tokenProvider = tokenProvider;
         _logger = logger;
         _tokenRefreshService = tokenRefreshService;
+        _refreshTokenProvider = refreshTokenProvider;
 
         var baseUrl = configuration["ApiSettings:BaseUrl"]
             ?? throw new InvalidOperationException("ApiSettings:BaseUrl is not configured.");
@@ -120,6 +123,13 @@ public class GenericApiClient
         }
     }
 
+    public void RemoveAuthorizationHeader()
+    {
+        _httpClient.DefaultRequestHeaders.Authorization = null;
+        _logger.LogDebug("Authorization header removed from HttpClient");
+    }
+
+
     #region Private Methods
     /// <summary>
     /// Automatically add token from session (with safety checks)
@@ -159,22 +169,36 @@ public class GenericApiClient
     }
     private async Task<HttpResponseMessage> SendAsync(Func<Task<HttpResponseMessage>> request)
     {
+        // ✅ إضافة Authorization Header قبل كل Request
         _AddAuthorizationHeader();
 
         var response = await request();
 
-        if (response.StatusCode != HttpStatusCode.Unauthorized)
-            return response;
+        // ✅ لو 401 Unauthorized، حاول تجديد Token
+        if (response.StatusCode == HttpStatusCode.Unauthorized)
+        {
+            _logger.LogWarning("Received 401 Unauthorized, attempting to refresh token");
 
-        var refreshed = await _tokenRefreshService.RefreshAccessTokenAsync();
+            var refreshed = await _tokenRefreshService.RefreshAccessTokenAsync();
 
-        if (!refreshed)
-            return response;
+            if (refreshed)
+            {
+                // ✅ أضف الـ Token الجديد
+                _AddAuthorizationHeader();
+                response = await request();
+            }
+            else
+            {
+                _logger.LogWarning("Token refresh failed, user needs to login again");
+                
+                // ✅ لو فشل التجديد، امسح الـ Token وارجع 401
+                _tokenProvider.RemoveAccessToken();
+                _refreshTokenProvider.RemoveRefreshToken();
+                _httpClient.DefaultRequestHeaders.Authorization = null;
+            }
+        }
 
-        _AddAuthorizationHeader();
-
-        return await request();
+        return response;
     }
-
     #endregion
 }

@@ -63,7 +63,7 @@
                             var status = Model[i];
                             <tr>
                                 <td> @(i + 1) </td>
-                                <td class="font-weight-bold"> @(status.Shippment?.TrackingNumber.ToString() ?? "N/A") </td>
+                                <td class="font-weight-bold"> @(status.Shippment?.TrackingNumber!.ToString() ?? "N/A") </td>
                                 <td> @(status.Carrier?.CarrierName ?? "N/A") </td>
                                 <td style="max-width: 300px; white-space: normal; word-break: break-word;"> @status.Notes </td>
                                 <td> @status.CreatedDate.ToString("yyyy-MM-dd HH:mm") </td>

@@ -62,9 +62,12 @@ app.UseSession();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+// ============================================
+// ✅ Middleware التوجيه - مع التحقق من Role
+// ============================================
 app.Use(async (context, next) =>
 {
-    // ✅ إذا كان المستخدم مصادقاً والمسار هو Login أو الصفحة الرئيسية
     if (context.User.Identity?.IsAuthenticated == true)
     {
         var path = context.Request.Path.Value?.ToLower();
@@ -72,7 +75,15 @@ app.Use(async (context, next) =>
         // إذا كان في صفحة Login أو الصفحة الرئيسية
         if (path == "/" || path == "/account/login" || string.IsNullOrEmpty(path))
         {
-            context.Response.Redirect("/Admin/Dashboard");
+            // التحقق من الـ Role قبل التوجيه
+            if (context.User.IsInRole("Admin"))
+            {
+                context.Response.Redirect("/Admin/Dashboard");
+            }
+            else
+            {
+                context.Response.Redirect("/Home/Index");
+            }
             return;
         }
     }
@@ -80,14 +91,53 @@ app.Use(async (context, next) =>
     await next();
 });
 
+// ============================================
+// ✅ Routes
+// ============================================
 
 app.MapControllerRoute(
     name: "areas",
-    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
+    pattern: "{area:exists}/{controller=Dashboard}/{action=Index}/{id?}");
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Account}/{action=Login}/{id?}");
+    pattern: "{controller=Home}/{action=Index}/{id?}");
 
+// Route مخصص للـ Account
+app.MapControllerRoute(
+    name: "account",
+    pattern: "account/{action=Login}/{id?}",
+    defaults: new { controller = "Account" });
+
+// Route مخصص للـ Home
+app.MapControllerRoute(
+    name: "home",
+    pattern: "home/{action=Index}/{id?}",
+    defaults: new { controller = "Home" });
+
+app.MapControllerRoute(
+    name: "shipment_create",
+    pattern: "Shipment/Create",
+    defaults: new { controller = "Shipment", action = "Create" });
+
+app.MapControllerRoute(
+    name: "shipment_update",
+    pattern: "Shipment/Update/{id}",
+    defaults: new { controller = "Shipment", action = "Update" });
+
+app.MapControllerRoute(
+    name: "shipment_history",
+    pattern: "Shipment/History",
+    defaults: new { controller = "Shipment", action = "History" });
+
+app.MapControllerRoute(
+    name: "shipment_details",
+    pattern: "Shipment/Details/{id}",
+    defaults: new { controller = "Shipment", action = "Details" });
+
+app.MapControllerRoute(
+    name: "shipment_confirmation",
+    pattern: "Shipment/Confirmation/{id}",
+    defaults: new { controller = "Shipment", action = "Confirmation" });
 
 app.Run();

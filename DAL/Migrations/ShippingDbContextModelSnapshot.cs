@@ -710,7 +710,6 @@ namespace DAL.Migrations
                         .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("OtherAddress")
-                        .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
@@ -799,7 +798,6 @@ namespace DAL.Migrations
                         .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("OtherAddress")
-                        .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
@@ -903,6 +901,329 @@ namespace DAL.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("TbUserSubscription", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Entities.Views.Shipment.Statistics_Views.VwMonthlyShipments", b =>
+                {
+                    b.Property<decimal?>("AverageRate")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("MonthName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ShipmentMonth")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ShipmentYear")
+                        .HasColumnType("int");
+
+                    b.Property<decimal?>("TotalRevenue")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("TotalShipments")
+                        .HasColumnType("int");
+
+                    b.Property<decimal?>("TotalValue")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.ToTable((string)null);
+
+                    b.ToView("vw_MonthlyShipments", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Entities.Views.Shipment.Statistics_Views.VwShipmentsByType", b =>
+                {
+                    b.Property<decimal?>("AverageShippingRate")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("ShipmentCount")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("ShippingTypeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ShippingTypeName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal?>("TotalPackageValue")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("TotalShippingRate")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.ToTable((string)null);
+
+                    b.ToView("vw_ShipmentsByType", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Entities.Views.Shipment.Statistics_Views.vw_ShipmentDetails", b =>
+                {
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("CreatedBy");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime")
+                        .HasColumnName("CreatedDate");
+
+                    b.Property<byte>("CurrentState")
+                        .HasColumnType("tinyint")
+                        .HasColumnName("CurrentState");
+
+                    b.Property<DateTime?>("DeliveryDate")
+                        .HasColumnType("datetime")
+                        .HasColumnName("DeliveryDate");
+
+                    b.Property<double>("Height")
+                        .HasColumnType("float")
+                        .HasColumnName("Height");
+
+                    b.Property<double>("Length")
+                        .HasColumnType("float")
+                        .HasColumnName("Length");
+
+                    b.Property<decimal>("PackageValue")
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("PackageValue");
+
+                    b.Property<string>("PackagingAName")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("PackagingAName");
+
+                    b.Property<string>("PackagingEName")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("PackagingEName");
+
+                    b.Property<double?>("PaymentCommission")
+                        .HasColumnType("float")
+                        .HasColumnName("PaymentCommission");
+
+                    b.Property<string>("PaymentMethodAName")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("PaymentMethodAName");
+
+                    b.Property<string>("PaymentMethodEName")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("PaymentMethodEName");
+
+                    b.Property<Guid?>("PaymentMethodId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("PaymentMethodId");
+
+                    b.Property<string>("ReceiverAddress")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("ReceiverAddress");
+
+                    b.Property<string>("ReceiverCityAName")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("ReceiverCityAName");
+
+                    b.Property<Guid?>("ReceiverCityId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("ReceiverCityId");
+
+                    b.Property<string>("ReceiverCityName")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("ReceiverCityName");
+
+                    b.Property<string>("ReceiverContact")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("ReceiverContact");
+
+                    b.Property<string>("ReceiverCountryAName")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("ReceiverCountryAName");
+
+                    b.Property<Guid?>("ReceiverCountryId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("ReceiverCountryId");
+
+                    b.Property<string>("ReceiverCountryName")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("ReceiverCountryName");
+
+                    b.Property<string>("ReceiverEmail")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("ReceiverEmail");
+
+                    b.Property<Guid>("ReceiverId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("ReceiverId");
+
+                    b.Property<bool?>("ReceiverIsDefault")
+                        .HasColumnType("bit")
+                        .HasColumnName("ReceiverIsDefault");
+
+                    b.Property<string>("ReceiverName")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("ReceiverName");
+
+                    b.Property<string>("ReceiverOtherAddress")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("ReceiverOtherAddress");
+
+                    b.Property<string>("ReceiverPhone")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("ReceiverPhone");
+
+                    b.Property<string>("ReceiverPostalCode")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("ReceiverPostalCode");
+
+                    b.Property<Guid?>("ReferenceId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("ReferenceId");
+
+                    b.Property<string>("SenderAddress")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("SenderAddress");
+
+                    b.Property<string>("SenderCityAName")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("SenderCityAName");
+
+                    b.Property<Guid?>("SenderCityId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("SenderCityId");
+
+                    b.Property<string>("SenderCityName")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("SenderCityName");
+
+                    b.Property<string>("SenderContact")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("SenderContact");
+
+                    b.Property<string>("SenderCountryAName")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("SenderCountryAName");
+
+                    b.Property<Guid?>("SenderCountryId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("SenderCountryId");
+
+                    b.Property<string>("SenderCountryName")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("SenderCountryName");
+
+                    b.Property<string>("SenderEmail")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("SenderEmail");
+
+                    b.Property<Guid>("SenderId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("SenderId");
+
+                    b.Property<bool?>("SenderIsDefault")
+                        .HasColumnType("bit")
+                        .HasColumnName("SenderIsDefault");
+
+                    b.Property<string>("SenderName")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("SenderName");
+
+                    b.Property<string>("SenderOtherAddress")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("SenderOtherAddress");
+
+                    b.Property<string>("SenderPhone")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("SenderPhone");
+
+                    b.Property<string>("SenderPostalCode")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("SenderPostalCode");
+
+                    b.Property<Guid>("ShipmentId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("ShipmentId");
+
+                    b.Property<DateTime>("ShippingDate")
+                        .HasColumnType("datetime")
+                        .HasColumnName("ShippingDate");
+
+                    b.Property<double?>("ShippingFactor")
+                        .HasColumnType("float")
+                        .HasColumnName("ShippingFactor");
+
+                    b.Property<Guid?>("ShippingPackagingId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("ShippingPackagingId");
+
+                    b.Property<decimal>("ShippingRate")
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("ShippingRate");
+
+                    b.Property<string>("ShippingTypeAName")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("ShippingTypeAName");
+
+                    b.Property<Guid>("ShippingTypeId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("ShippingTypeId");
+
+                    b.Property<string>("ShippingTypeName")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("ShippingTypeName");
+
+                    b.Property<string>("TrackingNumber")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("TrackingNumber");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("UpdatedBy");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime")
+                        .HasColumnName("UpdatedDate");
+
+                    b.Property<Guid?>("UserSubscriptionId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("UserSubscriptionId");
+
+                    b.Property<double>("Weight")
+                        .HasColumnType("float")
+                        .HasColumnName("Weight");
+
+                    b.Property<double>("Width")
+                        .HasColumnType("float")
+                        .HasColumnName("Width");
+
+                    b.ToTable((string)null);
+
+                    b.ToView("vw_ShipmentDetails", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Entities.Views.Shipment.Statistics_Views.vw_ShipmentStats", b =>
+                {
+                    b.Property<decimal?>("AverageShippingRate")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<byte>("CurrentState")
+                        .HasColumnType("tinyint");
+
+                    b.Property<DateTime?>("LatestShipment")
+                        .HasColumnType("datetime");
+
+                    b.Property<DateTime?>("OldestShipment")
+                        .HasColumnType("datetime");
+
+                    b.Property<int>("ShipmentCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("StatusName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal?>("TotalPackageValue")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("TotalShippingRate")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.ToTable((string)null);
+
+                    b.ToView("vw_ShipmentStats", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.Views.VwCitiesCountries", b =>

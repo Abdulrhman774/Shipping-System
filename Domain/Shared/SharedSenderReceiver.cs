@@ -21,7 +21,7 @@ public abstract class SharedSenderReceiver : BaseEntity
 
     public string Contact { get; set; } = null!;
 
-    public string OtherAddress { get; set; } = null!;
+    public string? OtherAddress { get; set; }
 
     public bool IsDefaultAddress { get; set; }
 

@@ -18,7 +18,7 @@ public abstract class SharedSenderReceiverService<TEntity, TDto, TCreateDto, TUp
 
     protected SharedSenderReceiverService(
         IUnitOfWork unitOfWork,
-        IMapper mapper,
+        IBaseMapper mapper,
         IUserService userService,
         ICityService cityService)
         : base(unitOfWork, mapper, userService)

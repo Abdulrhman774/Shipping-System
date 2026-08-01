@@ -1,16 +1,22 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿// UI/Controllers/BlogController.cs
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
-namespace UI.Controllers;
-
-public class BlogController : Controller
+namespace UI.Controllers
 {
-    public IActionResult Index()
+    [AllowAnonymous]
+    public class BlogController : Controller
     {
-        return View();
-    }
+        public IActionResult Index()
+        {
+            // TODO: جلب قائمة المقالات من الـ API
+            return View();
+        }
 
-    public IActionResult Details(int id)
-    {
-        return View();
+        public IActionResult Details(Guid id)
+        {
+            // TODO: جلب تفاصيل المقال حسب الـ id
+            return View();
+        }
     }
 }

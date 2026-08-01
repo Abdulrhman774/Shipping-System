@@ -10,6 +10,6 @@ namespace BL.Services;
 public class ShipmentStatusService 
     : BaseService<TbShipmentStatus, ShipmentStatusDto, CreateShipmentStatusDto, UpdateShipmentStatusDto>, IShipmentStatusService
 {
-    public ShipmentStatusService(IGenericRepository<TbShipmentStatus> repository, IMapper mapper, IUserService userService, IUnitOfWork unitOfWork)
+    public ShipmentStatusService(IGenericRepository<TbShipmentStatus> repository, IBaseMapper mapper, IUserService userService, IUnitOfWork unitOfWork)
         : base(unitOfWork, mapper, userService) { }
 }

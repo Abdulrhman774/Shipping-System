@@ -1,172 +1,59 @@
 @model Guid
 @{
-    ViewData["Title"] = "Shipment Created";
+    ViewData["Title"] = "Shipment Confirmation";
+    Layout = "_Layout";
 }
 
-<!-- ─── Breadcrumb ─────────────────────────────────────────────────── -->
+<!-- Breadcroumbs start -->
 <div class="wshipping-content-block wshipping-breadcroumb inner-bg-1">
     <div class="container">
         <div class="row">
             <div class="col-12 col-lg-7">
-                <h1>Shipment Confirmed</h1>
-                <a href="/" title="Home">Home</a> /
-                <a href="/Shipment/CreateShipment">Create Shipment</a> / Confirmed
+                <h1>Shipment Confirmation</h1>
+                <a asp-controller="Home" asp-action="Index" title="Home">Home</a> / Confirmation
+            </div>
+            <div class="col-12 col-lg-5 text-right">
+                <h4>
+                    We freight to all over the world
+                    The best logistic company, <span>FAST</span> and <span>SAFELY!</span>
+                </h4>
             </div>
         </div>
     </div>
 </div>
-<!-- ─── End Breadcrumb ────────────────────────────────────────────── -->
-
-<!-- ─── Confirmation Content ─────────────────────────────────────── -->
+<!-- Breadcroumbs end -->
+<!-- Confirmation Start -->
 <div class="wshipping-content-block">
     <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-12 col-lg-8">
+        <div class="row">
+            <div class="col-12 col-lg-8 offset-lg-2 text-center">
+                <div class="error-section">
+                    <i class="fas fa-check-circle fa-5x text-success"></i>
+                    <h2 class="mt-4">Shipment Created Successfully!</h2>
+                    <p class="lead">Your shipment has been created and is being processed.</p>
 
-                <div class="confirmation-card wow fadeInUp">
-                    <div class="confirmation-icon">
-                        <i class="fa fa-check-circle"></i>
+                    <div class="card mt-4">
+                        <div class="card-body">
+                            <h5>Shipment ID</h5>
+                            <p class="text-primary font-weight-bold">@Model</p>
+                            <p class="text-muted small">Please save this ID for future reference.</p>
+                        </div>
                     </div>
 
-                    <h2 class="confirmation-title">Shipment Created Successfully!</h2>
-                    <p class="confirmation-subtitle">
-                        Your shipment has been created and is being processed.
-                        Please save your reference ID below.
-                    </p>
-
-                    <div class="confirmation-id-block">
-                        <label>Shipment Reference ID</label>
-                        <div class="confirmation-id" id="confirmation-id">@Model</div>
-                        <button type="button" class="btn-copy" id="btn-copy-id"
-                                title="Copy to clipboard">
-                            <i class="fa fa-copy"></i> Copy
-                        </button>
-                    </div>
-
-                    <div class="confirmation-actions">
-                        <a href="/" class="wshipping-button">
-                            <i class="fa fa-home"></i> Back to Dashboard
+                    <div class="mt-4">
+                        <a asp-action="Details" asp-route-id="@Model" class="wshipping-button">
+                            <i class="fa fa-eye"></i> View Shipment Details
                         </a>
-                        <a href="/Shipment/CreateShipment" class="action-button">
-                            <i class="fa fa-plus"></i> Create Another Shipment
+                        <a asp-action="History" class="wshipping-button">
+                            <i class="fa fa-list"></i> View All Shipments
+                        </a>
+                        <a asp-controller="Home" asp-action="Index" class="wshipping-button">
+                            <i class="fa fa-home"></i> Back to Dashboard
                         </a>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
 </div>
-<!-- ─── End Confirmation ──────────────────────────────────────────── -->
-
-@section Styles {
-<style>
-.confirmation-card {
-    background: #fff;
-    border-radius: 16px;
-    box-shadow: 0 8px 40px rgba(0,0,0,.10);
-    padding: 56px 48px;
-    text-align: center;
-    margin: 40px 0 60px;
-}
-
-.confirmation-icon {
-    font-size: 5rem;
-    color: #28a745;
-    margin-bottom: 24px;
-    animation: popIn .5s cubic-bezier(.175,.885,.32,1.275) both;
-}
-
-@@keyframes popIn {
-    from { transform: scale(0); opacity: 0; }
-    to   { transform: scale(1); opacity: 1; }
-}
-
-.confirmation-title {
-    font-size: 2rem;
-    font-weight: 700;
-    color: #1a3c6e;
-    margin-bottom: 12px;
-}
-
-.confirmation-subtitle {
-    color: #718096;
-    font-size: 1rem;
-    margin-bottom: 36px;
-    max-width: 480px;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.confirmation-id-block {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    flex-wrap: wrap;
-    background: #f0f5ff;
-    border: 2px dashed #3a6df0;
-    border-radius: 10px;
-    padding: 20px 24px;
-    margin-bottom: 36px;
-}
-
-.confirmation-id-block label {
-    font-size: .85rem;
-    font-weight: 600;
-    color: #3a6df0;
-    text-transform: uppercase;
-    letter-spacing: .06em;
-    margin: 0;
-    width: 100%;
-}
-
-.confirmation-id {
-    font-family: 'Courier New', monospace;
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: #2d3748;
-    word-break: break-all;
-}
-
-.btn-copy {
-    background: #3a6df0;
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-    padding: 6px 16px;
-    font-size: .85rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background .2s;
-    flex-shrink: 0;
-}
-
-.btn-copy:hover { background: #1a3c6e; }
-
-.confirmation-actions {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 16px;
-    flex-wrap: wrap;
-}
-</style>
-}
-
-@section Scripts {
-<script>
-document.getElementById('btn-copy-id').addEventListener('click', function () {
-    var idText = document.getElementById('confirmation-id').textContent.trim();
-    navigator.clipboard.writeText(idText).then(function () {
-        var btn = document.getElementById('btn-copy-id');
-        btn.innerHTML = '<i class="fa fa-check"></i> Copied!';
-        btn.style.background = '#28a745';
-        setTimeout(function () {
-            btn.innerHTML = '<i class="fa fa-copy"></i> Copy';
-            btn.style.background = '';
-        }, 2000);
-    });
-});
-</script>
-}
+<!-- Confirmation End -->

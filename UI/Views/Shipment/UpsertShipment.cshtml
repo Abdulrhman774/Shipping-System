@@ -1,0 +1,995 @@
+﻿@model UI.Models.Shipment.ShipmentWizardViewModel
+@{
+    var isEdit = Model.ShipmentId.HasValue && Model.ShipmentId.Value != Guid.Empty;
+    ViewData["Title"] = isEdit ? "Edit Shipment" : "Create New Shipment";
+    Layout = "_Layout";
+}
+
+<!-- ─── Breadcrumb ─────────────────────────────────────────────────── -->
+<div class="wshipping-content-block wshipping-breadcroumb inner-bg-1">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-12 col-lg-7">
+                <h1>@(isEdit ? "Edit Shipment" : "Create New Shipment")</h1>
+                <a href="/" title="Home">Home</a> / @(isEdit ? "Edit Shipment" : "Create New Shipment")
+            </div>
+            <div class="col-12 col-lg-5 text-right">
+                <h4>We freight to all over the world — <span>FAST</span> and <span>SAFELY!</span></h4>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- ─── End Breadcrumb ────────────────────────────────────────────── -->
+
+<!-- ─── Wizard Block ──────────────────────────────────────────────── -->
+<div class="wshipping-content-block shipping-block">
+    <div class="container">
+
+        <h2 class="heading2-border mt0">@(isEdit ? "Edit Shipping" : "Create New Shipping")</h2>
+
+        <!-- Server-side validation summary -->
+        <div class="wizard-server-errors text-danger validation-summary-valid" data-valmsg-summary="true">
+            <ul><li style="display:none"></li></ul>
+        </div>
+
+        <div class="row">
+            <div class="shipping-form-block" style="width:100%">
+                <form asp-action="@(isEdit ? "Update" : "Create")"
+                      asp-controller="Shipment"
+                      method="post"
+                      id="shipment-wizard-form"
+                      accept-charset="UTF-8"
+                      novalidate>
+
+                    @Html.AntiForgeryToken()
+                    
+                    @if (isEdit)
+                    {
+                        <input type="hidden" name="SenderId" value="@Model.SenderId" />
+                        <input type="hidden" name="ReceiverId" value="@Model.ReceiverId" />
+                        <input type="hidden" name="ShipmentId" value="@Model.ShipmentId" />
+                    }
+
+                    <!-- ── Progress Bar ──────────────────────────────────── -->
+                    <ul id="progressbar">
+                        <li class="active" data-step="1">Where From</li>
+                        <li data-step="2">Where Going</li>
+                        <li data-step="3">What</li>
+                        <li data-step="4">How</li>
+                        <li data-step="5">Payment</li>
+                        <li data-step="6">Review</li>
+                    </ul>
+
+                    <!-- ═══════════════════════════════════════════════════════
+                         STEP 1 — Sender Information
+                    ════════════════════════════════════════════════════════ -->
+                    <fieldset id="step-1" class="wizard-step active">
+                        <h2 class="fs-title">
+                            <i class="fa fa-map-marker-alt wizard-step-icon"></i>
+                            Hello. Where are you shipping from?
+                        </h2>
+                        <h3 class="fs-subtitle"><sup>*</sup> Indicates required field</h3>
+
+                        <div class="shipping-form">
+                            <div class="row">
+                                <!-- Company / Name -->
+                                <div class="col-12 col-lg-4">
+                                    <div class="form-group">
+                                        <label>Company or Name <sup>*</sup></label>
+                                        <input class="form-control wizard-required" placeholder="e.g. John Doe" type="text" data-val="true" data-val-length="Name cannot exceed 200 characters." data-val-length-max="200" data-val-required="Sender name is required." id="Sender_SenderName" maxlength="200" name="Sender.SenderName" value="@Model.Sender.SenderName" />
+                                        <span asp-validation-for="Sender.SenderName" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <!-- Contact -->
+                                <div class="col-12 col-lg-4">
+                                    <div class="form-group">
+                                        <label>Contact</label>
+                                        <input class="form-control" placeholder="Contact person" type="text" data-val="true" data-val-length="The field Contact must be a string with a maximum length of 200." data-val-length-max="200" data-val-required="The Contact field is required." id="Sender_Contact" maxlength="200" name="Sender.Contact" value="@Model.Sender.Contact" />
+                                    </div>
+                                </div>
+                                <!-- City -->
+                                <div class="col-12 col-lg-4">
+                                    <div class="form-group">
+                                        <label>City <sup>*</sup></label>
+                                        <select class="form-control wizard-required" id="sender-city" data-val="true" data-val-required="Please select a city." name="Sender.CityId">
+                                            <option value="">-- Select City --</option>
+                                            @if (Model.Cities != null)
+                                            {
+                                                foreach (var city in Model.Cities)
+                                                {
+                                                    if (city.Value == Model.Sender.CityId.ToString())
+                                                    {
+                                                        <option value="@city.Value" selected="selected">@city.Text</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="@city.Value">@city.Text</option>
+                                                    }
+                                                }
+                                            }
+                                        </select>
+                                        <span class="wizard-field-error field-validation-valid" data-valmsg-for="Sender.CityId" data-valmsg-replace="true"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <!-- Address -->
+                                <div class="col-12 col-lg-4">
+                                    <div class="form-group">
+                                        <label>Address <sup>*</sup></label>
+                                        <input class="form-control wizard-required" placeholder="Street Address" type="text" data-val="true" data-val-length="Address cannot exceed 500 characters." data-val-length-max="500" data-val-required="Address is required." id="Sender_Address" maxlength="500" name="Sender.Address" value="@Model.Sender.Address" />
+                                        <span class="wizard-field-error field-validation-valid" data-valmsg-for="Sender.Address" data-valmsg-replace="true"></span>
+                                    </div>
+                                </div>
+                                <!-- Other Address -->
+                                <div class="col-12 col-lg-4">
+                                    <div class="form-group">
+                                        <label>Other Address Info</label>
+                                        <input class="form-control" placeholder="Apt, suite, floor…" type="text" data-val="true" data-val-length="The field Other Address Info must be a string with a maximum length of 500." data-val-length-max="500" id="Sender_OtherAddress" maxlength="500" name="Sender.OtherAddress" value="@Model.Sender.OtherAddress" />
+                                    </div>
+                                </div>
+                                <!-- Postal Code -->
+                                <div class="col-12 col-lg-4">
+                                    <div class="form-group">
+                                        <label>Postal Code <sup>*</sup></label>
+                                        <input class="form-control wizard-required" placeholder="e.g. 12345" type="text" data-val="true" data-val-length="Postal code cannot exceed 20 characters." data-val-length-max="20" data-val-required="Postal code is required." id="Sender_PostalCode" maxlength="20" name="Sender.PostalCode" value="@Model.Sender.PostalCode" />
+                                        <span class="wizard-field-error field-validation-valid" data-valmsg-for="Sender.PostalCode" data-valmsg-replace="true"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <!-- Email -->
+                                <div class="col-12 col-lg-4">
+                                    <div class="form-group">
+                                        <label>E-mail <sup>*</sup></label>
+                                        <input type="email" class="form-control wizard-required wizard-email" placeholder="sender@example.com" data-val="true" data-val-email="Please enter a valid email address." data-val-required="Email is required." id="Sender_Email" name="Sender.Email" value="@Model.Sender.Email" />
+                                        <span class="wizard-field-error field-validation-valid" data-valmsg-for="Sender.Email" data-valmsg-replace="true"></span>
+                                    </div>
+                                </div>
+                                <!-- Phone -->
+                                <div class="col-12 col-lg-4">
+                                    <div class="form-group">
+                                        <label>Telephone <sup>*</sup></label>
+                                        <input class="form-control wizard-required" placeholder="+20 100 000 0000" type="tel" data-val="true" data-val-phone="Please enter a valid phone number." data-val-required="Phone number is required." id="Sender_Phone" name="Sender.Phone" value="@Model.Sender.Phone" />
+                                        <span class="wizard-field-error field-validation-valid" data-valmsg-for="Sender.Phone" data-valmsg-replace="true"></span>
+                                    </div>
+                                </div>
+                                <!-- Default Address Toggle -->
+                                <div class="col-12 col-lg-4">
+                                    <div class="form-group">
+                                        <label class="slide-label">Use as default address</label>
+                                        <div class="slide-redio">
+                                            <input type="checkbox" id="sender-default" data-val="true" data-val-required="The Use as default address field is required." name="Sender.IsDefaultAddress" value="true" @(Model.Sender.IsDefaultAddress ? "checked" : "") />
+                                            <label for="sender-default"></label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div><!-- /.shipping-form -->
+
+                        <div class="wizard-nav-buttons">
+                            <button type="button" class="wshipping-button btn-next" data-next="2">
+                                Continue <i class="fa fa-arrow-right"></i>
+                            </button>
+                            <a href="/" class="action-button btn-red">Cancel</a>
+                        </div>
+                    </fieldset>
+
+                    <!-- ═══════════════════════════════════════════════════════
+                         STEP 2 — Receiver Information
+                    ════════════════════════════════════════════════════════ -->
+                    <fieldset id="step-2" class="wizard-step">
+                        <h2 class="fs-title">
+                            <i class="fa fa-map-pin wizard-step-icon"></i>
+                            Where is your shipment going?
+                        </h2>
+                        <h3 class="fs-subtitle"><sup>*</sup> Indicates required field</h3>
+
+                        <div class="shipping-form">
+                            <div class="row">
+                                <div class="col-12 col-lg-4">
+                                    <div class="form-group">
+                                        <label>Company or Name <sup>*</sup></label>
+                                        <input class="form-control wizard-required" placeholder="e.g. Jane Smith" type="text" data-val="true" data-val-length="Name cannot exceed 200 characters." data-val-length-max="200" data-val-required="Receiver name is required." id="Receiver_ReceiverName" maxlength="200" name="Receiver.ReceiverName" value="@Model.Receiver.ReceiverName" />
+                                        <span class="wizard-field-error field-validation-valid" data-valmsg-for="Receiver.ReceiverName" data-valmsg-replace="true"></span>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-lg-4">
+                                    <div class="form-group">
+                                        <label>Contact</label>
+                                        <input class="form-control" placeholder="Contact person" type="text" data-val="true" data-val-length="The field Contact must be a string with a maximum length of 200." data-val-length-max="200" data-val-required="The Contact field is required." id="Receiver_Contact" maxlength="200" name="Receiver.Contact" value="@Model.Receiver.Contact" />
+                                    </div>
+                                </div>
+                                <div class="col-12 col-lg-4">
+                                    <div class="form-group">
+                                        <label>City <sup>*</sup></label>
+                                        <select class="form-control wizard-required" id="receiver-city" data-val="true" data-val-required="Please select a city." name="Receiver.CityId">
+                                            <option value="">-- Select City --</option>
+                                            @if (Model.Cities != null)
+                                            {
+                                                foreach (var city in Model.Cities)
+                                                {
+                                                    if (city.Value == Model.Receiver.CityId.ToString())
+                                                    {
+                                                        <option value="@city.Value" selected="selected">@city.Text</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="@city.Value">@city.Text</option>
+                                                    }
+                                                }
+                                            }
+                                        </select>
+                                        <span class="wizard-field-error field-validation-valid" data-valmsg-for="Receiver.CityId" data-valmsg-replace="true"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-12 col-lg-4">
+                                    <div class="form-group">
+                                        <label>Address <sup>*</sup></label>
+                                        <input class="form-control wizard-required" placeholder="Street Address" type="text" data-val="true" data-val-length="Address cannot exceed 500 characters." data-val-length-max="500" data-val-required="Address is required." id="Receiver_Address" maxlength="500" name="Receiver.Address" value="@Model.Receiver.Address" />
+                                        <span class="wizard-field-error field-validation-valid" data-valmsg-for="Receiver.Address" data-valmsg-replace="true"></span>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-lg-4">
+                                    <div class="form-group">
+                                        <label>Other Address Info</label>
+                                        <input class="form-control" placeholder="Apt, suite, floor…" type="text" data-val="true" data-val-length="The field Other Address Info must be a string with a maximum length of 500." data-val-length-max="500" id="Receiver_OtherAddress" maxlength="500" name="Receiver.OtherAddress" value="@Model.Receiver.OtherAddress" />
+                                    </div>
+                                </div>
+                                <div class="col-12 col-lg-4">
+                                    <div class="form-group">
+                                        <label>Postal Code <sup>*</sup></label>
+                                        <input class="form-control wizard-required" placeholder="e.g. 12345" type="text" data-val="true" data-val-length="Postal code cannot exceed 20 characters." data-val-length-max="20" data-val-required="Postal code is required." id="Receiver_PostalCode" maxlength="20" name="Receiver.PostalCode" value="@Model.Receiver.PostalCode" />
+                                        <span class="wizard-field-error field-validation-valid" data-valmsg-for="Receiver.PostalCode" data-valmsg-replace="true"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-12 col-lg-4">
+                                    <div class="form-group">
+                                        <label>E-mail <sup>*</sup></label>
+                                        <input type="email" class="form-control wizard-required wizard-email" placeholder="receiver@example.com" data-val="true" data-val-email="Please enter a valid email address." data-val-required="Email is required." id="Receiver_Email" name="Receiver.Email" value="@Model.Receiver.Email" />
+                                        <span class="wizard-field-error field-validation-valid" data-valmsg-for="Receiver.Email" data-valmsg-replace="true"></span>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-lg-4">
+                                    <div class="form-group">
+                                        <label>Telephone <sup>*</sup></label>
+                                        <input class="form-control wizard-required" placeholder="+20 100 000 0000" type="tel" data-val="true" data-val-phone="Please enter a valid phone number." data-val-required="Phone number is required." id="Receiver_Phone" name="Receiver.Phone" value="@Model.Receiver.Phone" />
+                                        <span class="wizard-field-error field-validation-valid" data-valmsg-for="Receiver.Phone" data-valmsg-replace="true"></span>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-lg-4">
+                                    <div class="form-group">
+                                        <label class="slide-label">Use as default address</label>
+                                        <div class="slide-redio">
+                                            <input type="checkbox" id="receiver-default" data-val="true" data-val-required="The Use as default address field is required." name="Receiver.IsDefaultAddress" value="true" @(Model.Receiver.IsDefaultAddress ? "checked" : "") />
+                                            <label for="receiver-default"></label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="wizard-nav-buttons">
+                            <button type="button" class="action-button btn-prev" data-prev="1">
+                                <i class="fa fa-arrow-left"></i> Previous
+                            </button>
+                            <button type="button" class="wshipping-button btn-next" data-next="3">
+                                Continue <i class="fa fa-arrow-right"></i>
+                            </button>
+                            <a href="/" class="action-button btn-red">Cancel</a>
+                        </div>
+                    </fieldset>
+
+                    <!-- ═══════════════════════════════════════════════════════
+                         STEP 3 — Package Details
+                    ════════════════════════════════════════════════════════ -->
+                    <fieldset id="step-3" class="wizard-step">
+                        <h2 class="fs-title">
+                            <i class="fa fa-box wizard-step-icon"></i>
+                            What kind of packaging are you using?
+                        </h2>
+                        <h3 class="fs-subtitle"><sup>*</sup> Indicates required field</h3>
+
+                        <div class="shipping-form">
+                            <div class="row">
+                                <div class="col-12 col-lg-6">
+                                    <div class="form-group">
+                                        <label>Packaging Type</label>
+                                        <select class="form-control" id="Shipment_ShippingPackagingId" name="Shipment.ShippingPackagingId">
+                                            <option value="">-- Select Packaging --</option>
+                                            @if (Model.Shipment.PackagingTypes != null)
+                                            {
+                                                foreach (var pack in Model.Shipment.PackagingTypes)
+                                                {
+                                                    if (pack.Value == Model.Shipment.ShippingPackagingId.ToString())
+                                                    {
+                                                        <option value="@pack.Value" selected="selected">@pack.Text</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="@pack.Value">@pack.Text</option>
+                                                    }
+                                                }
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-lg-6">
+                                    <div class="form-group">
+                                        <label>Weight <sup>*</sup></label>
+                                        <div class="input-comment">
+                                            <input class="form-control wizard-required wizard-number" placeholder="0.0" min="0.01" step="0.01" type="text" data-val="true" data-val-number="The field Weight (kg) must be a number." data-val-range="Weight must be greater than zero." data-val-range-max="99999" data-val-range-min="0.01" data-val-required="Weight is required." id="Shipment_Weight" name="Shipment.Weight" value="@Model.Shipment.Weight" />
+                                            <span class="field-comment">kg</span>
+                                        </div>
+                                        <span class="wizard-field-error field-validation-valid" data-valmsg-for="Shipment.Weight" data-valmsg-replace="true"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-12 col-lg-4">
+                                    <div class="form-group">
+                                        <label>Length</label>
+                                        <div class="input-comment">
+                                            <input class="form-control wizard-number" placeholder="0.0" min="0" step="0.1" type="text" data-val="true" data-val-number="The field Length (cm) must be a number." data-val-range="Length must be zero or greater." data-val-range-max="99999" data-val-range-min="0" data-val-required="The Length (cm) field is required." id="Shipment_Length" name="Shipment.Length" value="@Model.Shipment.Length" />
+                                            <span class="field-comment">cm</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-lg-4">
+                                    <div class="form-group">
+                                        <label>Width</label>
+                                        <div class="input-comment">
+                                            <input class="form-control wizard-number" placeholder="0.0" min="0" step="0.1" type="text" data-val="true" data-val-number="The field Width (cm) must be a number." data-val-range="Width must be zero or greater." data-val-range-max="99999" data-val-range-min="0" data-val-required="The Width (cm) field is required." id="Shipment_Width" name="Shipment.Width" value="@Model.Shipment.Width" />
+                                            <span class="field-comment">cm</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-lg-4">
+                                    <div class="form-group">
+                                        <label>Height</label>
+                                        <div class="input-comment">
+                                            <input class="form-control wizard-number" placeholder="0.0" min="0" step="0.1" type="text" data-val="true" data-val-number="The field Height (cm) must be a number." data-val-range="Height must be zero or greater." data-val-range-max="99999" data-val-range-min="0" data-val-required="The Height (cm) field is required." id="Shipment_Height" name="Shipment.Height" value="@Model.Shipment.Height" />
+                                            <span class="field-comment">cm</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-12 col-lg-4">
+                                    <div class="form-group">
+                                        <label>Declared Value</label>
+                                        <div class="input-comment">
+                                            <input class="form-control wizard-number" placeholder="0.00" min="0" step="0.01" type="text" data-val="true" data-val-number="The field Declared Value (USD) must be a number." data-val-range="Package value must be zero or greater." data-val-range-max="1.7976931348623157E&#x2B;308" data-val-range-min="0" data-val-required="The Declared Value (USD) field is required." id="Shipment_PackageValue" name="Shipment.PackageValue" value="@Model.Shipment.PackageValue" />
+                                            <span class="field-comment">USD</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="wizard-nav-buttons">
+                            <button type="button" class="action-button btn-prev" data-prev="2">
+                                <i class="fa fa-arrow-left"></i> Previous
+                            </button>
+                            <button type="button" class="wshipping-button btn-next" data-next="4">
+                                Continue <i class="fa fa-arrow-right"></i>
+                            </button>
+                            <a href="/" class="action-button btn-red">Cancel</a>
+                        </div>
+                    </fieldset>
+
+                    <!-- ═══════════════════════════════════════════════════════
+                         STEP 4 — Shipping Method & Dates
+                    ════════════════════════════════════════════════════════ -->
+                    <fieldset id="step-4" class="wizard-step">
+                        <h2 class="fs-title">
+                            <i class="fa fa-shipping-fast wizard-step-icon"></i>
+                            How would you like to ship?
+                        </h2>
+                        <h3 class="fs-subtitle"><sup>*</sup> Indicates required field</h3>
+
+                        <div class="shipping-form">
+                            <div class="row">
+                                <div class="col-12 col-lg-4">
+                                    <div class="form-group">
+                                        <label>Shipping Type <sup>*</sup></label>
+                                        <select class="form-control wizard-required" id="shipping-type-select" data-val="true" data-val-required="Please select a shipping type." name="Shipment.ShippingTypeId">
+                                            <option value="">-- Select Type --</option>
+                                            @if (Model.Shipment.ShippingTypes != null)
+                                            {
+                                                foreach (var type in Model.Shipment.ShippingTypes)
+                                                {
+                                                    if (type.Value == Model.Shipment.ShippingTypeId.ToString())
+                                                    {
+                                                        <option value="@type.Value" selected="selected">@type.Text</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="@type.Value">@type.Text</option>
+                                                    }
+                                                }
+                                            }
+                                        </select>
+                                        <span class="wizard-field-error field-validation-valid" data-valmsg-for="Shipment.ShippingTypeId" data-valmsg-replace="true"></span>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-lg-4">
+                                    <div class="form-group">
+                                        <label>Shipping Date <sup>*</sup></label>
+                                        <div class="datepicker-group">
+                                            <input type="date" class="form-control wizard-required" id="shipping-date" data-val="true" data-val-required="Shipping date is required." name="Shipment.ShippingDate" value="@Model.Shipment.ShippingDate.ToString("yyyy-MM-dd")" />
+                                            <div class="datepicker-icon"><i class="fa fa-calendar-alt"></i></div>
+                                        </div>
+                                        <span class="wizard-field-error field-validation-valid" data-valmsg-for="Shipment.ShippingDate" data-valmsg-replace="true"></span>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-lg-4">
+                                    <div class="form-group">
+                                        <label>Delivery Date</label>
+                                        <div class="datepicker-group">
+                                            <input type="date" class="form-control" id="delivery-date" name="Shipment.DeliveryDate" value="@(Model.Shipment.DeliveryDate?.ToString("yyyy-MM-dd"))" />
+                                            <div class="datepicker-icon"><i class="fa fa-calendar-alt"></i></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="wizard-nav-buttons">
+                            <button type="button" class="action-button btn-prev" data-prev="3">
+                                <i class="fa fa-arrow-left"></i> Previous
+                            </button>
+                            <button type="button" class="wshipping-button btn-next" data-next="5">
+                                Continue <i class="fa fa-arrow-right"></i>
+                            </button>
+                            <a href="/" class="action-button btn-red">Cancel</a>
+                        </div>
+                    </fieldset>
+
+                    <!-- ═══════════════════════════════════════════════════════
+                         STEP 5 — Payment
+                    ════════════════════════════════════════════════════════ -->
+                    <fieldset id="step-5" class="wizard-step">
+                        <h2 class="fs-title">
+                            <i class="fa fa-credit-card wizard-step-icon"></i>
+                            How would you like to pay?
+                        </h2>
+                        <h3 class="fs-subtitle"><sup>*</sup> Indicates required field</h3>
+
+                        <div class="shipping-form">
+                            <div class="form-group">
+                                <div class="row">
+                                    <div class="col-12 col-lg-4">
+                                        <label>Payment Method</label>
+                                        <select class="form-control" id="payment-method-select" name="Shipment.PaymentMethodId">
+                                            <option value="">-- Select Payment Method --</option>
+                                            @if (Model.Shipment.PaymentMethods != null)
+                                            {
+                                                foreach (var method in Model.Shipment.PaymentMethods)
+                                                {
+                                                    if (method.Value == Model.Shipment.PaymentMethodId.ToString())
+                                                    {
+                                                        <option value="@method.Value" selected="selected">@method.Text</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="@method.Value">@method.Text</option>
+                                                    }
+                                                }
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="wizard-nav-buttons">
+                            <button type="button" class="action-button btn-prev" data-prev="4">
+                                <i class="fa fa-arrow-left"></i> Previous
+                            </button>
+                            <button type="button" class="wshipping-button btn-next" data-next="6">
+                                Review Order <i class="fa fa-list"></i>
+                            </button>
+                            <a href="/" class="action-button btn-red">Cancel</a>
+                        </div>
+                    </fieldset>
+
+                    <!-- ═══════════════════════════════════════════════════════
+                         STEP 6 — Review & Submit
+                    ════════════════════════════════════════════════════════ -->
+                    <fieldset id="step-6" class="wizard-step">
+                        <h2 class="fs-title">
+                            <i class="fa fa-clipboard-check wizard-step-icon"></i>
+                            Let's make sure everything is in order
+                        </h2>
+
+                        <div class="shipping-form">
+                            <!-- WHERE -->
+                            <div class="review">
+                                <h3>
+                                    Where
+                                    <button type="button" class="btn-edit btn-edit-step" data-goto="1">
+                                        <i class="fa fa-pen"></i> Edit
+                                    </button>
+                                </h3>
+                                <div class="row">
+                                    <div class="col-12 col-lg-4">
+                                        <div class="ship-address">
+                                            <h4><i class="fa fa-map-marker-alt"></i> Ship from</h4>
+                                            <p id="review-sender"></p>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-lg-4">
+                                        <div class="ship-address">
+                                            <h4><i class="fa fa-map-pin"></i> Ship to</h4>
+                                            <p id="review-receiver"></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- WHAT -->
+                            <div class="review">
+                                <h3>
+                                    Package
+                                    <button type="button" class="btn-edit btn-edit-step" data-goto="3">
+                                        <i class="fa fa-pen"></i> Edit
+                                    </button>
+                                </h3>
+                                <h5>Package Information</h5>
+                                <ul>
+                                    <li><b>Weight:</b> <span id="review-weight"></span> kg</li>
+                                    <li><b>Dimensions:</b> <span id="review-dims"></span></li>
+                                    <li><b>Declared Value:</b> <span id="review-value"></span> USD</li>
+                                </ul>
+                            </div>
+
+                            <!-- HOW -->
+                            <div class="review">
+                                <h3>
+                                    Shipping
+                                    <button type="button" class="btn-edit btn-edit-step" data-goto="4">
+                                        <i class="fa fa-pen"></i> Edit
+                                    </button>
+                                </h3>
+                                <h5>Service</h5>
+                                <p id="review-shiptype"></p>
+                                <h5>Dates</h5>
+                                <p id="review-dates"></p>
+                            </div>
+
+                            <!-- PAYMENT -->
+                            <div class="review">
+                                <h3>
+                                    Payment
+                                    <button type="button" class="btn-edit btn-edit-step" data-goto="5">
+                                        <i class="fa fa-pen"></i> Edit
+                                    </button>
+                                </h3>
+                                <p id="review-payment"></p>
+                            </div>
+                        </div>
+
+                        <div class="wizard-nav-buttons">
+                            <button type="button" class="action-button btn-prev" data-prev="5">
+                                <i class="fa fa-arrow-left"></i> Previous
+                            </button>
+                            <button type="submit" class="wshipping-button btn-submit-wizard" id="btn-submit-wizard">
+                                <i class="fa fa-@(isEdit ? "save" : "check")"></i> @(isEdit ? "Update Shipment" : "Create Shipment")
+                            </button>
+                            <a href="/" class="action-button btn-red">Cancel</a>
+                        </div>
+                    </fieldset>
+
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+<!-- ─── End Wizard Block ───────────────────────────────────────────── -->
+
+<!-- ─── Wizard Styles ─────────────────────────────────────────────── -->
+@section Styles {
+<style>
+/* ── Wizard field errors ── */
+.wizard-field-error {
+    display: block;
+    color: #e74c3c;
+    font-size: .82rem;
+    margin-top: 4px;
+    min-height: 18px;
+}
+
+.wizard-server-errors {
+    background: #fdecea;
+    border-left: 4px solid #e74c3c;
+    padding: 12px 16px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    font-size: .9rem;
+}
+
+.wizard-server-errors:empty { display: none; }
+
+/* ── Step visibility ── */
+.wizard-step { display: none; }
+.wizard-step.active { display: block; }
+
+/* ── Step icon ── */
+.wizard-step-icon {
+    color: #3a6df0;
+    margin-right: 10px;
+}
+
+/* ── Nav buttons row ── */
+.wizard-nav-buttons {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 28px;
+}
+
+/* ── Input invalid state ── */
+.form-control.wizard-invalid {
+    border-color: #e74c3c;
+    background: #fff5f5;
+}
+
+/* ── Submit button ── */
+.btn-submit-wizard {
+    background: #28a745;
+}
+
+.btn-submit-wizard:hover { background: #1e7e34; }
+
+/* ── Review section ── */
+.review {
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin-bottom: 20px;
+    background: #fafbff;
+}
+
+.review h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1a3c6e;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.btn-edit {
+    background: none;
+    border: 1px solid #3a6df0;
+    color: #3a6df0;
+    border-radius: 4px;
+    padding: 3px 12px;
+    font-size: .8rem;
+    cursor: pointer;
+    transition: background .18s, color .18s;
+}
+
+.btn-edit:hover { background: #3a6df0; color: #fff; }
+
+.ship-address h4 {
+    font-size: .95rem;
+    font-weight: 700;
+    color: #4a5568;
+    margin-bottom: 8px;
+}
+
+.ship-address p {
+    color: #718096;
+    font-size: .9rem;
+    line-height: 1.6;
+}
+
+.review ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.review ul li {
+    color: #4a5568;
+    font-size: .9rem;
+    padding: 4px 0;
+}
+</style>
+}
+
+<!-- ─── Wizard Scripts ──────────────────────────────────────────────── -->
+@section Scripts {
+<script src="/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+<script src="/lib/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js"></script>
+
+<script>
+(function () {
+    'use strict';
+
+    var totalSteps = 6;
+    var currentStep = 1;
+
+    function getStep(n) { return document.getElementById('step-' + n); }
+    function getProgressItem(n) {
+        return document.querySelector('#progressbar li[data-step="' + n + '"]');
+    }
+
+    function showStep(n) {
+        for (var i = 1; i <= totalSteps; i++) {
+            var s = getStep(i);
+            var p = getProgressItem(i);
+            if (s) s.classList.toggle('active', i === n);
+            if (p)  p.classList.toggle('active', i <= n);
+        }
+        currentStep = n;
+
+        var summary = document.querySelector('.wizard-server-errors');
+        if (summary) summary.style.display = 'none';
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function setButtonLoading(btn, loading) {
+        if (loading) {
+            btn.dataset.originalHtml = btn.innerHTML;
+            btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Please wait…';
+            btn.disabled = true;
+        } else {
+            btn.innerHTML = btn.dataset.originalHtml || btn.innerHTML;
+            btn.disabled = false;
+        }
+    }
+
+    function validateStep(stepNum) {
+        var step = getStep(stepNum);
+        if (!step) return true;
+
+        var valid = true;
+        var requiredFields = step.querySelectorAll('.wizard-required');
+
+        requiredFields.forEach(function (field) {
+            var errorSpan = field.parentElement.querySelector('.wizard-field-error');
+
+            field.classList.remove('wizard-invalid');
+            if (errorSpan) errorSpan.textContent = '';
+
+            var isEmpty = field.tagName === 'SELECT'
+                ? !field.value
+                : !field.value.trim();
+
+            if (isEmpty) {
+                field.classList.add('wizard-invalid');
+                if (errorSpan) errorSpan.textContent = 'This field is required.';
+                valid = false;
+                return;
+            }
+
+            if (field.classList.contains('wizard-email')) {
+        var emailRx = /^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/;
+                if (!emailRx.test(field.value.trim())) {
+                    field.classList.add('wizard-invalid');
+                    if (errorSpan) errorSpan.textContent = 'Please enter a valid email address.';
+                    valid = false;
+                }
+            }
+
+            if (field.classList.contains('wizard-number')) {
+                var num = parseFloat(field.value);
+                if (isNaN(num) || num <= 0) {
+                    field.classList.add('wizard-invalid');
+                    if (errorSpan) errorSpan.textContent = 'Please enter a value greater than zero.';
+                    valid = false;
+                }
+            }
+        });
+
+        if (stepNum === 4) {
+            var shipDate = document.getElementById('shipping-date');
+            var delDate  = document.getElementById('delivery-date');
+            var shipErr  = shipDate ? shipDate.parentElement.querySelector('.wizard-field-error') : null;
+            var delErr   = delDate  ? delDate.parentElement.querySelector('.wizard-field-error')  : null;
+
+            if (shipDate && shipDate.value) {
+                var today = new Date(); today.setHours(0,0,0,0);
+                var sd    = new Date(shipDate.value);
+                if (sd < today) {
+                    shipDate.classList.add('wizard-invalid');
+                    if (shipErr) shipErr.textContent = 'Shipping date cannot be in the past.';
+                    valid = false;
+                }
+            }
+
+            if (delDate && delDate.value && shipDate && shipDate.value) {
+                var sd2 = new Date(shipDate.value);
+                var dd  = new Date(delDate.value);
+                if (dd <= sd2) {
+                    delDate.classList.add('wizard-invalid');
+                    if (delErr) delErr.textContent = 'Delivery date must be after shipping date.';
+                    valid = false;
+                }
+            }
+        }
+
+        if (!valid) {
+            var firstInvalid = step.querySelector('.wizard-invalid');
+            if (firstInvalid) firstInvalid.focus();
+        }
+
+        return valid;
+    }
+
+    function populateReview() {
+        var sName    = document.getElementById('Sender_SenderName');
+        var sAddress = document.getElementById('Sender_Address');
+        var sCity    = document.getElementById('sender-city');
+        var sEmail   = document.getElementById('Sender_Email');
+        var sPhone   = document.getElementById('Sender_Phone');
+
+        var sCityText = sCity && sCity.selectedIndex > 0
+            ? sCity.options[sCity.selectedIndex].text : '–';
+
+        document.getElementById('review-sender').innerHTML =
+            '<strong>' + val(sName)    + '</strong><br>' +
+            val(sAddress) + '<br>' + sCityText + '<br>' +
+            val(sEmail)   + '<br>' + val(sPhone);
+
+        var rName    = document.getElementById('Receiver_ReceiverName');
+        var rAddress = document.getElementById('Receiver_Address');
+        var rCity    = document.getElementById('receiver-city');
+        var rEmail   = document.getElementById('Receiver_Email');
+        var rPhone   = document.getElementById('Receiver_Phone');
+
+        var rCityText = rCity && rCity.selectedIndex > 0
+            ? rCity.options[rCity.selectedIndex].text : '–';
+
+        document.getElementById('review-receiver').innerHTML =
+            '<strong>' + val(rName)    + '</strong><br>' +
+            val(rAddress) + '<br>' + rCityText + '<br>' +
+            val(rEmail)   + '<br>' + val(rPhone);
+
+        var weight = document.getElementById('Shipment_Weight');
+        var length = document.getElementById('Shipment_Length');
+        var width  = document.getElementById('Shipment_Width');
+        var height = document.getElementById('Shipment_Height');
+        var pkgVal = document.getElementById('Shipment_PackageValue');
+
+        document.getElementById('review-weight').textContent = val(weight) || '0';
+        document.getElementById('review-dims').textContent =
+            (val(length)||'0') + ' × ' + (val(width)||'0') + ' × ' + (val(height)||'0') + ' cm';
+        document.getElementById('review-value').textContent = val(pkgVal) || '0.00';
+
+        var shipType = document.getElementById('shipping-type-select');
+        var shipDate = document.getElementById('shipping-date');
+        var delDate  = document.getElementById('delivery-date');
+
+        var shipTypeText = shipType && shipType.selectedIndex > 0
+            ? shipType.options[shipType.selectedIndex].text : '–';
+
+        document.getElementById('review-shiptype').textContent = shipTypeText;
+        document.getElementById('review-dates').textContent =
+            'Ship: ' + formatDate(val(shipDate)) +
+            (val(delDate) ? ' → Deliver: ' + formatDate(val(delDate)) : '');
+
+        var payment     = document.getElementById('payment-method-select');
+        var paymentText = payment && payment.selectedIndex > 0
+            ? payment.options[payment.selectedIndex].text : 'Not selected';
+
+        document.getElementById('review-payment').textContent = paymentText;
+    }
+
+    function val(el) { return el ? el.value.trim() : ''; }
+
+    function formatDate(dateStr) {
+        if (!dateStr) return '–';
+        var d = new Date(dateStr);
+        if (isNaN(d)) return dateStr;
+        return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+    }
+
+    document.querySelectorAll('.btn-next').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var self     = this;
+            var nextStep = parseInt(self.dataset.next, 10);
+
+            setButtonLoading(self, true);
+
+            setTimeout(function () {
+                var ok = validateStep(currentStep);
+                setButtonLoading(self, false);
+
+                if (!ok) return;
+
+                if (nextStep === 6) populateReview();
+                showStep(nextStep);
+            }, 60);
+        });
+    });
+
+    document.querySelectorAll('.btn-prev').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            showStep(parseInt(this.dataset.prev, 10));
+        });
+    });
+
+    document.querySelectorAll('.btn-edit-step').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            showStep(parseInt(this.dataset.goto, 10));
+        });
+    });
+
+    var submitBtn = document.getElementById('btn-submit-wizard');
+    var wizardForm = document.getElementById('shipment-wizard-form');
+
+    submitBtn.addEventListener('click', function (e) {
+        if (!validateStep(6)) {
+            e.preventDefault();
+            return;
+        }
+    });
+
+    wizardForm.addEventListener('submit', function () {
+        setButtonLoading(submitBtn, true);
+        submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> @(isEdit ? "Updating..." : "Creating...")';
+    });
+
+    document.querySelectorAll('.wizard-required').forEach(function (field) {
+        field.addEventListener('input', function () {
+            if (this.value.trim()) {
+                this.classList.remove('wizard-invalid');
+                var err = this.parentElement.querySelector('.wizard-field-error');
+                if (err) err.textContent = '';
+            }
+        });
+        field.addEventListener('change', function () {
+            if (this.value) {
+                this.classList.remove('wizard-invalid');
+                var err = this.parentElement.querySelector('.wizard-field-error');
+                if (err) err.textContent = '';
+            }
+        });
+    });
+
+    showStep(1);
+})();
+</script>
+}
+
+@{
+    var errors = new List<string>();
+    var tempDataErrors = TempData["ValidationErrors"];
+    if (tempDataErrors is List<string> list)
+    {
+        errors = list;
+    }
+    else if (tempDataErrors is string[] array)
+    {
+        errors = array.ToList();
+    }
+}
+@if (errors.Any())
+{
+    <div class="alert alert-danger">
+        <ul>
+            @foreach (var error in errors)
+            {
+                <li>@error</li>
+            }
+        </ul>
+    </div>
+}

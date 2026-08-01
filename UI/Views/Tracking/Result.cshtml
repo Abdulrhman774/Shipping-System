@@ -1,6 +1,7 @@
-﻿<!-- Views/Tracking/Result.cshtml -->
+﻿@model UI.Models.TrackingViewModel
 @{
     ViewData["Title"] = "Tracking Result";
+    Layout = "_Layout";
 }
 
 <!-- Breadcroumbs start -->
@@ -8,60 +9,177 @@
     <div class="container">
         <div class="row">
             <div class="col-12 col-lg-7">
-                <h1>Your shipment progress</h1>
-                <a href="@Url.Action("Index", "Home")" title="Home">Home</a> / Your shipment progress
+                <h1>Tracking Result</h1>
+                <a href="/" title="Home">Home</a> / <a href="/Tracking">Track Shipment</a> / Result
             </div>
             <div class="col-12 col-lg-5 text-right">
-                <h4>We freight to all over the world<br />The best logistic company, <span>FAST</span> and <span>SAFELY!</span></h4>
+                <h4>
+                    We freight to all over the world
+                    The best logistic company, <span>FAST</span> and <span>SAFELY!</span>
+                </h4>
             </div>
         </div>
     </div>
 </div>
 <!-- Breadcroumbs end -->
-<!-- Your shipment progress start -->
+
 <div class="wshipping-content-block">
     <div class="container">
         <div class="row">
-            <div class="col-12 col-lg-9">
-                <div class="track-result">
-                    <h3>Shipment Track Result</h3>
-                    <div class="track-result-block">
-                        <div class="track-result-id"><b>Order Tracking:</b> Order No</div>
-                        <div class="track-status">
-                            <div class="row">
-                                <div class="col-12 col-lg-4"><b>Shipping Via:</b> Ipsum Dolor</div>
-                                <div class="col-12 col-lg-4"><b>Status:</b> Processing Order</div>
-                                <div class="col-12 col-lg-4"><b>Expected Date:</b> 12-DEC-2017</div>
+            <div class="col-12 col-lg-10 offset-lg-1">
+
+                @if (!Model.IsFound)
+                {
+                    <!-- Not Found -->
+                    <div class="alert alert-danger text-center p-5">
+                        <i class="fas fa-exclamation-triangle fa-3x mb-3"></i>
+                        <h4>Shipment Not Found</h4>
+                        <p>@Model.ErrorMessage</p>
+                        <a href="/Tracking" class="wshipping-button">
+                            <i class="fa fa-arrow-left"></i> Back to Tracking
+                        </a>
+                    </div>
+                }
+                else if (Model.Shipment != null)
+                {
+                    <!-- Tracking Result -->
+                    <div class="track-result">
+                        <h3>Shipment Track Result</h3>
+                        <div class="track-result-block">
+                            <div class="track-result-id">
+                                <b>Tracking Number:</b> <span class="text-primary">@Model.Shipment.TrackingNumber</span>
+                            </div>
+                            <div class="track-status">
+                                <div class="row">
+                                    <div class="col-12 col-lg-4">
+                                        <b>Shipping Via:</b>
+                                        <span class="text-info">@(!string.IsNullOrEmpty(Model.Shipment.ShippingTypeName) ? Model.Shipment.ShippingTypeName : "Not specified")</span>
+                                    </div>
+                                    <div class="col-12 col-lg-4">
+                                        <b>Status:</b>
+                                        @{
+                                            var statusText = Model.Shipment.CurrentState switch
+                                            {
+                                                enEntityState.Active => "Active",
+                                                enEntityState.Inactive => "In Transit",
+                                                enEntityState.Deleted => "Delivered",
+                                                _ => "Unknown"
+                                            };
+                                            var statusClass = Model.Shipment.CurrentState switch
+                                            {
+                                                enEntityState.Active => "badge-success",
+                                                enEntityState.Inactive => "badge-warning",
+                                                enEntityState.Deleted => "badge-danger",
+                                                _ => "badge-secondary"
+                                            };
+                                        }
+                                        <span class="badge @statusClass">@statusText</span>
+                                    </div>
+                                    <div class="col-12 col-lg-4">
+                                        <b>Expected Date:</b>
+                                        <span class="text-primary">@(Model.Shipment.DeliveryDate.HasValue ? Model.Shipment.DeliveryDate.Value.ToString("dd-MMM-yyyy") : "Not specified")</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="track-result-bar">
+                                <ul class="track-progress">
+                                    <li class="icon-confirm-roder @(Model.Shipment.CurrentState != enEntityState.Deleted ? "track-active" : "")">Confirmed Order</li>
+                                    <li class="icon-process-roder @(Model.Shipment.CurrentState != enEntityState.Active && Model.Shipment.CurrentState != enEntityState.Deleted ? "track-active" : "")">Processing Order</li>
+                                    <li class="icon-quality-check @(Model.Shipment.CurrentState == enEntityState.Inactive ? "track-active" : "")">Quality Check</li>
+                                    <li class="icon-dispatched-item @(Model.Shipment.CurrentState == enEntityState.Inactive ? "track-active" : "")">Dispatched Item</li>
+                                    <li class="icon-product-deliver @(Model.Shipment.CurrentState == enEntityState.Deleted ? "track-active" : "")">Product Delivered</li>
+                                </ul>
                             </div>
                         </div>
-                        <div class="track-result-bar">
-                            <ul class="track-progress">
-                                <li class="icon-confirm-roder track-active">Confirmed Order</li>
-                                <li class="icon-process-roder track-active">Processing Order</li>
-                                <li class="icon-quality-check">Quality Check</li>
-                                <li class="icon-dispatched-item">Dispatched Item</li>
-                                <li class="icon-product-deliver">Product Delivered</li>
-                            </ul>
+                    </div>
+
+                    <!-- Shipment Details -->
+                    <div class="row mt-4">
+                        <div class="col-12 col-lg-6">
+                            <div class="card">
+                                <div class="card-header bg-primary text-white">
+                                    <h6 class="mb-0"><i class="fa fa-user"></i> Sender Information</h6>
+                                </div>
+                                <div class="card-body">
+                                    <p><strong>Name:</strong> @Model.Shipment.SenderName</p>
+                                    <p><strong>Email:</strong> @Model.Shipment.SenderEmail</p>
+                                    <p><strong>Phone:</strong> @Model.Shipment.SenderPhone</p>
+                                    <p><strong>Address:</strong> @Model.Shipment.SenderAddress</p>
+                                    <p><strong>City:</strong> @Model.Shipment.SenderCityName</p>
+                                    <p><strong>Country:</strong> @Model.Shipment.SenderCountryName</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-lg-6">
+                            <div class="card">
+                                <div class="card-header bg-success text-white">
+                                    <h6 class="mb-0"><i class="fa fa-user"></i> Receiver Information</h6>
+                                </div>
+                                <div class="card-body">
+                                    <p><strong>Name:</strong> @Model.Shipment.ReceiverName</p>
+                                    <p><strong>Email:</strong> @Model.Shipment.ReceiverEmail</p>
+                                    <p><strong>Phone:</strong> @Model.Shipment.ReceiverPhone</p>
+                                    <p><strong>Address:</strong> @Model.Shipment.ReceiverAddress</p>
+                                    <p><strong>City:</strong> @Model.Shipment.ReceiverCityName</p>
+                                    <p><strong>Country:</strong> @Model.Shipment.ReceiverCountryName</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
+
+                    <!-- Package Details -->
+                    <div class="row mt-4">
+                        <div class="col-12 col-lg-12">
+                            <div class="card">
+                                <div class="card-header bg-info text-white">
+                                    <h6 class="mb-0"><i class="fa fa-cube"></i> Package Details</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-12 col-lg-4">
+                                            <p><strong>Weight:</strong> @Model.Shipment.Weight.ToString("F2") kg</p>
+                                            <p><strong>Package Value:</strong> $@Model.Shipment.PackageValue.ToString("F2")</p>
+                                        </div>
+                                        <div class="col-12 col-lg-4">
+                                            <p><strong>Dimensions:</strong> @Model.Shipment.Width × @Model.Shipment.Height × @Model.Shipment.Length cm</p>
+                                            <p><strong>Shipping Rate:</strong> $@Model.Shipment.ShippingRate.ToString("F2")</p>
+                                        </div>
+                                        <div class="col-12 col-lg-4">
+                                            <p><strong>Shipping Date:</strong> @Model.Shipment.ShippingDate.ToString("dd MMM yyyy")</p>
+                                            <p><strong>Payment Method:</strong> @(!string.IsNullOrEmpty(Model.Shipment.PaymentMethodEName) ? Model.Shipment.PaymentMethodEName : "Not specified")</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="text-center mt-4">
+                        <a href="/Tracking" class="wshipping-button">
+                            <i class="fa fa-arrow-left"></i> Track Another Shipment
+                        </a>
+                        <a href="/" class="wshipping-button">
+                            <i class="fa fa-home"></i> Back to Dashboard
+                        </a>
+                    </div>
+                }
+
             </div>
-            <!-- Right sidebar start -->
-            <div class="col-12 col-lg-3">
-                <div class="right-block left-menu menu-with-title mt60 mb15">
-                    <h4 class="title-with-bg">Select Your Freight</h4>
-                    <ul>
-                        <li class="active"><a href="#" title="Air Freight Tracking">Air Freight Tracking</a></li>
-                        <li><a href="#" title="Ocean Freight Tracking">Ocean Freight Tracking</a></li>
-                        <li><a href="#" title="Road & Rail Freight Tracking">Road & Rail Freight Tracking</a></li>
-                    </ul>
-                </div>
-                <a href="#" class="order-list-button">Your Order List</a>
-            </div>
-            <!-- Right sidebar end -->
         </div>
     </div>
 </div>
-<!-- Your shipment progress end -->
-<!-- Send free quote & Our Services -->
-<!-- ... تكرار الأقسام السابقة -->
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Print tracking number if found
+            @if (Model.IsFound && Model.Shipment != null)
+            {
+                    <text>
+                        console.log('Tracking Result: @Model.Shipment.TrackingNumber');
+                    </text>
+            }
+        });
+    </script>
+}

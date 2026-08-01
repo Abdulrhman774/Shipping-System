@@ -9,7 +9,7 @@ namespace BL.Services;
 public class CountryService 
     : BaseService<TbCountry, CountryDto, CreateCountryDto, UpdateCountryDto>, ICountryService
 {
-    public CountryService(IGenericRepository<TbCountry> repository, IMapper mapper, IUserService userService, IUnitOfWork unitOfWork)
+    public CountryService(IGenericRepository<TbCountry> repository, IBaseMapper mapper, IUserService userService, IUnitOfWork unitOfWork)
         : base(unitOfWork, mapper, userService)
     {
 

@@ -1,6 +1,6 @@
 namespace BL.Mapping
 {
-    public class AutoMapper : IMapper
+    public class AutoMapper : IBaseMapper
     {
         private readonly global::AutoMapper.IMapper _mapper;
 

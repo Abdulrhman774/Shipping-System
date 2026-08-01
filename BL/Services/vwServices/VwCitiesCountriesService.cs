@@ -14,8 +14,8 @@ namespace BL.Services.vwServices
     public class VwCitiesCountriesService : IVwCitiesCountriesService
     {
         private readonly IViewRepository<VwCitiesCountries> _repository;
-        private readonly IMapper _mapper;
-        public VwCitiesCountriesService(IViewRepository<VwCitiesCountries> repository, IMapper mapper)
+        private readonly IBaseMapper _mapper;
+        public VwCitiesCountriesService(IViewRepository<VwCitiesCountries> repository, IBaseMapper mapper)
         {
             _repository = repository;
             _mapper = mapper;

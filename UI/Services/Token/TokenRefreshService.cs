@@ -13,12 +13,13 @@ public class TokenRefreshService : ITokenRefreshService
     private readonly HttpClient _httpClient;
     private readonly ITokenProvider _tokenProvider;
     private readonly IRefreshTokenProvider _refreshTokenProvider;
-
+    private readonly ILogger<TokenRefreshService> _logger;
     public TokenRefreshService(
         IHttpClientFactory httpClientFactory,
         IConfiguration configuration,
         ITokenProvider tokenProvider,
-        IRefreshTokenProvider refreshTokenProvider)
+        IRefreshTokenProvider refreshTokenProvider,
+        ILogger<TokenRefreshService> logger )
     {
         _httpClient = httpClientFactory.CreateClient("ApiClient");
 
@@ -28,6 +29,7 @@ public class TokenRefreshService : ITokenRefreshService
 
         _tokenProvider = tokenProvider;
         _refreshTokenProvider = refreshTokenProvider;
+        _logger = logger;
     }
 
     public async Task<bool> RefreshAccessTokenAsync()
@@ -35,21 +37,35 @@ public class TokenRefreshService : ITokenRefreshService
         var refreshToken = _refreshTokenProvider.GetRefreshToken();
 
         if (string.IsNullOrWhiteSpace(refreshToken))
+        {
+            _logger.LogWarning("Refresh token is null or empty");
             return false;
+        }
 
-        var response = await PostAsync<RefreshAccessTokenResponseDto>(
-            stAuthEndpoints.RefreshAccessToken,
-            new RefreshTokenRequestDto
+        try
+        {
+            var response = await PostAsync<RefreshAccessTokenResponseDto>(
+                stAuthEndpoints.RefreshAccessToken,
+                new RefreshTokenRequestDto
+                {
+                    RefreshToken = refreshToken
+                });
+
+            if (!response.Success || response.Data is null)
             {
-                RefreshToken = refreshToken
-            });
+                _logger.LogWarning("Token refresh failed: {Error}", response.Error);
+                return false;
+            }
 
-        if (!response.Success || response.Data is null)
+            _tokenProvider.SetAccessToken(response.Data.AccessToken);
+            _logger.LogInformation("Token refreshed successfully");
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error refreshing token");
             return false;
-
-        _tokenProvider.SetAccessToken(response.Data.AccessToken);
-
-        return true;
+        }
     }
 
     public async Task<bool> RotateRefreshTokenAsync()

@@ -1,6 +1,7 @@
 ﻿using DAL.Contracts;
 using Domain.Entities;
 using Domain.Entities.Views;
+using Domain.Entities.Views.Shipment.Statistics_Views;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -49,6 +50,10 @@ namespace DAL.Context
 
         #region DbSet for views
         public DbSet<VwCitiesCountries> VwCitiesCountries { get; set; }
+        public DbSet<vw_ShipmentDetails> VwShipmentDetails { get; set; }
+        public DbSet<vw_ShipmentStats> VwShipmentStats { get; set; }
+        public DbSet<VwMonthlyShipments> VwMonthlyShipments { get; set; }
+        public DbSet<VwShipmentsByType> VwShipmentsByType { get; set; }
         #endregion
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

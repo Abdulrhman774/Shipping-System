@@ -8,10 +8,10 @@ namespace BL.Services;
 
 public class RefreshTokenService : IRefreshTokenService
 {
-    private readonly IMapper _mapper;
-    private readonly IGenericRepository<TbRefreshToken> _refreshRepo;
+    private readonly IBaseMapper _mapper;
+    private readonly IRefreshTokenRepository _refreshRepo;
 
-    public RefreshTokenService(IGenericRepository<TbRefreshToken> refreshRepo, IMapper mapper)
+    public RefreshTokenService(IRefreshTokenRepository refreshRepo, IBaseMapper mapper)
     {
         _refreshRepo = refreshRepo; 
         _mapper = mapper;
@@ -49,16 +49,7 @@ public class RefreshTokenService : IRefreshTokenService
 
     public async Task<bool> RevokeTokensAsync(string userId)
     {
-        var tokenList = await  _refreshRepo.GetListAsync(rt => rt.UserId == userId);
-
-        foreach (var token in tokenList)
-        {
-            if (token.CurrentState is enEntityState.Active)
-                await _refreshRepo.ChangeStatusAsync(token.Id, Guid.Parse(userId), enEntityState.Inactive, AutoSave: true);
-
-        }
-
-        return true;
+        return await _refreshRepo.RevokeTokensAsync(userId) > 0;
     }
 
     public async Task<bool> RevokeTokenAsync(string userId, string token)

@@ -16,7 +16,7 @@ public class UserReceiverService
 {
     public UserReceiverService(
         IUnitOfWork unitOfWork,
-        IMapper mapper,
+        IBaseMapper mapper,
         IUserService userService,
         ICityService cityService)
         : base(unitOfWork, mapper, userService, cityService)

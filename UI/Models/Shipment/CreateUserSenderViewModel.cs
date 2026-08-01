@@ -1,3 +1,4 @@
+using AutoMapper.Configuration.Annotations;
 using System.ComponentModel.DataAnnotations;
 
 namespace UI.Models.Shipment

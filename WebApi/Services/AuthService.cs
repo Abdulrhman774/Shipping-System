@@ -166,17 +166,10 @@ public class AuthService : IAuthService
     {
         var revoked = await _refreshService.RevokeTokensAsync(userId);
 
-        if (!revoked)
-            return Error.Unexpected(
+        return revoked? Result.Success() : Error.Unexpected(
                 "RefreshToken.RevokeFailed",
                 "Failed to revoke refresh tokens.");
-
-        await _signInManager.SignOutAsync();
-
-        return Result.Success();
     }
-
-
 
     public async Task<Result<IEnumerable<string>>> GetRolesAsync(string userId)
     {

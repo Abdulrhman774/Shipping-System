@@ -1,5 +1,160 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model BL.DTOs.Views.ShipmentDetailsDto
 @{
+    ViewData["Title"] = "Shipment Details";
+    Layout = "_Layout";
 }
+
+<!-- Breadcroumbs start -->
+<div class="wshipping-content-block wshipping-breadcroumb inner-bg-1">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 col-lg-7">
+                <h1>Shipment Details</h1>
+                <a asp-controller="Home" asp-action="Index" title="Home">Home</a> /
+                <a asp-action="History">Shipment History</a> / Details
+            </div>
+            <div class="col-12 col-lg-5 text-right">
+                <h4>
+                    We freight to all over the world
+                    The best logistic company, <span>FAST</span> and <span>SAFELY!</span>
+                </h4>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Breadcroumbs end -->
+<!-- Shipment Details start -->
+<div class="wshipping-content-block">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <!-- Tracking Result -->
+                <div class="track-result">
+                    <h3>Shipment Details</h3>
+                    <div class="track-result-block">
+                        <div class="track-result-id">
+                            <b>Tracking Number:</b> @Model.TrackingNumber
+                        </div>
+                        <div class="track-status">
+                            <div class="row">
+                                <div class="col-12 col-lg-4">
+                                    <b>Shipping Date:</b> @Model.ShippingDate.ToString("dd MMM yyyy")
+                                </div>
+                                <div class="col-12 col-lg-4">
+                                    <b>Status:</b>
+                                    @{
+                                        var statusText = Model.CurrentState switch
+                                        {
+                                            enEntityState.Active => "Active",
+                                            enEntityState.Inactive => "In Transit",
+                                            enEntityState.Deleted => "Delivered",
+                                            _ => "Unknown"
+                                        };
+                                    }
+                                    <span class="badge @(Model.CurrentState == enEntityState.Active ? "badge-success" : Model.CurrentState == enEntityState.Inactive ? "badge-warning" : "badge-danger")">
+                                        @statusText
+                                    </span>
+                                </div>
+                                <div class="col-12 col-lg-4">
+                                    <b>Weight:</b> @Model.Weight.ToString("F2") kg
+                                </div>
+                            </div>
+                        </div>
+                        <div class="track-result-bar">
+                            <ul class="track-progress">
+                                <li class="icon-confirm-roder track-active">Confirmed Order</li>
+                                <li class="icon-process-roder @(Model.CurrentState != enEntityState.Active ? "track-active" : "")">Processing Order</li>
+                                <li class="icon-quality-check @(Model.CurrentState == enEntityState.Inactive ? "track-active" : "")">Quality Check</li>
+                                <li class="icon-dispatched-item @(Model.CurrentState == enEntityState.Inactive ? "track-active" : "")">Dispatched Item</li>
+                                <li class="icon-product-deliver @(Model.CurrentState == enEntityState.Deleted ? "track-active" : "")">Product Delivered</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0"><i class="fa fa-user"></i> Sender Information</h5>
+                            </div>
+                            <div class="card-body">
+                                <p><strong>Name:</strong> @Model.SenderName</p>
+                                <p><strong>Email:</strong> @Model.SenderEmail</p>
+                                <p><strong>Phone:</strong> @Model.SenderPhone</p>
+                                <p><strong>Address:</strong> @Model.SenderAddress</p>
+                                <p><strong>City:</strong> @Model.SenderCityName</p>
+                                <p><strong>Country:</strong> @Model.SenderCountryName</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header bg-success text-white">
+                                <h5 class="mb-0"><i class="fa fa-user"></i> Receiver Information</h5>
+                            </div>
+                            <div class="card-body">
+                                <p><strong>Name:</strong> @Model.ReceiverName</p>
+                                <p><strong>Email:</strong> @Model.ReceiverEmail</p>
+                                <p><strong>Phone:</strong> @Model.ReceiverPhone</p>
+                                <p><strong>Address:</strong> @Model.ReceiverAddress</p>
+                                <p><strong>City:</strong> @Model.ReceiverCityName</p>
+                                <p><strong>Country:</strong> @Model.ReceiverCountryName</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-header bg-info text-white">
+                                <h5 class="mb-0"><i class="fa fa-cube"></i> Shipment Details</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <p><strong>Width:</strong> @Model.Width.ToString("F2") cm</p>
+                                        <p><strong>Height:</strong> @Model.Height.ToString("F2") cm</p>
+                                        <p><strong>Length:</strong> @Model.Length.ToString("F2") cm</p>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <p><strong>Weight:</strong> @Model.Weight.ToString("F2") kg</p>
+                                        <p><strong>Package Value:</strong> $@Model.PackageValue.ToString("F2")</p>
+                                        <p><strong>Shipping Rate:</strong> $@Model.ShippingRate.ToString("F2")</p>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <p><strong>Shipping Type:</strong> @Model.ShippingTypeName</p>
+                                        <p><strong>Created:</strong> @Model.CreatedDate.ToString("dd MMM yyyy HH:mm")</p>
+                                        @if (Model.DeliveryDate.HasValue)
+                                        {
+                                            <p><strong>Delivery Date:</strong> @Model.DeliveryDate.Value.ToString("dd MMM yyyy")</p>
+                                        }
+                                    </div>
+                                    <div class="col-md-3">
+                                        <p><strong>Payment Method:</strong> @Model.PaymentMethodEName</p>
+                                        <p><strong>Packaging:</strong> @Model.PackagingEName</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Buttons -->
+                <div class="text-center mt-4">
+                    <a asp-action="History" class="wshipping-button">
+                        <i class="fa fa-list"></i> Back to History
+                    </a>
+                    <a asp-action="CreateShipment" class="wshipping-button">
+                        <i class="fa fa-plus"></i> Create New Shipment
+                    </a>
+                    <a asp-controller="Home" asp-action="Index" class="wshipping-button">
+                        <i class="fa fa-home"></i> Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Shipment Details end -->

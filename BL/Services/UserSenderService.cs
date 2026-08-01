@@ -16,7 +16,7 @@ public class UserSenderService
 {
     public UserSenderService(
         IUnitOfWork unitOfWork,
-        IMapper mapper,
+        IBaseMapper mapper,
         IUserService userService,
         ICityService cityService)
         : base(unitOfWork, mapper, userService, cityService)

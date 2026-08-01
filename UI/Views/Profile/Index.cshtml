@@ -1,10 +1,16 @@
+@model ProfileViewModel
+@{
+    ViewData["Title"] = "Customer Profile";
+    Layout = "_Layout";
+}
+
 <!-- Breadcroumbs start -->
 <div class="wshipping-content-block wshipping-breadcroumb inner-bg-1">
     <div class="container">
         <div class="row">
             <div class="col-12 col-lg-7">
                 <h1>Customer Profile</h1>
-                <a href="index.html" title="Home">Home</a> / Customer Profile
+                <a href="/" title="Home">Home</a> / Customer Profile
             </div>
             <div class="col-12 col-lg-5 text-right">
                 <h4>
@@ -24,358 +30,335 @@
                 <div class="right-block left-menu menu-with-title mb15">
                     <ul class="nav flex-column" id="myTab" role="tablist">
                         <li class="nav-item">
-                            <a class="nav-link active" id="editprofile-tab" data-toggle="tab" href="#editprofile" role="tab" aria-controls="editprofile" aria-selected="true">edit profile</a>
+                            <a class="nav-link active" id="editprofile-tab" data-toggle="tab" href="#editprofile" role="tab" aria-controls="editprofile" aria-selected="true">
+                                <i class="fa fa-user"></i> Edit Profile
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" id="shipmenttracking-tab" data-toggle="tab" href="#shipmenttracking" role="tab" aria-controls="shipmenttracking" aria-selected="false">shipment tracking</a>
+                            <a class="nav-link" id="shipmenttracking-tab" data-toggle="tab" href="#shipmenttracking" role="tab" aria-controls="shipmenttracking" aria-selected="false">
+                                <i class="fa fa-search"></i> Shipment Tracking
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" id="CurrentShipment-tab" data-toggle="tab" href="#CurrentShipment" role="tab" aria-controls="CurrentShipment" aria-selected="false">Current Shipment</a>
+                            <a class="nav-link" id="CurrentShipment-tab" data-toggle="tab" href="#CurrentShipment" role="tab" aria-controls="CurrentShipment" aria-selected="false">
+                                <i class="fa fa-truck"></i> Current Shipment
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" id="ShipmentHistory-tab" data-toggle="tab" href="#ShipmentHistory" role="tab" aria-controls="ShipmentHistory" aria-selected="false">Shipment History</a>
+                            <a class="nav-link" id="ShipmentHistory-tab" data-toggle="tab" href="#ShipmentHistory" role="tab" aria-controls="ShipmentHistory" aria-selected="false">
+                                <i class="fa fa-list"></i> Shipment History
+                            </a>
                         </li>
                     </ul>
                 </div>
             </div>
             <div class="col-lg-9">
                 <div class="tab-content" id="myTabContent">
+
+                    <!-- ============================================ -->
+                    <!-- TAB 1: Edit Profile -->
+                    <!-- ============================================ -->
                     <div class="tab-pane fade show active" id="editprofile" role="tabpanel" aria-labelledby="editprofile-tab">
                         <div class="profile-settings">
                             <div class="row">
+                                <!-- User Data -->
                                 <div class="col-12 col-md-6 col-lg-6">
                                     <div class="customer-login-block">
                                         <h2>User Data</h2>
-                                        <form action="profile.html">
+                                        <form asp-action="Update" method="post">
+                                            @Html.AntiForgeryToken()
+
+                                            @if (TempData["ErrorMessage"] != null)
+                                            {
+                                                <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+                                            }
+                                            @if (TempData["SuccessMessage"] != null)
+                                            {
+                                                <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+                                            }
+
                                             <div class="form-group">
                                                 <div class="row">
                                                     <div class="col-12 col-md-3 col-lg-3">
                                                         <label for="fileToUpload">
-                                                            <div class="profile-pic" style="background-image: url('assets/images/profile.jpg')">
+                                                            <div class="profile-pic" style="background-image: url('@(Model.User?.ImageUrl ?? "/assets/images/profile.jpg")')">
                                                                 <span>Change Image</span>
                                                             </div>
                                                         </label>
-                                                        <input type="File" name="fileToUpload" id="fileToUpload">
+                                                        <input type="file" name="fileToUpload" id="fileToUpload">
                                                     </div>
                                                     <div class="col-12 col-md-9 col-lg-9 align-content-center">
-                                                        <h4>User Name</h4>
-                                                        <h6>info@company.com</h6>
-                                                        <span>+88 01xxx 8xxx04</span>
+                                                        <h4>@(Model.User?.FirstName ?? "User") @(Model.User?.LastName ?? "")</h4>
+                                                        <h6>@(Model.User?.Email ?? "email@example.com")</h6>
+                                                        <span>@(Model.User?.PhoneNumber ?? "+20 100 000 0000")</span>
                                                     </div>
                                                 </div>
                                             </div>
+
                                             <div class="form-group">
                                                 <div class="row">
                                                     <div class="col-12 col-md-6 col-lg-6">
-                                                        <label>First Name:</label>
-                                                        <input type="text" class="form-control" placeholder="first name" name="fname" />
+                                                        <label>First Name <sup>*</sup></label>
+                                                        <input asp-for="User.FirstName" class="form-control" placeholder="First Name" />
+                                                        <span asp-validation-for="User.FirstName" class="text-danger"></span>
                                                     </div>
                                                     <div class="col-12 col-md-6 col-lg-6">
-                                                        <label>Last Name:</label>
-                                                        <input type="text" class="form-control" placeholder="last name" name="fname" />
+                                                        <label>Last Name <sup>*</sup></label>
+                                                        <input asp-for="User.LastName" class="form-control" placeholder="Last Name" />
+                                                        <span asp-validation-for="User.LastName" class="text-danger"></span>
                                                     </div>
                                                 </div>
                                             </div>
+
                                             <div class="form-group">
                                                 <div class="row">
                                                     <div class="col-12 col-md-6 col-lg-6">
-                                                        <label>Email:</label>
-                                                        <input type="email" class="form-control" placeholder="info@company.com" name="email" />
+                                                        <label>Email <sup>*</sup></label>
+                                                        <input asp-for="User.Email" type="email" class="form-control" placeholder="Email" />
+                                                        <span asp-validation-for="User.Email" class="text-danger"></span>
                                                     </div>
                                                     <div class="col-12 col-md-6 col-lg-6">
-                                                        <label>Phone:</label>
-                                                        <input type="text" class="form-control" placeholder="+88 01xxx 8xxx04" name="phone" />
+                                                        <label>Phone <sup>*</sup></label>
+                                                        <input asp-for="User.PhoneNumber" class="form-control" placeholder="Phone Number" />
+                                                        <span asp-validation-for="User.PhoneNumber" class="text-danger"></span>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <button type="submit" class="btn btn-submit">Save Changes</button>
+
+                                            <button type="submit" class="btn btn-submit">
+                                                <i class="fa fa-save"></i> Save Changes
+                                            </button>
                                         </form>
                                     </div>
                                 </div>
+
+                                <!-- Change Password -->
                                 <div class="col-12 col-md-6 col-lg-6">
                                     <div class="customer-login-block">
                                         <h2>Change Password</h2>
-                                        <form action="profile.html">
+                                        <form asp-action="ChangePassword" method="post">
+                                            @Html.AntiForgeryToken()
+
                                             <div class="form-group">
                                                 <div class="row">
-                                                    <div class="col-12 col-md-6 col-lg-6">
-                                                        <label>Old Password:</label>
-                                                        <input type="password" class="form-control" name="pass" />
+                                                    <div class="col-12">
+                                                        <label>Current Password <sup>*</sup></label>
+                                                        <input asp-for="CurrentPassword" type="password" class="form-control" placeholder="Enter current password" />
+                                                        <span asp-validation-for="CurrentPassword" class="text-danger"></span>
                                                     </div>
                                                 </div>
                                             </div>
+
                                             <div class="form-group">
                                                 <div class="row">
-                                                    <div class="col-12 col-md-6 col-lg-6">
-                                                        <label>New Password:</label>
-                                                        <input type="password" class="form-control" name="pass" />
+                                                    <div class="col-12 col-md-6">
+                                                        <label>New Password <sup>*</sup></label>
+                                                        <input asp-for="NewPassword" type="password" class="form-control" placeholder="Enter new password" />
+                                                        <span asp-validation-for="NewPassword" class="text-danger"></span>
                                                     </div>
-                                                    <div class="col-12 col-md-6 col-lg-6">
-                                                        <label>Confirm Password:</label>
-                                                        <input type="password" class="form-control" name="cpass" />
+                                                    <div class="col-12 col-md-6">
+                                                        <label>Confirm Password <sup>*</sup></label>
+                                                        <input asp-for="ConfirmPassword" type="password" class="form-control" placeholder="Confirm new password" />
+                                                        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <button type="submit" class="btn btn-submit">Change Password</button>
+
+                                            <div asp-validation-summary="All" class="text-danger"></div>
+
+                                            <button type="submit" class="btn btn-submit">
+                                                <i class="fa fa-key"></i> Change Password
+                                            </button>
                                         </form>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+
+                    <!-- ============================================ -->
+                    <!-- TAB 2: Shipment Tracking (تم التعديل) -->
+                    <!-- ============================================ -->
                     <div class="tab-pane fade" id="shipmenttracking" role="tabpanel" aria-labelledby="shipmenttracking-tab">
                         <div class="row justify-content-center">
                             <div class="col-12 col-lg-12">
                                 <div class="tracking-block">
                                     <ul class="nav nav-tabs" role="tablist">
-                                        <li class="nav-item"><a class="nav-link active" href="#track-by-number" aria-controls="track-by-number" role="tab" data-toggle="tab">Track by Number</a></li>
-                                        <li class="nav-item"><a class="nav-link" href="#track-by-reference" aria-controls="track-by-reference" role="tab" data-toggle="tab">Track by Reference</a></li>
+                                        <li class="nav-item">
+                                            <a class="nav-link active" href="#track-by-number" aria-controls="track-by-number" role="tab" data-toggle="tab">Track by Number</a>
+                                        </li>
                                     </ul>
                                     <div class="tab-content">
                                         <div role="tabpanel" class="tab-pane active" id="track-by-number">
-                                            <h3>Air Freight Tracking</h3>
+                                            <h3>Track Your Shipment</h3>
                                             <div class="put-track-number">
-                                                <form action="track.html">
-                                                    <input type="text" class="form-control track-id" name="trackid" placeholder="Track ID" />
-                                                    <button type="submit" class="btn btn-track">Track</button>
+                                                @* ✅ Form واحد فقط يروح لـ Tracking/Result *@
+                                                <form asp-controller="Tracking" asp-action="Result" method="post">
+                                                    @Html.AntiForgeryToken()
+                                                    <div class="row">
+                                                        <div class="col-12 col-lg-8">
+                                                            <input type="text" class="form-control track-id" name="trackingNumber" placeholder="Enter Tracking Number" />
+                                                        </div>
+                                                        <div class="col-12 col-lg-4">
+                                                            <button type="submit" class="btn btn-track" style="width:100%;">
+                                                                <i class="fa fa-search"></i> Track
+                                                            </button>
+                                                        </div>
+                                                    </div>
                                                 </form>
                                             </div>
-                                            <div class="track-bottom-link"><a href="">Need Help?</a> <span>|</span> <a href="">Your Order list</a></div>
-                                        </div>
-                                        <div role="tabpanel" class="tab-pane" id="track-by-reference">
-                                            <div class="put-reference-number">
-                                                <form action="customer-register.html">
-                                                    <div class="form-group">
-                                                        <div class="row">
-                                                            <div class="col-12 col-md-6 col-lg-4">
-                                                                <label>Shipment Reference (BOL or PO):</label>
-                                                                <input type="text" class="form-control" name="RefNumber" required />
-                                                            </div>
-                                                            <div class="col-12 col-md-6 col-lg-4">
-                                                                <label>Shipment Date Start:</label>
-                                                                <div class="input-group date" data-provide="datepicker">
-                                                                    <input type="text" class="form-control" name="startDate" required />
-                                                                    <div class="input-group-addon"><span class="glyphicon glyphicon-th"></span></div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-12 col-md-6 col-lg-4">
-                                                                <label>Shipment Date End:</label>
-                                                                <div class="input-group date" data-provide="datepicker">
-                                                                    <input type="text" class="form-control" name="EndDate" required />
-                                                                    <div class="input-group-addon"><span class="glyphicon glyphicon-th"></span></div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="form-group">
-                                                        <div class="row">
-                                                            <div class="col-12 col-md-6 col-lg-6">
-                                                                <label>Origin Country:</label>
-                                                                <select class="form-control" name="OriginCountry">
-                                                                    <option>United State</option>
-                                                                    <option>Canada</option>
-                                                                    <option>Maxico</option>
-                                                                    <option>Caina</option>
-                                                                </select>
-                                                            </div>
-                                                            <div class="col-12 col-md-6 col-lg-6">
-                                                                <label>Origin ZIP/Postal Code:</label>
-                                                                <input type="text" class="form-control" name="OriginZip" required />
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="form-group">
-                                                        <div class="row">
-                                                            <div class="col-12 col-md-6 col-lg-6">
-                                                                <label>Destination Country: </label>
-                                                                <select class="form-control" name="dcountry">
-                                                                    <option>United State</option>
-                                                                    <option>Canada</option>
-                                                                    <option>Maxico</option>
-                                                                    <option>Caina</option>
-                                                                </select>
-                                                            </div>
-                                                            <div class="col-12 col-md-6 col-lg-6">
-                                                                <label>Destination ZIP/Postal Code:</label>
-                                                                <input type="text" class="form-control" name="DZip" required />
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <button type="submit" class="btn btn-submit">Track</button>
-                                                </form>
+                                            <div class="track-bottom-link mt-3">
+                                                <a asp-controller="Tracking" asp-action="Index">Go to Tracking Page</a>
+                                                <span>|</span>
+                                                <a asp-controller="Shipment" asp-action="History">Your Order List</a>
                                             </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-12 col-lg-12">
-                                <div class="track-result mt-3">
-                                    <h3>Shipment Track Result</h3>
-                                    <div class="track-result-block">
-                                        <div class="track-result-id"><b>Order Tracking:</b> Order No</div>
-                                        <div class="track-status">
-                                            <div class="row">
-                                                <div class="col-12 col-lg-4"><b>Shipping Via:</b> Ipsum Dolor</div>
-                                                <div class="col-12 col-lg-4"><b>Status:</b> Processing Order</div>
-                                                <div class="col-12 col-lg-4"><b>Expected Date:</b> 12-DEC-2017</div>
-                                            </div>
-                                        </div>
-                                        <div class="track-result-bar">
-                                            <ul class="track-progress">
-                                                <li class="icon-confirm-roder track-active">Confirmed Order</li>
-                                                <li class="icon-process-roder track-active">Processing Order</li>
-                                                <li class="icon-quality-check">Quality Check</li>
-                                                <li class="icon-dispatched-item">Dispatched Item</li>
-                                                <li class="icon-product-deliver">Product Delivered</li>
-                                            </ul>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+
+                    <!-- ============================================ -->
+                    <!-- TAB 3: Current Shipment (Active) -->
+                    <!-- ============================================ -->
                     <div class="tab-pane fade" id="CurrentShipment" role="tabpanel" aria-labelledby="CurrentShipment-tab">
                         <div class="row">
                             <div class="col-12 col-lg-12">
                                 <div class="order-list">
-                                    <h3>Your Current Order</h3>
-                                    <div class="table-responsive">
-                                        <table class="table">
-                                            <thead>
-                                                <tr>
-                                                    <th>SL</th>
-                                                    <th>SKU#</th>
-                                                    <th>Product Name</th>
-                                                    <th>Qty</th>
-                                                    <th>Wt</th>
-                                                    <th>Tax</th>
-                                                    <th>Status</th>
-                                                    <th>Action</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr>
-                                                    <td>1</td>
-                                                    <td>U5-ZPSC-65F2</td>
-                                                    <td>The point of using Lorem Ipsum is that </td>
-                                                    <td>2</td>
-                                                    <td>10kg</td>
-                                                    <td>Y</td>
-                                                    <td>Processing</td>
-                                                    <td><a href="" title=""><i class="fa fa-check-circle" aria-hidden="true"></i></a></td>
-                                                </tr>
-                                                <tr>
-                                                    <td>2</td>
-                                                    <td>U5-ZP3C-65F3</td>
-                                                    <td>The point of using Lorem Ipsum is that </td>
-                                                    <td>2</td>
-                                                    <td>10kg</td>
-                                                    <td>Y</td>
-                                                    <td>Confirm</td>
-                                                    <td><a href="" title=""><i class="far fa-trash-alt"></i></a></td>
-                                                </tr>
-                                                <tr>
-                                                    <td>3</td>
-                                                    <td>U5-ZP4C-65F4</td>
-                                                    <td>The point of using Lorem Ipsum is that </td>
-                                                    <td>2</td>
-                                                    <td>10kg</td>
-                                                    <td>Y</td>
-                                                    <td>Processing</td>
-                                                    <td><a href="" title=""><i class="fa fa-check-circle" aria-hidden="true"></i></a></td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
+                                    <h3>Your Current Shipments</h3>
+                                    @if (Model.ActiveShipments != null && Model.ActiveShipments.Any())
+                                    {
+                                        <div class="table-responsive">
+                                            <table class="table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Tracking #</th>
+                                                        <th>Sender</th>
+                                                        <th>Receiver</th>
+                                                        <th>Shipping Date</th>
+                                                        <th>Weight</th>
+                                                        <th>Status</th>
+                                                        <th>Action</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach (var item in Model.ActiveShipments)
+                                                    {
+                                                        <tr>
+                                                            <td><strong>@item.TrackingNumber</strong></td>
+                                                            <td>@item.SenderName</td>
+                                                            <td>@item.ReceiverName</td>
+                                                            <td>@item.ShippingDate.ToString("dd MMM yyyy")</td>
+                                                            <td>@item.Weight.ToString("F2") kg</td>
+                                                            <td>
+                                                                <span class="badge badge-success">Active</span>
+                                                            </td>
+                                                            <td>
+                                                                @* ✅ زر Edit *@
+                                                                <a asp-controller="Shipment" asp-action="Update" asp-route-id="@item.ShipmentId" title="Edit" class="btn btn-sm btn-outline-warning">
+                                                                    <i class="fa fa-edit"></i>
+                                                                </a>
+                                                                @* ✅ زر View Details *@
+                                                                <a asp-controller="Shipment" asp-action="Details" asp-route-id="@item.ShipmentId" title="View Details" class="btn btn-sm btn-outline-primary">
+                                                                    <i class="fa fa-eye"></i>
+                                                                </a>
+                                                            </td>
+                                                        </tr>
+                                                    }
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="text-center py-4">
+                                            <i class="fas fa-box fa-3x text-muted mb-3"></i>
+                                            <h5>No Active Shipments</h5>
+                                            <p>You don't have any active shipments at the moment.</p>
+                                            <a asp-controller="Shipment" asp-action="Create" class="wshipping-button">Create New Shipment</a>
+                                        </div>
+                                    }
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="tab-pane fade" id="ShipmentHistory" role="tabpanel" aria-labelledby="Shipment History-tab">
+                    <!-- ============================================ -->
+                    <!-- TAB 4: Shipment History -->
+                    <!-- ============================================ -->
+                    <div class="tab-pane fade" id="ShipmentHistory" role="tabpanel" aria-labelledby="ShipmentHistory-tab">
                         <div class="row">
                             <div class="col-12 col-lg-12">
                                 <div class="order-list">
                                     <h3>Your Shipment History</h3>
-                                    <div class="table-responsive">
-                                        <table class="table">
-                                            <thead>
-                                                <tr>
-                                                    <th>SL</th>
-                                                    <th>SKU#</th>
-                                                    <th>Product Name</th>
-                                                    <th>Qty</th>
-                                                    <th>Wt</th>
-                                                    <th>Tax</th>
-                                                    <th>Status</th>
-                                                    <th>Action</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr>
-                                                    <td>1</td>
-                                                    <td>U5-ZPSC-65F2</td>
-                                                    <td>The point of using Lorem Ipsum is that </td>
-                                                    <td>2</td>
-                                                    <td>10kg</td>
-                                                    <td>Y</td>
-                                                    <td>Processing</td>
-                                                    <td><a href="" title=""><i class="fa fa-check-circle" aria-hidden="true"></i></a></td>
-                                                </tr>
-                                                <tr>
-                                                    <td>2</td>
-                                                    <td>U5-ZP3C-65F3</td>
-                                                    <td>The point of using Lorem Ipsum is that </td>
-                                                    <td>2</td>
-                                                    <td>10kg</td>
-                                                    <td>Y</td>
-                                                    <td>Confirm</td>
-                                                    <td><a href="" title=""><i class="far fa-trash-alt"></i></a></td>
-                                                </tr>
-                                                <tr>
-                                                    <td>3</td>
-                                                    <td>U5-ZP4C-65F4</td>
-                                                    <td>The point of using Lorem Ipsum is that </td>
-                                                    <td>2</td>
-                                                    <td>10kg</td>
-                                                    <td>Y</td>
-                                                    <td>Processing</td>
-                                                    <td><a href="" title=""><i class="fa fa-check-circle" aria-hidden="true"></i></a></td>
-                                                </tr>
-                                                <tr>
-                                                    <td>4</td>
-                                                    <td>U5-ZPSC-65F2</td>
-                                                    <td>The point of using Lorem Ipsum is that </td>
-                                                    <td>2</td>
-                                                    <td>10kg</td>
-                                                    <td>Y</td>
-                                                    <td>Processing</td>
-                                                    <td><a href="" title=""><i class="fa fa-check-circle" aria-hidden="true"></i></a></td>
-                                                </tr>
-                                                <tr>
-                                                    <td>5</td>
-                                                    <td>U5-ZP3C-65F3</td>
-                                                    <td>The point of using Lorem Ipsum is that </td>
-                                                    <td>2</td>
-                                                    <td>10kg</td>
-                                                    <td>Y</td>
-                                                    <td>Confirm</td>
-                                                    <td><a href="" title=""><i class="far fa-trash-alt"></i></a></td>
-                                                </tr>
-                                                <tr>
-                                                    <td>6</td>
-                                                    <td>U5-ZP4C-65F4</td>
-                                                    <td>The point of using Lorem Ipsum is that </td>
-                                                    <td>2</td>
-                                                    <td>10kg</td>
-                                                    <td>Y</td>
-                                                    <td>Processing</td>
-                                                    <td><a href="" title=""><i class="fa fa-check-circle" aria-hidden="true"></i></a></td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
+                                    @if (Model.ShipmentHistory != null && Model.ShipmentHistory.Any())
+                                    {
+                                        <div class="table-responsive">
+                                            <table class="table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Tracking #</th>
+                                                        <th>Sender</th>
+                                                        <th>Receiver</th>
+                                                        <th>Shipping Date</th>
+                                                        <th>Weight</th>
+                                                        <th>Status</th>
+                                                        <th>Action</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach (var item in Model.ShipmentHistory)
+                                                    {
+                                                        <tr>
+                                                            <td><strong>@item.TrackingNumber</strong></td>
+                                                            <td>@item.SenderName</td>
+                                                            <td>@item.ReceiverName</td>
+                                                            <td>@item.ShippingDate.ToString("dd MMM yyyy")</td>
+                                                            <td>@item.Weight.ToString("F2") kg</td>
+                                                            <td>
+                                                                @{
+                                                                    var statusClass = item.CurrentState switch
+                                                                    {
+                                                                        enEntityState.Active => "badge-success",
+                                                                        enEntityState.Inactive => "badge-warning",
+                                                                        enEntityState.Deleted => "badge-danger",
+                                                                        _ => "badge-secondary"
+                                                                    };
+                                                                    var statusText = item.CurrentState switch
+                                                                    {
+                                                                        enEntityState.Active => "Active",
+                                                                        enEntityState.Inactive => "In Transit",
+                                                                        enEntityState.Deleted => "Delivered",
+                                                                        _ => "Unknown"
+                                                                    };
+                                                                }
+                                                                <span class="badge @statusClass">@statusText</span>
+                                                            </td>
+                                                            <td>
+                                                                @* ✅ زر Edit *@
+                                                                <a asp-controller="Shipment" asp-action="Update" asp-route-id="@item.ShipmentId" title="Edit" class="btn btn-sm btn-outline-warning" style="margin-right:3px;">
+                                                                    <i class="fa fa-edit"></i>
+                                                                </a>
+                                                                @* ✅ زر View Details *@
+                                                                <a asp-controller="Shipment" asp-action="Details" asp-route-id="@item.ShipmentId" title="View Details" class="btn btn-sm btn-outline-primary">
+                                                                    <i class="fa fa-eye"></i>
+                                                                </a>
+                                                            </td>
+                                                        </tr>
+                                                    }
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="text-center py-4">
+                                            <i class="fas fa-box fa-3x text-muted mb-3"></i>
+                                            <h5>No Shipments Found</h5>
+                                            <p>You haven't created any shipments yet.</p>
+                                            <a asp-controller="Shipment" asp-action="CreateShipment" class="wshipping-button">Create Your First Shipment</a>
+                                        </div>
+                                    }
                                 </div>
                             </div>
                         </div>
@@ -385,3 +368,15 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function() {
+            var hash = window.location.hash;
+            if (hash) {
+                $('.nav-link[href="' + hash + '"]').tab('show');
+            }
+        });
+    </script>
+}

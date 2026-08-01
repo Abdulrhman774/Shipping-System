@@ -28,4 +28,5 @@ public interface IGenericRepository<T> where T : BaseEntity
         bool tracking = false,
         CancellationToken cancellationToken = default);
 
+    Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

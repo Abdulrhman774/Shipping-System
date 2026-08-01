@@ -53,7 +53,7 @@ public class AuthController : ControllerBase
     }
 
 
-    [Authorize]
+    [AllowAnonymous]
     [HttpPost("Refresh-AccessToken")]
     public async Task<IActionResult> RefreshAccessToken(
     [FromBody] RefreshTokenRequestDto dto)
@@ -65,7 +65,7 @@ public class AuthController : ControllerBase
 
     [Authorize]
     [HttpPost("Logout")]
-    public async Task<IActionResult> Logout(string userId)
+    public async Task<IActionResult> Logout([FromQuery]string userId)
     {
         var result = await _authService.LogoutAsync(userId);
 

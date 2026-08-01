@@ -179,34 +179,6 @@ namespace UI.Controllers
             }
         }
 
-        // POST: /Account/Logout
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Logout()
-        {
-            try
-            {
-                // Get token from session
-                var token = HttpContext.Session.GetString("AccessToken");
-
-                if (!string.IsNullOrEmpty(token))
-                {
-                    // Set token in header and call API logout
-                    await _apiClient.PostAsync<object>("Api/Auth/logout", null);
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "API logout failed, but continuing with local logout");
-            }
-
-            // Clear local session and cookie
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            HttpContext.Session.Clear();
-
-            return RedirectToAction(nameof(Login));
-        }
-
         // GET: /Account/AccessDenied
         [AllowAnonymous]
         public IActionResult AccessDenied()
@@ -275,6 +247,60 @@ namespace UI.Controllers
                 _logger.LogError(ex, "Failed to refresh token");
                 return Unauthorized(new { success = false, message = "Failed to refresh token" });
             }
+        }
+
+
+
+
+        // UI/Controllers/AccountController.cs
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Logout()
+        {
+            try
+            {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                // ✅ استخدم Query String
+                if (!string.IsNullOrEmpty(userId))
+                {
+                    try
+                    {
+                        // 👇 userId في الـ URL مش في الـ Body
+                        var response = await _apiClient.PostAsync<object>($"Api/Auth/Logout?userId={userId}", null);
+
+                        if (response.Success)
+                        {
+                            _logger.LogInformation("API logout successful for user {UserId}", userId);
+                        }
+                        else
+                        {
+                            _logger.LogWarning("API logout failed: {Error}", response.Error);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogWarning(ex, "API logout failed, continuing with local logout");
+                    }
+                }
+
+                // 2. Local Logout (دائماً)
+                _tokenProvider.RemoveAccessToken();
+                _refreshTokenProvider.RemoveRefreshToken();
+                HttpContext.Session.Clear();
+                _apiClient.RemoveAuthorizationHeader();
+
+                await HttpContext.SignOutAsync(IdentityConstants.ApplicationScheme);
+
+                _logger.LogInformation("User logged out successfully");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error during logout");
+            }
+
+            return RedirectToAction("Login", "Account");
         }
 
         #region Helper Methods
