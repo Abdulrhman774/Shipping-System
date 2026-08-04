@@ -1,9 +1,8 @@
-﻿// BL/DTOs/Views/ShipmentStatsDto.cs
-namespace BL.DTOs.Views
+﻿namespace BL.DTOs.Views
 {
     public class ShipmentStatsDto
     {
-        public enEntityState CurrentState { get; set; }
+        public enShipmentStatus Status { get; set; }
         public string? StatusName { get; set; }
         public int ShipmentCount { get; set; }
         public decimal? TotalPackageValue { get; set; }

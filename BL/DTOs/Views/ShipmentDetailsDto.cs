@@ -20,7 +20,6 @@ namespace BL.DTOs.Views
         public Guid? ReferenceId { get; set; }
 
         // المرسل (Sender)
-        public Guid? SenderCityId { get; set; }        // 👈 جديد
         public Guid SenderId { get; set; }
         public string? SenderName { get; set; }
         public string? SenderEmail { get; set; }
@@ -30,11 +29,11 @@ namespace BL.DTOs.Views
         public string? SenderContact { get; set; }
         public string? SenderOtherAddress { get; set; }
         public bool? SenderIsDefault { get; set; }
+        public Guid? SenderCityId { get; set; }
         public string? SenderCityName { get; set; }
         public string? SenderCountryName { get; set; }
 
         // المستلم (Receiver)
-        public Guid? ReceiverCityId { get; set; }      // 👈 جديد
         public Guid ReceiverId { get; set; }
         public string? ReceiverName { get; set; }
         public string? ReceiverEmail { get; set; }
@@ -44,6 +43,7 @@ namespace BL.DTOs.Views
         public string? ReceiverContact { get; set; }
         public string? ReceiverOtherAddress { get; set; }
         public bool? ReceiverIsDefault { get; set; }
+        public Guid? ReceiverCityId { get; set; }
         public string? ReceiverCityName { get; set; }
         public string? ReceiverCountryName { get; set; }
 
@@ -51,16 +51,21 @@ namespace BL.DTOs.Views
         public Guid ShippingTypeId { get; set; }
         public string? ShippingTypeName { get; set; }
 
-        // ✅ طريقة الدفع (جديد)
+        // ✅ طريقة الدفع
         public string? PaymentMethodAName { get; set; }
         public string? PaymentMethodEName { get; set; }
 
-        // ✅ التغليف (جديد)
+        // ✅ التغليف
         public string? PackagingAName { get; set; }
         public string? PackagingEName { get; set; }
 
         // بيانات الحالة
         public enEntityState CurrentState { get; set; }
+
+        // ✅ الحقول الجديدة
+        public enShipmentStatus Status { get; set; }           // تمت إضافتها
+        public DateTime? StatusLastUpdatedAt { get; set; }    // تمت إضافتها
+
         public DateTime CreatedDate { get; set; }
     }
 }

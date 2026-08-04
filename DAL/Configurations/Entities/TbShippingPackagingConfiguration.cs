@@ -17,9 +17,6 @@ namespace DAL.Configurations.Entities
 
             builder.Property(e => e.ShippingPackagingEname)
                 .HasMaxLength(100);
-
-
-
         }
     }
 }

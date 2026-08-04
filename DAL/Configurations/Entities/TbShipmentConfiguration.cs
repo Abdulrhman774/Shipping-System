@@ -51,5 +51,23 @@ public class TbShipmentConfiguration : BaseEntityConfiguration<TbShipment>
             .WithMany(p => p.Shipments)
             .HasForeignKey(d => d.UserSubscriptionId)
             .OnDelete(DeleteBehavior.SetNull);  // If subscription is deleted, keep shipment
+
+
+        builder.Property(e => e.Status)
+               .HasConversion<byte>() 
+               .IsRequired()
+               .HasDefaultValue(enShipmentStatus.Confirmed);
+
+
+        builder.HasMany(s => s.TbShipmentStatuses)
+              .WithOne(h => h.Shippment)
+              .HasForeignKey(h => h.ShipmentId)
+              .OnDelete(DeleteBehavior.Cascade);
+
+
+        builder.HasMany(s => s.ShipmentStatusHistories) 
+               .WithOne(h => h.Shipment)
+               .HasForeignKey(h => h.ShipmentId) 
+               .OnDelete(DeleteBehavior.Cascade);
     }
 }

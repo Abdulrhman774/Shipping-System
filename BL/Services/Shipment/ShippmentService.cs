@@ -192,6 +192,20 @@ public class ShipmentService
             shipment.Sender = sender;
             shipment.Receiver = receiver;
 
+            shipment.Status = enShipmentStatus.Confirmed;
+            shipment.StatusLastUpdatedAt = DateTime.UtcNow;
+
+            var history = new TbShipmentStatusHistory
+            {
+                ShipmentId = shipment.Id,
+                Status = enShipmentStatus.Confirmed,
+                Note = "Shipment created"
+            };
+
+
+            var historyRepository = _unitOfWork.Repository<TbShipmentStatusHistory>();
+            await historyRepository.CreateAsync(history);
+
             // ================================================================
             // 10. Update Subscription Usage (if used)
             // ================================================================

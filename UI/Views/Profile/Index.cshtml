@@ -31,7 +31,7 @@
                     <ul class="nav flex-column" id="myTab" role="tablist">
                         <li class="nav-item">
                             <a class="nav-link active" id="editprofile-tab" data-toggle="tab" href="#editprofile" role="tab" aria-controls="editprofile" aria-selected="true">
-                                <i class="fa fa-user"></i> Edit Profile
+                                <i class="fa fa-UserData"></i> Edit Profile
                             </a>
                         </li>
                         <li class="nav-item">
@@ -56,16 +56,33 @@
                 <div class="tab-content" id="myTabContent">
 
                     <!-- ============================================ -->
-                    <!-- TAB 1: Edit Profile -->
+                    <!--            TAB 1: Edit Profile -->
+                    <!-- ============================================ -->
+                    <!-- ============================================ -->
+                    <!-- TAB 1: Edit Profile (مع تبويبات فرعية) -->
                     <!-- ============================================ -->
                     <div class="tab-pane fade show active" id="editprofile" role="tabpanel" aria-labelledby="editprofile-tab">
                         <div class="profile-settings">
-                            <div class="row">
-                                <!-- User Data -->
-                                <div class="col-12 col-md-6 col-lg-6">
-                                    <div class="customer-login-block">
-                                        <h2>User Data</h2>
-                                        <form asp-action="Update" method="post">
+                            <!-- تبويبات فرعية -->
+                            <ul class="nav nav-tabs" id="editProfileTabs" role="tablist">
+                                <li class="nav-item">
+                                    <a class="nav-link active" id="UserDatadata-tab" data-toggle="tab" href="#UserDatadata" role="tab" aria-controls="UserDatadata" aria-selected="true">
+                                        <i class="fa fa-UserData"></i> UserData Data
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="changepassword-tab" data-toggle="tab" href="#changepassword" role="tab" aria-controls="changepassword" aria-selected="false">
+                                        <i class="fa fa-key"></i> Change Password
+                                    </a>
+                                </li>
+                            </ul>
+
+                            <div class="tab-content" id="editProfileTabContent">
+                                <!-- ====== TAB 1: UserData Data ====== -->
+                                <div class="tab-pane fade show active" id="UserDatadata" role="tabpanel" aria-labelledby="UserDatadata-tab">
+                                    <div class="customer-login-block mt-3">
+                                        <h2>UserData Data</h2>
+                                        <form asp-action="Update" method="post" enctype="multipart/form-data">
                                             @Html.AntiForgeryToken()
 
                                             @if (TempData["ErrorMessage"] != null)
@@ -81,16 +98,16 @@
                                                 <div class="row">
                                                     <div class="col-12 col-md-3 col-lg-3">
                                                         <label for="fileToUpload">
-                                                            <div class="profile-pic" style="background-image: url('@(Model.User?.ImageUrl ?? "/assets/images/profile.jpg")')">
+                                                            <div class="profile-pic" style="background-image: url('@(Model.UserData?.ImageUrl ?? "/assets/images/profile.jpg")')">
                                                                 <span>Change Image</span>
                                                             </div>
                                                         </label>
-                                                        <input type="file" name="fileToUpload" id="fileToUpload">
+                                                        <input type="file" name="fileToUpload" id="fileToUpload" class="form-control-file">
                                                     </div>
                                                     <div class="col-12 col-md-9 col-lg-9 align-content-center">
-                                                        <h4>@(Model.User?.FirstName ?? "User") @(Model.User?.LastName ?? "")</h4>
-                                                        <h6>@(Model.User?.Email ?? "email@example.com")</h6>
-                                                        <span>@(Model.User?.PhoneNumber ?? "+20 100 000 0000")</span>
+                                                        <h4>@(Model.UserData?.FirstName ?? "") @(Model.UserData?.SecondName ?? "") @(Model.UserData?.LastName ?? "")</h4>
+                                                        <h6>@(Model.UserData?.Email ?? "email@example.com")</h6>
+                                                        <span>@(Model.UserData?.PhoneNumber ?? "+20 100 000 0000")</span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -99,13 +116,46 @@
                                                 <div class="row">
                                                     <div class="col-12 col-md-6 col-lg-6">
                                                         <label>First Name <sup>*</sup></label>
-                                                        <input asp-for="User.FirstName" class="form-control" placeholder="First Name" />
-                                                        <span asp-validation-for="User.FirstName" class="text-danger"></span>
+                                                        <input asp-for="UserData.FirstName" class="form-control" placeholder="First Name" />
+                                                        <span asp-validation-for="UserData.FirstName" class="text-danger"></span>
+                                                    </div>
+                                                    <div class="col-12 col-md-6 col-lg-6">
+                                                        <label>Second Name <sup>*</sup></label>
+                                                        <input asp-for="UserData.SecondName" class="form-control" placeholder="Second Name" />
+                                                        <span asp-validation-for="UserData.SecondName" class="text-danger"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <div class="row">
+                                                    <div class="col-12 col-md-6 col-lg-6">
+                                                        <label>Third Name</label>
+                                                        <input asp-for="UserData.ThirdName" class="form-control" placeholder="Third Name (optional)" />
+                                                        <span asp-validation-for="UserData.ThirdName" class="text-danger"></span>
                                                     </div>
                                                     <div class="col-12 col-md-6 col-lg-6">
                                                         <label>Last Name <sup>*</sup></label>
-                                                        <input asp-for="User.LastName" class="form-control" placeholder="Last Name" />
-                                                        <span asp-validation-for="User.LastName" class="text-danger"></span>
+                                                        <input asp-for="UserData.LastName" class="form-control" placeholder="Last Name" />
+                                                        <span asp-validation-for="UserData.LastName" class="text-danger"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <div class="row">
+                                                    <div class="col-12 col-md-6 col-lg-6">
+                                                        <label>Date of Birth <sup>*</sup></label>
+                                                        <input asp-for="UserData.DateOfBirth" type="date" class="form-control"
+                                                               value="@(Model.UserData?.DateOfBirth.ToString("yyyy-MM-dd"))" />
+                                                        <span asp-validation-for="UserData.DateOfBirth" class="text-danger"></span>
+                                                    </div>
+                                                    <div class="col-12 col-md-6 col-lg-6">
+                                                        <label>Gender <sup>*</sup></label>
+                                                        <select asp-for="UserData.Gender" asp-items="Html.GetEnumSelectList<enGender>()" class="form-control">
+                                                            <option value="">-- Select Gender --</option>
+                                                        </select>
+                                                        <span asp-validation-for="UserData.Gender" class="text-danger"></span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -114,27 +164,27 @@
                                                 <div class="row">
                                                     <div class="col-12 col-md-6 col-lg-6">
                                                         <label>Email <sup>*</sup></label>
-                                                        <input asp-for="User.Email" type="email" class="form-control" placeholder="Email" />
-                                                        <span asp-validation-for="User.Email" class="text-danger"></span>
+                                                        <input asp-for="UserData.Email" type="email" class="form-control" placeholder="Email" />
+                                                        <span asp-validation-for="UserData.Email" class="text-danger"></span>
                                                     </div>
                                                     <div class="col-12 col-md-6 col-lg-6">
                                                         <label>Phone <sup>*</sup></label>
-                                                        <input asp-for="User.PhoneNumber" class="form-control" placeholder="Phone Number" />
-                                                        <span asp-validation-for="User.PhoneNumber" class="text-danger"></span>
+                                                        <input asp-for="UserData.PhoneNumber" class="form-control" placeholder="Phone Number" />
+                                                        <span asp-validation-for="UserData.PhoneNumber" class="text-danger"></span>
                                                     </div>
                                                 </div>
                                             </div>
 
-                                            <button type="submit" class="btn btn-submit">
+                                            <button type="submit" class="btn btn-submit" asp-action="ChangeUserData">
                                                 <i class="fa fa-save"></i> Save Changes
                                             </button>
                                         </form>
                                     </div>
                                 </div>
 
-                                <!-- Change Password -->
-                                <div class="col-12 col-md-6 col-lg-6">
-                                    <div class="customer-login-block">
+                                <!-- ====== TAB 2: Change Password ====== -->
+                                <div class="tab-pane fade" id="changepassword" role="tabpanel" aria-labelledby="changepassword-tab">
+                                    <div class="customer-login-block mt-3">
                                         <h2>Change Password</h2>
                                         <form asp-action="ChangePassword" method="post">
                                             @Html.AntiForgeryToken()
@@ -175,7 +225,6 @@
                             </div>
                         </div>
                     </div>
-
                     <!-- ============================================ -->
                     <!-- TAB 2: Shipment Tracking (تم التعديل) -->
                     <!-- ============================================ -->

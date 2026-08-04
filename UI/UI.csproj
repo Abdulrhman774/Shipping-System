@@ -23,6 +23,7 @@
   <ItemGroup>
     <ProjectReference Include="..\BL\BL.csproj" />
     <ProjectReference Include="D:\.Net training\WebApi - 3\AppResources\AppResources.csproj" />
+    <ProjectReference Include="D:\Workflow\.Net training\WebApi - 8\AppResources\AppResources.csproj" />
   </ItemGroup>
 
 </Project>

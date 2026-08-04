@@ -1,4 +1,5 @@
-﻿using BL.Common.Results;
+﻿using BL.Common;
+using BL.Common.Results;
 using BL.DTOs.Views;
 using System;
 using System.Collections.Generic;
@@ -17,4 +18,6 @@ public interface IShipmentViewService
     Task<Result<IEnumerable<ShipmentStatsDto>>> GetShipmentStatsAsync();
     Task<Result<IEnumerable<MonthlyShipmentsDto>>> GetMonthlyShipmentsAsync();
     Task<Result<IEnumerable<ShipmentsByTypeDto>>> GetShipmentsByTypeAsync();
+    Task<Result<PagedResult<ShipmentDetailsDto>>> GetShipmentDetailsPagedAsync(int pageNumber, int pageSize);
+    Task<Result<PagedResult<ShipmentDetailsDto>>> GetShipmentsByUserPagedAsync(int pageNumber, int pageSize, Guid userId);
 }

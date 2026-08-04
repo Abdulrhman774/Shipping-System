@@ -10,4 +10,8 @@
     <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="8.0.27" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Entities\Views\User Views\" />
+  </ItemGroup>
+
 </Project>

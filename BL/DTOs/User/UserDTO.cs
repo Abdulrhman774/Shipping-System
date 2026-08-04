@@ -7,7 +7,7 @@ public class UserDto
     public string SecondName { get; set; } = null!;
     public string? ThirdName { get; set; }
     public string LastName { get; set; } = null!;
-    public DateOnly? DateOfBirth { get; set; }
+    public DateOnly DateOfBirth { get; set; }
     public string? PhoneNumber { get; set; }
     public string Email { get; set; } = null!;
     public enGender Gender { get; set; }
@@ -17,14 +17,11 @@ public class UserDto
     {
         get
         {
-            if (DateOfBirth is null)
-                return 0;
-
             var today = DateOnly.FromDateTime(DateTime.Today);
 
-            var age = today.Year - DateOfBirth.Value.Year;
+            var age = today.Year - DateOfBirth.Year;
 
-            if (today < DateOfBirth.Value.AddYears(age))
+            if (today < DateOfBirth.AddYears(age))
                 age--;
 
             return (byte)age;

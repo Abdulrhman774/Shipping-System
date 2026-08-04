@@ -8,7 +8,8 @@ namespace Domain.Entities.Views.Shipment.Statistics_Views;
 
 public class vw_ShipmentStats
 {
-    public enEntityState CurrentState { get; set; }
+    // ✅ تم تغيير النوع من enEntityState إلى ShipmentStatus
+    public enShipmentStatus Status { get; set; }
     public string? StatusName { get; set; }
     public int ShipmentCount { get; set; }
     public decimal? TotalPackageValue { get; set; }

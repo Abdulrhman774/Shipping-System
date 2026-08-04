@@ -1,7 +1,7 @@
 <Solution>
   <Folder Name="/External/" />
   <Folder Name="/External/Resources/">
-    <Project Path="D:/.Net training/WebApi - 3/AppResources/AppResources.csproj" />
+    <Project Path="D:/Workflow/.Net training/WebApi - 8/AppResources/AppResources.csproj" />
   </Folder>
   <Folder Name="/Solution Items/">
     <File Path=".editorconfig" />

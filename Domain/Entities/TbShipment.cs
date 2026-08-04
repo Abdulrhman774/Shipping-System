@@ -50,4 +50,9 @@ public partial class TbShipment : BaseEntity
 
     public virtual ICollection<TbShipmentStatus> TbShipmentStatuses { get; set; } = new List<TbShipmentStatus>();
 
+    public enShipmentStatus Status { get; set; } = enShipmentStatus.Confirmed;
+
+    public DateTime? StatusLastUpdatedAt { get; set; }
+
+    public virtual ICollection<TbShipmentStatusHistory> ShipmentStatusHistories { get; set; } = [];
 }

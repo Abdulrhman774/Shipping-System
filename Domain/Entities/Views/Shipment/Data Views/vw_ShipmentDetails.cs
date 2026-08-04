@@ -73,8 +73,14 @@ public class vw_ShipmentDetails
     public string? PackagingAName { get; set; }
     public string? PackagingEName { get; set; }
 
-    // بيانات الحالة
+    // بيانات الحالة (OLD)
     public enEntityState CurrentState { get; set; }
+
+    // ✅ الحقول الجديدة
+    public enShipmentStatus Status { get; set; }           // تم إضافتها
+    public DateTime? StatusLastUpdatedAt { get; set; }    // تم إضافتها
+
+    // بيانات التدقيق
     public DateTime CreatedDate { get; set; }
     public Guid? CreatedBy { get; set; }
     public DateTime? UpdatedDate { get; set; }

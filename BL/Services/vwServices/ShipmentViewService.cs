@@ -1,4 +1,5 @@
-﻿using BL.Common.Results;
+﻿using BL.Common;
+using BL.Common.Results;
 using BL.Contract.IvwServices;
 using BL.DTOs.Views;
 using BL.Mapping;
@@ -67,5 +68,33 @@ public class ShipmentViewService : IShipmentViewService
     {
         var data = await _repository.GetShipmentsByTypeAsync();
         return _mapper.MapList<VwShipmentsByType, ShipmentsByTypeDto>(data);
+    }
+
+    public async Task<Result<PagedResult<ShipmentDetailsDto>>> GetShipmentDetailsPagedAsync(int pageNumber, int pageSize)
+    {
+        var (data, totalCount) = await _repository.GetPagedShipmentDetailsAsync(pageNumber, pageSize);
+        var dtoList = _mapper.MapList<vw_ShipmentDetails, ShipmentDetailsDto>(data);
+        var result = new PagedResult<ShipmentDetailsDto>
+        {
+            Items = dtoList,
+            TotalCount = totalCount,
+            PageNumber = pageNumber,
+            PageSize = pageSize
+        };
+        return Result<PagedResult<ShipmentDetailsDto>>.Success(result);
+    }
+
+    public async Task<Result<PagedResult<ShipmentDetailsDto>>> GetShipmentsByUserPagedAsync(int pageNumber, int pageSize, Guid userId)
+    {
+        var (data, totalCount) = await _repository.GetShipmentsByUserPagedAsync(pageNumber, pageSize, userId);
+        var dtoList = _mapper.MapList<vw_ShipmentDetails, ShipmentDetailsDto>(data);
+        var result = new PagedResult<ShipmentDetailsDto>
+        {
+            Items = dtoList,
+            TotalCount = totalCount,
+            PageNumber = pageNumber,
+            PageSize = pageSize
+        };
+        return Result<PagedResult<ShipmentDetailsDto>>.Success(result);
     }
 }

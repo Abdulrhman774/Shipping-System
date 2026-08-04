@@ -45,6 +45,9 @@ namespace DAL.Context
         public virtual DbSet<TbUserSubscription> TbUserSubscriptions { get; set; }
 
         public virtual DbSet<TbShippingPackaging> TbShippingPackagings { get; set; }
+
+        public virtual DbSet<TbShipmentStatusHistory> TbShipmentStatusHistories { get; set; }
+
         #endregion
 
 

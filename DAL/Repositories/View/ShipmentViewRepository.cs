@@ -62,5 +62,48 @@ namespace DAL.Repositories.View
                 .OrderByDescending(x => x.ShipmentCount)
                 .ToListAsync();
         }
+        public async Task<(IEnumerable<vw_ShipmentDetails> Data, int TotalCount)> GetPagedShipmentDetailsAsync(
+        int pageNumber,
+        int pageSize,
+        CancellationToken cancellationToken = default)
+        {
+            var query = _context.VwShipmentDetails
+                .OrderByDescending(x => x.CreatedDate)
+                .AsNoTracking();
+
+            var totalCount = await query.CountAsync(cancellationToken);
+            var data = await query
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync(cancellationToken);
+
+            return (data, totalCount);
+        }
+
+        public async Task<(IEnumerable<vw_ShipmentDetails> Data, int TotalCount)> GetShipmentsByUserPagedAsync(
+        int pageNumber,
+        int pageSize,
+        Guid userId,
+        CancellationToken cancellationToken = default)
+        {
+            // ✅ 1. ابدأ بـ IQueryable
+            var query = _context.VwShipmentDetails
+                .AsNoTracking(); // لا تحسب العدد بعد
+
+            // ✅ 2. طبق الفلتر أولاً
+            query = query.Where(x => x.CreatedBy == userId);
+
+            // ✅ 3. احسب العدد الإجمالي (بعد الفلتر)
+            var totalCount = await query.CountAsync(cancellationToken);
+
+            // ✅ 4. طبق الترتيب والتصفح
+            var data = await query
+                .OrderByDescending(x => x.CreatedDate)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync(cancellationToken);
+
+            return (data, totalCount);
+        }
     }
 }

@@ -1,4 +1,6 @@
-﻿@model IEnumerable<BL.DTOs.Views.ShipmentDetailsDto>
+﻿@using BL.Common
+@using BL.DTOs.Views
+@model PagedResult<ShipmentDetailsDto>
 @{
     ViewData["Title"] = "Shipment History";
     Layout = "_Layout";
@@ -39,7 +41,7 @@
                         <div class="alert alert-success">@TempData["SuccessMessage"]</div>
                     }
 
-                    @if (Model != null && Model.Any())
+                    @if (Model != null && Model.Items.Any())
                     {
                         <div class="table-responsive">
                             <table class="table">
@@ -55,7 +57,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach (var item in Model)
+                                    @foreach (var item in Model.Items)
                                     {
                                         <tr>
                                             <td><strong>@item.TrackingNumber</strong></td>
@@ -83,11 +85,9 @@
                                                 <span class="badge @statusClass">@statusText</span>
                                             </td>
                                             <td>
-                                                @* ✅ زر Edit *@
                                                 <a asp-action="Update" asp-route-id="@item.ShipmentId" title="Edit" class="btn btn-sm btn-outline-warning">
                                                     <i class="fa fa-edit"></i>
                                                 </a>
-                                                @* ✅ زر View Details *@
                                                 <a asp-action="Details" asp-route-id="@item.ShipmentId" title="View Details" class="btn btn-sm btn-outline-primary">
                                                     <i class="fa fa-eye"></i>
                                                 </a>
@@ -97,6 +97,27 @@
                                 </tbody>
                             </table>
                         </div>
+
+                        <!-- ✅ Pagination هنا (بعد الجدول مباشرة) -->
+                        @if (Model.TotalCount > 0)
+                        {
+                            <nav aria-label="Shipment pagination">
+                                <ul class="pagination justify-content-center">
+                                    <li class="page-item @(Model.PageNumber == 1 ? "disabled" : "")">
+                                        <a class="page-link" asp-action="History" asp-route-pageNumber="@(Model.PageNumber - 1)" asp-route-pageSize="@Model.PageSize">Previous</a>
+                                    </li>
+                                    @for (int i = 1; i <= Model.TotalPages; i++)
+                                    {
+                                        <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                                            <a class="page-link" asp-action="History" asp-route-pageNumber="@i" asp-route-pageSize="@Model.PageSize">@i</a>
+                                        </li>
+                                    }
+                                    <li class="page-item @(Model.PageNumber == Model.TotalPages ? "disabled" : "")">
+                                        <a class="page-link" asp-action="History" asp-route-pageNumber="@(Model.PageNumber + 1)" asp-route-pageSize="@Model.PageSize">Next</a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        }
 
                         <!-- Buttons -->
                         <div class="text-center mt-4">
@@ -119,8 +140,8 @@
                             </div>
                             <div class="mt-3">
                                 <a asp-controller="Home" asp-action="Index" class="wshipping-button">
-                                    <i class="fa fa-home"></i> Back to Dashboard
-                                </a>
+                                        <i class="fa fa-home"></i> Back to Dashboard
+                                    </a>
                             </div>
                         </div>
                     }

@@ -378,30 +378,30 @@ public class ShipmentController : Controller
     // ================================================================
     // ✅ GET: /Shipment/History
     // ================================================================
-    [HttpGet]
-    [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
-    public async Task<IActionResult> History()
-    {
-        var userId = GetCurrentUserId();
+    //[HttpGet]
+    //[ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
+    //public async Task<IActionResult> History()
+    //{
+    //    var userId = GetCurrentUserId();
 
-        if (string.IsNullOrEmpty(userId))
-        {
-            return RedirectToAction("Login", "Account");
-        }
+    //    if (string.IsNullOrEmpty(userId))
+    //    {
+    //        return RedirectToAction("Login", "Account");
+    //    }
 
-        var result = await _shipmentViewService.GetShipmentsByUserAsync(Guid.Parse(userId));
+    //    var result = await _shipmentViewService.GetShipmentsByUserAsync(Guid.Parse(userId));
 
-        if (result.IsFailure)
-        {
-            TempData["ErrorMessage"] = result.FirstError?.Description ?? "Failed to load shipment history.";
-            return View(new List<ShipmentDetailsDto>());
-        }
+    //    if (result.IsFailure)
+    //    {
+    //        TempData["ErrorMessage"] = result.FirstError?.Description ?? "Failed to load shipment history.";
+    //        return View(new List<ShipmentDetailsDto>());
+    //    }
 
-        var shipments = result.Value ?? new List<ShipmentDetailsDto>();
-        _logger.LogInformation($"Found {shipments.Count()} shipments for user {userId}");
+    //    var shipments = result.Value ?? new List<ShipmentDetailsDto>();
+    //    _logger.LogInformation($"Found {shipments.Count()} shipments for user {userId}");
 
-        return View(shipments);
-    }
+    //    return View(shipments);
+    //}
 
     // ================================================================
     // ✅ GET: /Shipment/Details/{id}
@@ -418,5 +418,32 @@ public class ShipmentController : Controller
         }
 
         return View(result.Value);
+    }
+
+
+    [HttpGet]
+    [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
+    public async Task<IActionResult> History(int pageNumber = 1, int pageSize = 10)
+    {
+        var userId = GetCurrentUserId();
+        if (string.IsNullOrEmpty(userId))
+            return RedirectToAction("Login", "Account");
+
+        // ✅ استخدم الدالة الجديدة التي تدعم Pagination وتمرر userId
+        var result = await _shipmentViewService.GetShipmentsByUserPagedAsync(
+            pageNumber,
+            pageSize,
+            Guid.Parse(userId));
+
+        if (result.IsFailure)
+        {
+            TempData["ErrorMessage"] = result.FirstError?.Description ?? "Failed to load shipment history.";
+            return View(new PagedResult<ShipmentDetailsDto>());
+        }
+
+        var pagedResult = result.Value!;
+        _logger.LogInformation($"Found {pagedResult.TotalCount} shipments for user {userId}, page {pageNumber}");
+
+        return View(pagedResult);
     }
 }

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Security.Claims;
 using UI.Models;
+using UI.Models.Profile;
 using UI.Services;
 
 namespace UI.Controllers;
@@ -60,12 +61,28 @@ public class ProfileController : Controller
                 .Where(x => x.CurrentState == enEntityState.Active)
                 .ToList();
 
+            var userDto = userResponse.Success ? userResponse.Data : null;
+            var userData = userDto != null ? new UserProfileEditViewModel
+            {
+                FirstName = userDto.FirstName ?? string.Empty,
+                SecondName = userDto.SecondName ?? string.Empty,
+                ThirdName = userDto.ThirdName,
+                LastName = userDto.LastName ?? string.Empty,
+                DateOfBirth = userDto.DateOfBirth.ToDateTime(TimeOnly.MinValue),
+                Gender = userDto.Gender,
+                ImageUrl = userDto.ImageUrl,
+                Email = userDto.Email ?? string.Empty,
+                PhoneNumber = userDto.PhoneNumber,
+                ImageFile = null
+            } : null;
+
             var model = new ProfileViewModel
             {
-                User = userResponse.Success ? userResponse.Data : null,
+                UserData = userData!,
                 ActiveShipments = activeShipments,
                 ShipmentHistory = allShipments
             };
+
 
             return View(model);
         }
@@ -119,52 +136,6 @@ public class ProfileController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> ChangePassword(ProfileViewModel model)
-    {
-        // ✅ تحقق من صحة الـ Model (الـ Password)
-        if (!ModelState.IsValid)
-        {
-            TempData["ErrorMessage"] = "Please correct the password errors.";
-            return RedirectToAction("Index");
-        }
-
-        try
-        {
-            var userId = GetCurrentUserId();
-
-            if (string.IsNullOrEmpty(userId))
-            {
-                return RedirectToAction("Login", "Account");
-            }
-
-            var response = await _apiClient.PostAsync<object>("Api/Auth/ChangePassword", new
-            {
-                UserId = userId,
-                CurrentPassword = model.CurrentPassword,
-                NewPassword = model.NewPassword
-            });
-
-            if (response.Success)
-            {
-                TempData["SuccessMessage"] = "Password changed successfully!";
-            }
-            else
-            {
-                TempData["ErrorMessage"] = response.Error ?? "Failed to change password.";
-            }
-
-            return RedirectToAction("Index");
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error changing password");
-            TempData["ErrorMessage"] = "An error occurred while changing your password.";
-            return RedirectToAction("Index");
-        }
-    }
-
-    [HttpPost]
-    [ValidateAntiForgeryToken]
     public async Task<IActionResult> TrackShipment(string trackingNumber)
     {
         if (string.IsNullOrEmpty(trackingNumber))
@@ -208,4 +179,213 @@ public class ProfileController : Controller
             return RedirectToAction("Index");
         }
     }
+
+
+    //[HttpPost]
+    //[ValidateAntiForgeryToken]
+    //public async Task<IActionResult> ChangeUserDate(UpdateUserDto model, IFormFile? fileToUpload)
+    //{
+    //    if (!ModelState.IsValid)
+    //    {
+    //        TempData["ErrorMessage"] = "Please correct the errors.";
+    //        return RedirectToAction("Index");
+    //    }
+
+    //    try
+    //    {
+    //        var userId = GetCurrentUserId();
+    //        if (string.IsNullOrEmpty(userId))
+    //            return RedirectToAction("Login", "Account");
+
+    //        if (fileToUpload != null && fileToUpload.Length > 0)
+    //        {
+    //            // إنشاء اسم ملف فريد
+    //            var fileName = Guid.NewGuid().ToString() + Path.GetExtension(fileToUpload.FileName);
+    //            // المسار الذي سيُحفظ فيه (تأكد من وجود مجلد uploads في wwwroot)
+    //            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+    //            if (!Directory.Exists(uploadsFolder))
+    //                Directory.CreateDirectory(uploadsFolder);
+
+    //            var filePath = Path.Combine(uploadsFolder, fileName);
+    //            using (var stream = new FileStream(filePath, FileMode.Create))
+    //            {
+    //                await fileToUpload.CopyToAsync(stream);
+    //            }
+
+    //            model.ImageUrl = "/uploads/" + fileName;
+    //        }
+    //        else
+    //        {
+    //            // إذا لم يتم رفع صورة جديدة، نحتفظ بالصورة القديمة (تم إرسالها من الـ View)
+    //            // لكن إذا لم يكن هناك صورة، نتركها كما هي.
+    //        }
+
+    //        var response = await _apiClient.PutAsync<object>($"Api/User/{userId}", model);
+
+    //        if (response.Success)
+    //        {
+    //            TempData["SuccessMessage"] = "Profile updated successfully!";
+    //        }
+    //        else
+    //        {
+    //            TempData["ErrorMessage"] = response.Error ?? "Failed to update profile.";
+    //        }
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        _logger.LogError(ex, "Error updating user data");
+    //        TempData["ErrorMessage"] = "An error occurred while updating your profile.";
+    //    }
+
+    //    return RedirectToAction("Index");
+    //}
+
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ChangeUserData(ProfileViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            TempData["ErrorMessage"] = "Please correct the errors.";
+            return RedirectToAction("Index");
+        }
+
+        var userData = model.UserData;
+        if (userData == null)
+        {
+            TempData["ErrorMessage"] = "User data is missing.";
+            return RedirectToAction("Index");
+        }
+
+        try
+        {
+            var userId = GetCurrentUserId();
+            if (string.IsNullOrEmpty(userId))
+                return RedirectToAction("Login", "Account");
+
+            // 1. معالجة رفع الصورة (إذا تم اختيار ملف)
+            if (userData.ImageFile != null && userData.ImageFile.Length > 0)
+            {
+                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(userData.ImageFile.FileName);
+                var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+                if (!Directory.Exists(uploadsFolder))
+                    Directory.CreateDirectory(uploadsFolder);
+
+                var filePath = Path.Combine(uploadsFolder, fileName);
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await userData.ImageFile.CopyToAsync(stream);
+                }
+                userData.ImageUrl = "/uploads/" + fileName;
+            }
+
+            // 2. تحويل ViewModel إلى DTO للإرسال إلى الـ API
+            var updateDto = new UpdateUserDto
+            {
+                FirstName = userData.FirstName,
+                SecondName = userData.SecondName,
+                ThirdName = userData.ThirdName,
+                LastName = userData.LastName,
+                DateOfBirth = DateOnly.FromDateTime(userData.DateOfBirth),
+                Gender = userData.Gender,
+                ImageUrl = userData.ImageUrl, // إذا لم يتم رفع صورة جديدة، ستبقى القيمة القديمة
+                Email = userData.Email,
+                PhoneNumber = userData.PhoneNumber
+            };
+
+            // 3. إرسال الطلب إلى الـ API
+            var response = await _apiClient.PutAsync<object>($"Api/User/{userId}", updateDto);
+
+            if (response.Success)
+            {
+                TempData["SuccessMessage"] = "Profile updated successfully!";
+            }
+            else
+            {
+                TempData["ErrorMessage"] = response.Error ?? "Failed to update profile.";
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating user data");
+            TempData["ErrorMessage"] = "An error occurred while updating your profile.";
+        }
+
+        return RedirectToAction("Index");
+    }
+
+
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ChangePassword(ProfileViewModel model)
+    {
+        // التحقق اليدوي من صحة كلمة المرور
+        var isValid = true;
+
+        if (string.IsNullOrWhiteSpace(model.CurrentPassword))
+        {
+            ModelState.AddModelError("CurrentPassword", "Current password is required.");
+            isValid = false;
+        }
+
+        if (string.IsNullOrWhiteSpace(model.NewPassword))
+        {
+            ModelState.AddModelError("NewPassword", "New password is required.");
+            isValid = false;
+        }
+
+        if (string.IsNullOrWhiteSpace(model.ConfirmPassword))
+        {
+            ModelState.AddModelError("ConfirmPassword", "Please confirm your new password.");
+            isValid = false;
+        }
+
+        if (model.NewPassword != model.ConfirmPassword)
+        {
+            ModelState.AddModelError("ConfirmPassword", "Passwords do not match.");
+            isValid = false;
+        }
+
+        if (model.NewPassword.Length < 9)
+        {
+            ModelState.AddModelError("NewPassword", "Password must be at least 9 characters.");
+            isValid = false;
+        }
+
+        if (!isValid)
+        {
+            TempData["ErrorMessage"] = "Please correct the password errors.";
+            return RedirectToAction("Index");
+        }
+
+        // ... باقي الكود (إرسال الطلب إلى الـ API)
+        try
+        {
+            var userId = GetCurrentUserId();
+            if (string.IsNullOrEmpty(userId))
+                return RedirectToAction("Login", "Account");
+
+            var response = await _apiClient.PostAsync<object>("Api/Auth/ChangePassword", new
+            {
+                UserId = userId,
+                CurrentPassword = model.CurrentPassword,
+                NewPassword = model.NewPassword
+            });
+
+            if (response.Success)
+                TempData["SuccessMessage"] = "Password changed successfully!";
+            else
+                TempData["ErrorMessage"] = response.Error ?? "Failed to change password.";
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error changing password");
+            TempData["ErrorMessage"] = "An error occurred while changing your password.";
+        }
+
+        return RedirectToAction("Index");
+    }
+
 }

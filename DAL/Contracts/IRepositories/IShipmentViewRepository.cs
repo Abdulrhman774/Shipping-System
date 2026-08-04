@@ -16,5 +16,13 @@ namespace DAL.Contracts.IRepositories
         Task<IEnumerable<vw_ShipmentStats>> GetShipmentStatsAsync();
         Task<IEnumerable<VwMonthlyShipments>> GetMonthlyShipmentsAsync();
         Task<IEnumerable<VwShipmentsByType>> GetShipmentsByTypeAsync();
+        Task<(IEnumerable<vw_ShipmentDetails> Data, int TotalCount)> GetPagedShipmentDetailsAsync(int pageNumber,
+        int pageSize,
+        CancellationToken cancellationToken = default);
+
+        Task<(IEnumerable<vw_ShipmentDetails> Data, int TotalCount)> GetShipmentsByUserPagedAsync(int pageNumber,
+        int pageSize,
+        Guid userId,
+        CancellationToken cancellationToken = default);
     }
 }
