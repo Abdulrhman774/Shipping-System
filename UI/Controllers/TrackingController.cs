@@ -40,8 +40,6 @@ public class TrackingController : Controller
 
         try
         {
-
-
             if (!Guid.TryParse(GetCurrentUserId(), out var userGuid))
             {
                 TempData["ErrorMessage"] = "Invalid user ID.";
@@ -84,7 +82,7 @@ public class TrackingController : Controller
         }
     }
 
-    // GET: /Tracking/Result (لما يجي من الـ Link مباشرة)
+    // GET: /Tracking/Result
     [HttpGet]
     public IActionResult Result()
     {
@@ -98,5 +96,4 @@ public class TrackingController : Controller
 
         return userIdString ?? string.Empty;
     }
-
 }

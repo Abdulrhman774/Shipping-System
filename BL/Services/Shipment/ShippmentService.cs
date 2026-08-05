@@ -96,11 +96,11 @@ public class ShipmentService
             // ================================================================
             // 3. Validate Sender != Receiver
             // ================================================================
-            //if (sender.Id != receiver.Id)
-            //{
-            //    await _unitOfWork.RollbackTransactionAsync();
-            //    return Error.Validation("SameSenderReceiver", "Sender and receiver cannot be the same person.");
-            //}
+            if (sender.Id == receiver.Id)
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                return Error.Validation("SameSenderReceiver", "Sender and receiver cannot be the same person.");
+            }
 
             // ================================================================
             // 4. Validate References (ShippingType, PaymentMethod, etc.)
@@ -203,8 +203,7 @@ public class ShipmentService
             };
 
 
-            var historyRepository = _unitOfWork.Repository<TbShipmentStatusHistory>();
-            await historyRepository.CreateAsync(history);
+            await _unitOfWork.Repository<TbShipmentStatusHistory>().CreateAsync(history, AutoSave: false);
 
             // ================================================================
             // 10. Update Subscription Usage (if used)
@@ -277,6 +276,13 @@ public class ShipmentService
             {
                 await _unitOfWork.RollbackTransactionAsync();
                 return Error.Validation("Shipment.Inactive", "Cannot edit an inactive shipment.");
+            }
+
+            // ✅ جديد: منع التعديل إذا كانت الحالة Dispatched أو Delivered
+            if (existingShipment.Status == enShipmentStatus.Dispatched || existingShipment.Status == enShipmentStatus.Delivered)
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                return Error.Validation("Shipment.CannotUpdate", "Cannot update shipment because it is already Dispatched or Delivered.");
             }
 
             // 4. تحديث بيانات Sender

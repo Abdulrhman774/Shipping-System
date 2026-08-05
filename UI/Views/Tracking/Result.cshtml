@@ -40,60 +40,117 @@
                         </a>
                     </div>
                 }
-                else if (Model.Shipment != null)
+                else if (Model.IsFound && Model.Shipment != null)
                 {
+                    var statusText = Model.Shipment.Status switch
+                    {
+                        enShipmentStatus.Confirmed => "Confirmed",
+                        enShipmentStatus.Processing => "Processing",
+                        enShipmentStatus.QualityCheck => "Quality Check",
+                        enShipmentStatus.Dispatched => "Dispatched",
+                        enShipmentStatus.Delivered => "Delivered",
+                        _ => "Unknown"
+                    };
+
+                    var statusStyle = Model.Shipment.Status switch
+                    {
+                        enShipmentStatus.Confirmed => "background-color: #d1ecf1; color: #0c5460;",
+                        enShipmentStatus.Processing => "background-color: #fff3cd; color: #856404;",
+                        enShipmentStatus.QualityCheck => "background-color: #cce5ff; color: #004085;",
+                        enShipmentStatus.Dispatched => "background-color: #ffe5b4; color: #804d00;",
+                        enShipmentStatus.Delivered => "background-color: #d4edda; color: #155724;",
+                        _ => "background-color: #f8f9fa; color: #212529;"
+                    };
+
+                    var canEdit = Model.Shipment.Status == enShipmentStatus.Confirmed ||
+                                  Model.Shipment.Status == enShipmentStatus.Processing ||
+                                  Model.Shipment.Status == enShipmentStatus.QualityCheck;
+
+                    int statusLevel = Model.Shipment.Status switch
+                    {
+                        enShipmentStatus.Confirmed => 1,
+                        enShipmentStatus.Processing => 2,
+                        enShipmentStatus.QualityCheck => 3,
+                        enShipmentStatus.Dispatched => 4,
+                        enShipmentStatus.Delivered => 5,
+                        _ => 0
+                    };
+
                     <!-- Tracking Result -->
                     <div class="track-result">
                         <h3>Shipment Track Result</h3>
                         <div class="track-result-block">
                             <div class="track-result-id">
-                                <b>Tracking Number:</b> <span class="text-primary">@Model.Shipment.TrackingNumber</span>
+                                <b>Tracking Number:</b>
+                                <span class="text-primary">@Model.Shipment.TrackingNumber</span>
                             </div>
                             <div class="track-status">
                                 <div class="row">
                                     <div class="col-12 col-lg-4">
                                         <b>Shipping Via:</b>
-                                        <span class="text-info">@(!string.IsNullOrEmpty(Model.Shipment.ShippingTypeName) ? Model.Shipment.ShippingTypeName : "Not specified")</span>
+                                        <span class="text-info">
+                                            @(!string.IsNullOrEmpty(Model.Shipment.ShippingTypeName)
+                                                ? Model.Shipment.ShippingTypeName
+                                                : "Not specified")
+                                        </span>
                                     </div>
                                     <div class="col-12 col-lg-4">
                                         <b>Status:</b>
-                                        @{
-                                            var statusText = Model.Shipment.CurrentState switch
-                                            {
-                                                enEntityState.Active => "Active",
-                                                enEntityState.Inactive => "In Transit",
-                                                enEntityState.Deleted => "Delivered",
-                                                _ => "Unknown"
-                                            };
-                                            var statusClass = Model.Shipment.CurrentState switch
-                                            {
-                                                enEntityState.Active => "badge-success",
-                                                enEntityState.Inactive => "badge-warning",
-                                                enEntityState.Deleted => "badge-danger",
-                                                _ => "badge-secondary"
-                                            };
+                                        <span style="display: inline-block; min-width: 80px; padding: 0.35em 0.65em; font-size: 0.85rem; font-weight: 600; text-align: center; border-radius: 0.25rem; @statusStyle">
+                                            @statusText
+                                        </span>
+                                        @if (Model.Shipment.StatusLastUpdatedAt.HasValue)
+                                        {
+                                            <br />
+                                            <small class="text-muted">
+                                                Last updated: @Model.Shipment.StatusLastUpdatedAt.Value.ToString("dd MMM yyyy HH:mm")
+                                            </small>
                                         }
-                                        <span class="badge @statusClass">@statusText</span>
                                     </div>
                                     <div class="col-12 col-lg-4">
                                         <b>Expected Date:</b>
-                                        <span class="text-primary">@(Model.Shipment.DeliveryDate.HasValue ? Model.Shipment.DeliveryDate.Value.ToString("dd-MMM-yyyy") : "Not specified")</span>
+                                        <span class="text-primary">
+                                            @(Model.Shipment.DeliveryDate.HasValue
+                                                ? Model.Shipment.DeliveryDate.Value.ToString("dd-MMM-yyyy")
+                                                : "Not specified")
+                                        </span>
                                     </div>
                                 </div>
                             </div>
                             <div class="track-result-bar">
                                 <ul class="track-progress">
-                                    <li class="icon-confirm-roder @(Model.Shipment.CurrentState != enEntityState.Deleted ? "track-active" : "")">Confirmed Order</li>
-                                    <li class="icon-process-roder @(Model.Shipment.CurrentState != enEntityState.Active && Model.Shipment.CurrentState != enEntityState.Deleted ? "track-active" : "")">Processing Order</li>
-                                    <li class="icon-quality-check @(Model.Shipment.CurrentState == enEntityState.Inactive ? "track-active" : "")">Quality Check</li>
-                                    <li class="icon-dispatched-item @(Model.Shipment.CurrentState == enEntityState.Inactive ? "track-active" : "")">Dispatched Item</li>
-                                    <li class="icon-product-deliver @(Model.Shipment.CurrentState == enEntityState.Deleted ? "track-active" : "")">Product Delivered</li>
+                                    <li class="icon-confirm-roder @(statusLevel >= 1 ? "track-active" : "")">Confirmed Order</li>
+                                    <li class="icon-process-roder @(statusLevel >= 2 ? "track-active" : "")">Processing Order</li>
+                                    <li class="icon-quality-check @(statusLevel >= 3 ? "track-active" : "")">Quality Check</li>
+                                    <li class="icon-dispatched-item @(statusLevel >= 4 ? "track-active" : "")">Dispatched Item</li>
+                                    <li class="icon-product-deliver @(statusLevel >= 5 ? "track-active" : "")">Product Delivered</li>
                                 </ul>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Shipment Details -->
+                    <!-- Edit Button -->
+                    @if (canEdit)
+                    {
+                        <div class="text-center mt-3">
+                            <a asp-controller="Shipment" asp-action="Update" asp-route-id="@Model.Shipment.ShipmentId"
+                               class="wshipping-button"
+                               style="background-color: #ffc107; color: #212529; border: none;">
+                                <i class="fa fa-edit"></i> Edit Shipment
+                            </a>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center mt-3">
+                            <div class="alert alert-info">
+                                <i class="fa fa-info-circle"></i>
+                                This shipment cannot be edited because it is already <strong>@statusText</strong>.
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Sender & Receiver -->
                     <div class="row mt-4">
                         <div class="col-12 col-lg-6">
                             <div class="card">
@@ -146,7 +203,12 @@
                                         </div>
                                         <div class="col-12 col-lg-4">
                                             <p><strong>Shipping Date:</strong> @Model.Shipment.ShippingDate.ToString("dd MMM yyyy")</p>
-                                            <p><strong>Payment Method:</strong> @(!string.IsNullOrEmpty(Model.Shipment.PaymentMethodEName) ? Model.Shipment.PaymentMethodEName : "Not specified")</p>
+                                            <p>
+                                                <strong>Payment Method:</strong>
+                                                @(!string.IsNullOrEmpty(Model.Shipment.PaymentMethodEName)
+                                                    ? Model.Shipment.PaymentMethodEName
+                                                    : "Not specified")
+                                            </p>
                                         </div>
                                     </div>
                                 </div>
@@ -154,7 +216,7 @@
                         </div>
                     </div>
 
-                    <!-- Buttons -->
+                    <!-- Bottom Buttons -->
                     <div class="text-center mt-4">
                         <a href="/Tracking" class="wshipping-button">
                             <i class="fa fa-arrow-left"></i> Track Another Shipment
@@ -170,15 +232,34 @@
     </div>
 </div>
 
+@section Styles {
+    <style>
+        /* إجبار الخطوط التي تلي العناصر النشطة على اللون الأخضر */
+        ul.track-progress li.track-active + li:after {
+            background-color: #7eb438 !important;
+        }
+
+        /* إجبار النص والدائرة على اللون الأخضر للعناصر النشطة */
+        .track-progress li.track-active {
+            color: #70a62a !important;
+        }
+
+            .track-progress li.track-active:before {
+                background-color: #7eb438 !important;
+            }
+
+        /* إصلاح الخط الذي يسبق العنصر الأول (لا يوجد خط قبله) */
+        .track-progress li:first-child:after {
+            background-color: transparent !important;
+        }
+    </style>
+}
 @section Scripts {
     <script>
-        $(document).ready(function() {
-            // Print tracking number if found
+        $(document).ready(function () {
             @if (Model.IsFound && Model.Shipment != null)
             {
-                    <text>
-                        console.log('Tracking Result: @Model.Shipment.TrackingNumber');
-                    </text>
+                    @:console.log('Tracking Result: @Model.Shipment.TrackingNumber');
             }
         });
     </script>

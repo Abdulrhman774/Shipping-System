@@ -6,13 +6,7 @@ using Domain.Entities;
 
 namespace BL.Services;
 
-public class UserReceiverService
-    : SharedSenderReceiverService<
-        TbUserReceiver,
-        UserReceiverDto,
-        CreateUserReceiverDto,
-        UpdateUserReceiverDto>,
-      IUserReceiverService
+public class UserReceiverService: SharedSenderReceiverService<TbUserReceiver, UserReceiverDto, CreateUserReceiverDto, UpdateUserReceiverDto>, IUserReceiverService
 {
     public UserReceiverService(
         IUnitOfWork unitOfWork,

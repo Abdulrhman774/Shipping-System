@@ -47,7 +47,7 @@ public abstract class SharedSenderReceiverService<TEntity, TDto, TCreateDto, TUp
             await RemoveOtherDefaultAddresses(dto.UserId, null);
         }
 
-        return await base.AddAsync(dto);
+        return await base.AddAsync(dto, autoSave);
     }
 
     public override async Task<Result> UpdateAsync(Guid id, TUpdateDto dto, bool? autoSave = null)
@@ -80,7 +80,7 @@ public abstract class SharedSenderReceiverService<TEntity, TDto, TCreateDto, TUp
             await RemoveOtherDefaultAddresses(dto.UserId, id);
         }
 
-        return await base.UpdateAsync(id, dto);
+        return await base.UpdateAsync(id, dto, autoSave);
     }
 
     protected async Task RemoveOtherDefaultAddresses(string userId, Guid? excludeId = null)

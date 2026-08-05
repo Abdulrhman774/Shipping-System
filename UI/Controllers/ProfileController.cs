@@ -134,51 +134,51 @@ public class ProfileController : Controller
         }
     }
 
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> TrackShipment(string trackingNumber)
-    {
-        if (string.IsNullOrEmpty(trackingNumber))
-        {
-            TempData["ErrorMessage"] = "Please enter a tracking number.";
-            return RedirectToAction("Index");
-        }
+    //[HttpPost]
+    //[ValidateAntiForgeryToken]
+    //public async Task<IActionResult> TrackShipment(string trackingNumber)
+    //{
+    //    if (string.IsNullOrEmpty(trackingNumber))
+    //    {
+    //        TempData["ErrorMessage"] = "Please enter a tracking number.";
+    //        return RedirectToAction("Index");
+    //    }
 
-        try
-        {
-            if (!Guid.TryParse(GetCurrentUserId(), out var userGuid))
-            {
-                TempData["ErrorMessage"] = "Invalid user ID.";
-                return RedirectToAction("Index");
-            }
+    //    try
+    //    {
+    //        if (!Guid.TryParse(GetCurrentUserId(), out var userGuid))
+    //        {
+    //            TempData["ErrorMessage"] = "Invalid user ID.";
+    //            return RedirectToAction("Index");
+    //        }
 
-            var userId = userGuid;
+    //        var userId = userGuid;
 
-            var result = await _shipmentViewService.GetShipmentByTrackingNumberAsync(trackingNumber, userId);
+    //        var result = await _shipmentViewService.GetShipmentByTrackingNumberAsync(trackingNumber, userId);
 
-            if (result.IsSuccess && result.Value != null)
-            {
-                // ✅ Logging للتأكد من البيانات
-                _logger.LogInformation($"Tracking found: {trackingNumber}, ShippingType: {result.Value.ShippingTypeName}, DeliveryDate: {result.Value.DeliveryDate}");
+    //        if (result.IsSuccess && result.Value != null)
+    //        {
+    //            // ✅ Logging للتأكد من البيانات
+    //            _logger.LogInformation($"Tracking found: {trackingNumber}, ShippingType: {result.Value.ShippingTypeName}, DeliveryDate: {result.Value.DeliveryDate}");
 
-                TempData["TrackingResult"] = JsonConvert.SerializeObject(result.Value);
-                TempData["TrackingFound"] = "true";
-            }
-            else
-            {
-                TempData["ErrorMessage"] = "Shipment not found. Please check the tracking number.";
-                TempData["TrackingFound"] = "false";
-            }
+    //            TempData["TrackingResult"] = JsonConvert.SerializeObject(result.Value);
+    //            TempData["TrackingFound"] = "true";
+    //        }
+    //        else
+    //        {
+    //            TempData["ErrorMessage"] = "Shipment not found. Please check the tracking number.";
+    //            TempData["TrackingFound"] = "false";
+    //        }
 
-            return RedirectToAction("Index");
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error tracking shipment {TrackingNumber}", trackingNumber);
-            TempData["ErrorMessage"] = "An error occurred while tracking your shipment.";
-            return RedirectToAction("Index");
-        }
-    }
+    //        return RedirectToAction("Index");
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        _logger.LogError(ex, "Error tracking shipment {TrackingNumber}", trackingNumber);
+    //        TempData["ErrorMessage"] = "An error occurred while tracking your shipment.";
+    //        return RedirectToAction("Index");
+    //    }
+    //}
 
 
     //[HttpPost]
@@ -239,7 +239,28 @@ public class ProfileController : Controller
 
     //    return RedirectToAction("Index");
     //}
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> TrackShipment(string trackingNumber)
+    {
+        if (string.IsNullOrEmpty(trackingNumber))
+        {
+            TempData["ErrorMessage"] = "Please enter a tracking number.";
+            return RedirectToAction("Index");
+        }
 
+        try
+        {
+            // ✅ توجيه المستخدم إلى صفحة التتبع مباشرة
+            return RedirectToAction("Result", "Tracking", new { trackingNumber });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error tracking shipment {TrackingNumber}", trackingNumber);
+            TempData["ErrorMessage"] = "An error occurred while tracking your shipment.";
+            return RedirectToAction("Index");
+        }
+    }
 
     [HttpPost]
     [ValidateAntiForgeryToken]

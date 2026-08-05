@@ -257,6 +257,7 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
         {
             ArgumentNullException.ThrowIfNull(entity);
 
+            if(entity.Id == Guid.Empty) entity.Id = Guid.NewGuid(); // Ensure a new ID is assigned if not already set
             entity.CurrentState = enEntityState.Active;
             entity.CreatedDate = DateTime.UtcNow;
 

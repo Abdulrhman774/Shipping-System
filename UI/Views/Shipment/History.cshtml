@@ -53,7 +53,7 @@
                                         <th>Shipping Date</th>
                                         <th>Weight</th>
                                         <th>Status</th>
-                                        <th>Action</th>
+                                        <th style="min-width: 100px;">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -67,28 +67,35 @@
                                             <td>@item.Weight.ToString("F2") kg</td>
                                             <td>
                                                 @{
-                                                    var statusClass = item.CurrentState switch
+                                                    var statusText = item.Status switch
                                                     {
-                                                        enEntityState.Active => "badge-success",
-                                                        enEntityState.Inactive => "badge-warning",
-                                                        enEntityState.Deleted => "badge-danger",
-                                                        _ => "badge-secondary"
-                                                    };
-                                                    var statusText = item.CurrentState switch
-                                                    {
-                                                        enEntityState.Active => "Active",
-                                                        enEntityState.Inactive => "In Transit",
-                                                        enEntityState.Deleted => "Delivered",
+                                                        enShipmentStatus.Confirmed => "Confirmed",
+                                                        enShipmentStatus.Processing => "Processing",
+                                                        enShipmentStatus.QualityCheck => "Quality Check",
+                                                        enShipmentStatus.Dispatched => "Dispatched",
+                                                        enShipmentStatus.Delivered => "Delivered",
                                                         _ => "Unknown"
                                                     };
+
+                                                    var statusStyle = item.Status switch
+                                                    {
+                                                        enShipmentStatus.Confirmed => "background-color: #d1ecf1; color: #0c5460;",
+                                                        enShipmentStatus.Processing => "background-color: #fff3cd; color: #856404;",
+                                                        enShipmentStatus.QualityCheck => "background-color: #cce5ff; color: #004085;",
+                                                        enShipmentStatus.Dispatched => "background-color: #ffe5b4; color: #804d00;",
+                                                        enShipmentStatus.Delivered => "background-color: #d4edda; color: #155724;",
+                                                        _ => "background-color: #f8f9fa; color: #212529;"
+                                                    };
                                                 }
-                                                <span class="badge @statusClass">@statusText</span>
+                                                <span style="display: inline-block; min-width: 80px; padding: 0.35em 0.65em; font-size: 0.75rem; font-weight: 600; text-align: center; border-radius: 0.25rem; @statusStyle">
+                                                    @statusText
+                                                </span>
                                             </td>
-                                            <td>
-                                                <a asp-action="Update" asp-route-id="@item.ShipmentId" title="Edit" class="btn btn-sm btn-outline-warning">
+                                            <td style="white-space: nowrap;">
+                                                <a asp-action="Update" asp-route-id="@item.ShipmentId" title="Edit" style="color: #ffc107; font-size: 1.1rem; margin-right: 8px; text-decoration: none;">
                                                     <i class="fa fa-edit"></i>
                                                 </a>
-                                                <a asp-action="Details" asp-route-id="@item.ShipmentId" title="View Details" class="btn btn-sm btn-outline-primary">
+                                                <a asp-action="Details" asp-route-id="@item.ShipmentId" title="View Details" style="color: #17a2b8; font-size: 1.1rem; text-decoration: none;">
                                                     <i class="fa fa-eye"></i>
                                                 </a>
                                             </td>
@@ -140,8 +147,8 @@
                             </div>
                             <div class="mt-3">
                                 <a asp-controller="Home" asp-action="Index" class="wshipping-button">
-                                        <i class="fa fa-home"></i> Back to Dashboard
-                                    </a>
+                                    <i class="fa fa-home"></i> Back to Dashboard
+                                </a>
                             </div>
                         </div>
                     }
