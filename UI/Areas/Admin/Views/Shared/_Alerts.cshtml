@@ -18,8 +18,8 @@
         switch (messageType) {
         case @((int)enMessageType.SavedSuccessfully):
         swalWithBootstrapButtons.fire({
-        title: "@Messages.SaveSuccessTitle",
-        text: "@Messages.SaveSuccessMessage",
+        title: "Saved Successfully",
+        text: "Data Saved Successfully",
         icon: "success",
         timer: 2500,
         showConfirmButton: false
@@ -28,16 +28,16 @@
 
         case @((int)enMessageType.SavedFailed):
         swalWithBootstrapButtons.fire({
-        title: "@Messages.SaveFailedTitle",
-        text: "@Messages.SaveFailedMessage",
+        title: "Save Failed",
+        text: "Save failed. Please try again.",
         icon: "error"
         });
         break;
 
         case @((int)enMessageType.DeletedSuccessfully):
         swalWithBootstrapButtons.fire({
-        title: "@Messages.DeleteSuccessTitle",
-        text: "@Messages.DeleteSucessMessage",
+        title: "Deleted Successfully",
+        text: "Data Deleted Successfully",
         icon: "success",
         timer: 2500,
         showConfirmButton: false
@@ -46,8 +46,8 @@
 
         case @((int)enMessageType.DeletedFailed):
         swalWithBootstrapButtons.fire({
-        title: "@Messages.DeleteFailedTitle",
-        text: "@Messages.DeleteFailedMessage",
+        title: "Delete Failed",
+        text: "Delete failed. Please try again.",
         icon: "error"
         });
         break;

@@ -4,7 +4,6 @@
     <File Path=".gitignore" />
   </Folder>
   <Project Path="BL/BL.csproj" Id="44226c7e-0695-48fd-92d2-38ce3b5ab309" />
-  <Project Path="D:/Workflow/.Net training/WebApi - 8/AppResources/AppResources.csproj" />
   <Project Path="DAL/DAL.csproj" />
   <Project Path="Domain/Domain.csproj" />
   <Project Path="UI/UI.csproj" Id="3f9bd316-40e7-4dd8-b66a-894599f97081" />
