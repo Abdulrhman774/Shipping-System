@@ -1,155 +1,75 @@
-@model List<BL.DTOs.ShippingType.ShippingTypeDto>
-@{
-    ViewData["Title"] = "Shipping Types";
-}
+@using UI.Areas.Admin.Models
+@model ManagementPageViewModel<ShippingTypeRowItem>
+@{ ViewBag.Title = "Shipping Type Management"; }
 
-@section Styles {
-    <link rel="stylesheet" href="~/Admin/vendors/datatables.net-bs4/dataTables.bootstrap4.css">
-    <style>
-        .dataTables_wrapper .dataTables_filter {
-            float: right;
-            text-align: right;
-        }
-        .dataTables_wrapper .dataTables_length {
-            float: left;
-        }
-        .dataTables_wrapper .dataTables_paginate {
-            float: right;
-            text-align: right;
-        }
-        .dataTables_wrapper .dataTables_info {
-            float: left;
-        }
-        .dataTables_wrapper .row {
-            margin-bottom: 15px;
-        }
-    </style>
-}
-
-<div class="content-wrapper">
-    <div class="page-header">
-        <h3 class="page-title"> Shipping Types </h3>
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a asp-controller="Dashboard" asp-action="Index">Dashboard</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Shipping Types</li>
-            </ol>
-        </nav>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h4 class="mb-1">Shipping Type Management</h4>
+        <p class="text-muted mb-0">Manage global destinations and operational status for regional logistics routing.</p>
     </div>
+    <a asp-action="Create" class="btn btn-sf-primary">+ Add New Shipping Type</a>
+</div>
 
-    <div class="card">
-        <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h4 class="card-title">Shipping Types Directory</h4>
-                <a asp-controller="ShippingType" asp-action="Create" class="btn btn-gradient-primary btn-fw">
-                    <i class="mdi mdi-plus-circle me-1"></i> Add Shipping Type
-                </a>
-            </div>
-            <div class="table-responsive">
-                <table id="shipping-types-table" class="table table-hover">
-                    <thead>
+<div class="sf-filter-bar card p-3 mb-4 shadow-sm">
+    <form asp-action="Index" method="get" class="row g-3 align-items-end">
+        <div class="col-md-6">
+            <label class="form-label">Search</label>
+            <input type="text" name="search" class="form-control" placeholder="Search by name..." value="@Context.Request.Query["search"]" />
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Status</label>
+            <select name="status" class="form-select">
+                <option value="">All Statuses</option>
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-sf-primary w-100 mb-2">Filter</button>
+            <a asp-action="Index" class="btn btn-outline-secondary w-100">Reset</a>
+        </div>
+    </form>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-header bg-white py-3">
+        <h5 class="mb-0"><i class="fa-solid fa-box" style="color: #5e5ce6"></i> Registered Shipping Types <span class="badge bg-secondary ms-2">@Model.Items.Count</span></h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table sf-table mb-0 align-middle">
+                <thead>
+                    <tr>
+                        <th>ENGLISH NAME</th>
+                        <th>ARABIC NAME</th>
+                        <th>SHIPPING FACTOR</th>
+                        <th>STATUS</th>
+                        <th class="text-end">ACTIONS</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Items)
+                    {
                         <tr>
-                            <th> # </th>
-                            <th> Arabic Name </th>
-                            <th> English Name </th>
-                            <th> Factor </th>
-                            <th> Status </th>
-                            <th> Created Date </th>
-                            <th> Actions </th>
+                            <td>@item.EnglishName</td>
+                            <td>@item.ArabicName</td>
+                            <td style="color: #5e5ce6; font-weight: bold;">@item.ShippingFactor</td>
+                            <td>
+                                @await Html.PartialAsync("_StatusBadge", item.Status)
+                            </td>
+                            <td class="text-end">
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary sf-action-btn me-2"><i class="fa-solid fa-pen"></i> Edit</a>
+                                <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this shipping type?');">
+                                    <button type="submit" class="btn btn-sm btn-sf-outline-danger sf-action-btn"><i class="fa-solid fa-trash"></i> Delete</button>
+                                </form>
+                            </td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        @for (int i = 0; i < Model.Count; i++)
-                        {
-                            var type = Model[i];
-                            <tr>
-                                <td> @(i + 1) </td>
-                                <td class="font-weight-bold"> @type.ShippingTypeAname </td>
-                                <td> @type.ShippingTypeEname </td>
-                                <td> @type.ShippingFactor.ToString("0.00") </td>
-                                <td>
-                                    @if (type.CurrentState == enEntityState.Active)
-                                    {
-                                        <span class="badge badge-gradient-success">Active</span>
-                                    }
-                                    else if (type.CurrentState == enEntityState.Inactive)
-                                    {
-                                        <span class="badge badge-gradient-warning">Inactive</span>
-                                    }
-                                    else if (type.CurrentState == enEntityState.Deleted)
-                                    {
-                                        <span class="badge badge-gradient-danger">Deleted</span>
-                                    }
-                                </td>
-                                <td> @type.CreatedDate.ToString("yyyy-MM-dd HH:mm") </td>
-                                <td>
-                                    <a asp-controller="ShippingType" asp-action="Edit" asp-route-id="@type.Id" class="btn btn-gradient-info btn-sm me-2">
-                                        <i class="mdi mdi-pencil me-1"></i> Edit
-                                    </a>
-                                    <button type="button" class="btn btn-gradient-danger btn-sm delete-btn" data-id="@type.Id" data-bs-toggle="modal" data-bs-target="#deleteModal">
-                                        <i class="mdi mdi-delete me-1"></i> Delete
-                                    </button>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
+                    }
+                </tbody>
+            </table>
         </div>
     </div>
-</div>
-
-<!-- Delete Confirm Modal -->
-<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body text-center py-4">
-                <i class="mdi mdi-alert-circle-outline text-danger display-3 mb-3"></i>
-                <p class="mb-0 font-weight-bold" style="font-size: 1.1rem;">Are you sure you want to delete this shipping type?</p>
-                <p class="text-muted small">This action will permanently delete the shipping type record from the system.</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                <form id="deleteForm" method="post" action="">
-                    @Html.AntiForgeryToken()
-                    <button type="submit" class="btn btn-gradient-danger">Confirm Delete</button>
-                </form>
-            </div>
-        </div>
+    <div class="card-footer bg-white py-3">
+        @await Html.PartialAsync("_Pagination", Model.Pagination)
     </div>
 </div>
-
-@section Scripts {
-    <script src="~/Admin/vendors/datatables.net/jquery.dataTables.js"></script>
-    <script src="~/Admin/vendors/datatables.net-bs4/dataTables.bootstrap4.js"></script>
-    <script>
-        $(document).ready(function () {
-            var table = $('#shipping-types-table').DataTable({
-                "aLengthMenu": [
-                    [5, 10, 15, -1],
-                    [5, 10, 15, "All"]
-                ],
-                "iDisplayLength": 5,
-                "language": {
-                    search: "",
-                    searchPlaceholder: "Search shipping types..."
-                }
-            });
-
-            // Adjust search field layout to match Purple Admin theme
-            $('.dataTables_filter input').addClass('form-control form-control-sm d-inline-block w-auto ms-2');
-            $('.dataTables_length select').addClass('form-select form-select-sm d-inline-block w-auto me-2');
-
-            // Set up dynamic URL inside delete confirmation modal
-            $(document).on('click', '.delete-btn', function () {
-                var id = $(this).data('id');
-                var url = '@Url.Action("Delete", "ShippingType", new { area = "Admin" })/' + id;
-                $('#deleteForm').attr('action', url);
-            });
-        });
-    </script>
-}

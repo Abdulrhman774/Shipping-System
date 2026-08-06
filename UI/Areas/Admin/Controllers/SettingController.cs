@@ -1,44 +1,19 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
-using System;
-using Domain.Entities;
-using BL.DTOs.Setting;
-using BL.Contract.IServices;
+using UI.Areas.Admin.Models;
 
-namespace UI.Areas.Admin.Controllers
+namespace UI.Areas.Admin.Controllers;
+
+public class SettingController : BaseAdminController
 {
-    [Area("Admin")]
-    [Authorize]
-    public class SettingController : BaseController
+    [HttpGet]
+    public IActionResult Edit()
     {
-        // Constructor inject ISettingService (commented out as per instructions)
-        /*
-        private readonly ISettingService _settingService;
-        public SettingController(ISettingService settingService)
-        {
-            _settingService = settingService;
-        }
-        */
+        return View(new SystemSettingsViewModel { KilometerRate = 5.50, KilogramRate = 2.25 });
+    }
 
-        // GET: Admin/Setting/Edit
-        public IActionResult Edit()
-        {
-            // Hardcoded setting model with pre-filled values
-            var dto = new UpdateSettingDto
-            {
-                KiloMeterRate = 5.50,
-                KilooGramRate = 2.25
-            };
-            return View(dto);
-        }
-
-        // POST: Admin/Setting/Edit
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Edit(UpdateSettingDto dto)
-        {
-            // Redirect back to Edit page (no business logic)
-            return RedirectToAction(nameof(Edit));
-        }
+    [HttpPost]
+    public IActionResult Edit(SystemSettingsViewModel model)
+    {
+        return RedirectToAction("Edit");
     }
 }

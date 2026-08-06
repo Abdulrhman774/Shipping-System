@@ -1,52 +1,41 @@
-@model BL.DTOs.Country.CreateCountryDto
-@{
-    ViewData["Title"] = "Add Country";
-}
+@using UI.Areas.Admin.Models
+@model CountryFormViewModel
+@{ ViewBag.Title = "Add New Country"; }
 
-<div class="content-wrapper">
-    <div class="page-header">
-        <h3 class="page-title"> Add Country </h3>
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a asp-controller="Dashboard" asp-action="Index">Dashboard</a></li>
-                <li class="breadcrumb-item"><a asp-controller="Country" asp-action="Index">Countries</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Add</li>
-            </ol>
-        </nav>
+<div class="mb-4">
+    <a asp-action="Index" class="text-decoration-none"><i class="fa-solid fa-arrow-left me-1"></i> back to countries</a>
+</div>
+
+<div class="card shadow-sm mx-auto" style="max-width: 700px;">
+    <div class="card-header bg-white py-3 border-bottom">
+        <h4 class="mb-0"><i class="fa-solid fa-globe" style="color: #5e5ce6"></i> Add New Country</h4>
     </div>
-
-    <div class="row">
-        <div class="col-12 grid-margin stretch-card">
-            <div class="card">
-                <div class="card-body">
-                    <h4 class="card-title text-primary mb-4"><i class="mdi mdi-earth me-2"></i>Country Details</h4>
-                    
-                    <form class="forms-sample" asp-controller="Country" asp-action="Create" method="post">
-                        @Html.AntiForgeryToken()
-                        
-                        <div class="form-group mb-3">
-                            <label asp-for="CountryAname">Arabic Name</label>
-                            <input asp-for="CountryAname" type="text" class="form-control" placeholder="Enter Arabic Name (e.g. مصر)" required />
-                            <span asp-validation-for="CountryAname" class="text-danger"></span>
-                        </div>
-
-                        <div class="form-group mb-4">
-                            <label asp-for="CountryEname">English Name</label>
-                            <input asp-for="CountryEname" type="text" class="form-control" placeholder="Enter English Name (e.g. Egypt)" required />
-                            <span asp-validation-for="CountryEname" class="text-danger"></span>
-                        </div>
-
-                        <div class="mt-4">
-                            <button type="submit" class="btn btn-gradient-primary me-2">
-                                <i class="mdi mdi-content-save me-1"></i> Save
-                            </button>
-                            <a asp-controller="Country" asp-action="Index" class="btn btn-light">
-                                Cancel
-                            </a>
-                        </div>
-                    </form>
-                </div>
+    <div class="card-body p-4">
+        <form asp-action="Create" method="post">
+            <div class="mb-3">
+                <label asp-for="EnglishName" class="form-label">English Name *</label>
+                <input asp-for="EnglishName" class="form-control" />
+                <span asp-validation-for="EnglishName" class="text-danger"></span>
             </div>
-        </div>
+            
+            <div class="mb-3">
+                <label asp-for="ArabicName" class="form-label">Arabic Name *</label>
+                <input asp-for="ArabicName" class="form-control" />
+                <span asp-validation-for="ArabicName" class="text-danger"></span>
+            </div>
+            
+            <div class="mb-4 form-check form-switch">
+                <input asp-for="IsActive" class="form-check-input" type="checkbox" role="switch">
+                <label asp-for="IsActive" class="form-check-label">Active</label>
+            </div>
+            
+            <div class="d-grid">
+                <button type="submit" class="btn btn-sf-primary btn-lg">Save Country</button>
+            </div>
+        </form>
     </div>
 </div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

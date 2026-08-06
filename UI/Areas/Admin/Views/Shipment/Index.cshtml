@@ -1,207 +1,123 @@
-@model List<Domain.Entities.TbShipment>
+@model UI.Areas.Admin.Models.ShipmentIndexViewModel
 @{
-    ViewData["Title"] = "Shipments";
+    ViewBag.Title = "Shipments";
 }
 
-@section Styles {
-    <link rel="stylesheet" href="~/Admin/vendors/datatables.net-bs4/dataTables.bootstrap4.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
-    <style>
-        .dataTables_wrapper .dataTables_filter {
-            float: right;
-            text-align: right;
-        }
-        .dataTables_wrapper .dataTables_length {
-            float: left;
-        }
-        .dataTables_wrapper .dataTables_paginate {
-            float: right;
-            text-align: right;
-        }
-        .dataTables_wrapper .dataTables_info {
-            float: left;
-        }
-        .dataTables_wrapper .row {
-            margin-bottom: 15px;
-        }
-    </style>
-}
-
-<div class="content-wrapper">
-    <div class="page-header">
-        <h3 class="page-title"> Shipments </h3>
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a asp-controller="Dashboard" asp-action="Index">Dashboard</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Shipments</li>
-            </ol>
-        </nav>
-    </div>
-
-    <!-- Filter Card -->
-    <div class="card mb-4">
-        <div class="card-body py-3">
-            <form id="filterForm" class="d-flex align-items-center gap-3">
-                <div class="form-group mb-0 flex-grow-1">
-                    <label class="mb-1 text-muted small">Filter by Date Range:</label>
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="mdi mdi-calendar"></i></span>
-                        </div>
-                        <input type="text" class="form-control form-control-sm" name="daterange" id="daterange" placeholder="Select date range" />
-                    </div>
-                </div>
-                <div class="mt-4">
-                    <button type="button" class="btn btn-gradient-primary btn-sm" id="btnFilter">
-                        <i class="mdi mdi-filter"></i> Apply Filter
-                    </button>
-                    <button type="button" class="btn btn-light btn-sm" id="btnReset">Reset</button>
-                </div>
-            </form>
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-start mb-4">
+        <div>
+            <h4 class="fw-bold mb-1">Shipment Management</h4>
+            <div class="text-muted">Monitor and control global logistics operations.</div>
+        </div>
+        <div>
+            <div class="btn-group shadow-sm bg-white p-1 rounded-pill" role="group">
+                <span class="px-3 py-1 text-muted small fw-bold d-flex align-items-center">PREVIEW ROLE</span>
+                <button type="button" class="btn btn-sm btn-primary rounded-pill px-3">Admin</button>
+                <button type="button" class="btn btn-sm btn-light text-muted border-0 rounded-pill px-3">Manager</button>
+                <button type="button" class="btn btn-sm btn-light text-muted border-0 rounded-pill px-3">Operator</button>
+                <button type="button" class="btn btn-sm btn-light text-muted border-0 rounded-pill px-3">Reviewer</button>
+            </div>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-secondary"><i class="fa-solid fa-download me-1"></i> Export Report</button>
+            <a asp-action="Create" asp-controller="Shipment" asp-area="Admin" class="btn btn-sf-primary text-white" style="background-color: var(--bs-primary); border-color: var(--bs-primary);"><i class="fa-solid fa-plus me-1"></i> Create New Shipment</a>
         </div>
     </div>
 
-    <div class="card">
-        <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h4 class="card-title">Shipments Directory</h4>
-                <a asp-controller="Shipment" asp-action="Create" class="btn btn-gradient-primary btn-fw">
-                    <i class="mdi mdi-plus-circle me-1"></i> Create Shipment
-                </a>
+    <div class="sf-hero-card card border-0 p-5 mb-4 position-relative overflow-hidden" style="border-radius: 16px; background: linear-gradient(135deg, rgba(94,92,230,0.85), rgba(94,92,230,0.4));">
+        <div class="row position-relative z-index-1">
+            <div class="col-lg-6">
+                <h4 class="text-white fw-bold mb-3">Efficient Supply Chain Oversight</h4>
+                <p class="text-white-50 mb-0">Manage your entire logistics network from a single unified interface. Track shipments in real-time, handle exceptions, and optimize delivery routes with advanced analytics.</p>
             </div>
+        </div>
+        <div class="position-absolute end-0 bottom-0 top-0 w-50 opacity-25" style="background: radial-gradient(circle at right center, rgba(255,255,255,0.2) 0%, transparent 70%);"></div>
+    </div>
+
+    <div class="sf-filter-bar card border-0 shadow-sm rounded-4 p-3 mb-4 bg-white">
+        <div class="row g-3">
+            <div class="col-md-3">
+                <label class="form-label small text-muted fw-bold mb-1">Status</label>
+                <select class="form-select bg-light border-light">
+                    <option>All Statuses</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small text-muted fw-bold mb-1">Date Range</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-light text-muted"><i class="fa-regular fa-calendar"></i></span>
+                    <input type="text" class="form-control bg-light border-light" placeholder="Select dates...">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small text-muted fw-bold mb-1">Sender</label>
+                <input type="text" class="form-control bg-light border-light" placeholder="Filter by sender...">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small text-muted fw-bold mb-1">Receiver</label>
+                <input type="text" class="form-control bg-light border-light" placeholder="Filter by receiver...">
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4 mt-4 bg-white">
+        <div class="card-header bg-white border-0 pt-4 pb-3 px-4 d-flex justify-content-between align-items-center">
+            <h6 class="fw-bold mb-0"><i class="fa-solid fa-ship me-2 text-muted"></i> Shipment Records</h6>
+            <div class="d-flex align-items-center gap-3">
+                <a href="#" class="text-decoration-none small" style="color: var(--bs-primary);">Advanced filters</a>
+                <span class="text-muted small">Sort: <span class="fw-bold text-dark">Newest First</span></span>
+            </div>
+        </div>
+        <div class="card-body px-0 pb-0">
             <div class="table-responsive">
-                <table id="shipments-table" class="table table-hover">
-                    <thead>
+                <table class="table sf-table table-hover align-middle mb-0">
+                    <thead class="text-muted small bg-light bg-opacity-50">
                         <tr>
-                            <th> # </th>
-                            <th> Tracking # </th>
-                            <th> Sender </th>
-                            <th> Receiver </th>
-                            <th> Type </th>
-                            <th> Date </th>
-                            <th> Rate </th>
-                            <th> Status </th>
-                            <th> Actions </th>
+                            <th class="ps-4">TRACKING #</th>
+                            <th>SENDER</th>
+                            <th>RECEIVER</th>
+                            <th>SHIPPING DATE</th>
+                            <th>STATUS</th>
+                            <th class="text-end pe-4">ACTIONS</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @for (int i = 0; i < Model.Count; i++)
+                        @if (Model.Shipments != null)
                         {
-                            var shipment = Model[i];
-                            <tr>
-                                <td> @(i + 1) </td>
-                                <td class="font-weight-bold"> @shipment.TrackingNumber </td>
-                                <td> @(shipment.Sender?.Name ?? "N/A") </td>
-                                <td> @(shipment.Receiver?.Name ?? "N/A") </td>
-                                <td> @(shipment.ShippingType?.ShippingTypeEname ?? "N/A") </td>
-                                <td> @shipment.ShippingDate.ToString("yyyy-MM-dd") </td>
-                                <td> @shipment.ShippingRate.ToString("C") </td>
-                                <td>
-                                    @if (shipment.CurrentState == enEntityState.Active)
-                                    {
-                                        <span class="badge badge-gradient-info">Processing</span>
-                                    }
-                                    else if (shipment.CurrentState == enEntityState.Inactive)
-                                    {
-                                        <span class="badge badge-gradient-warning">On Hold</span>
-                                    }
-                                    else if (shipment.CurrentState == enEntityState.Deleted)
-                                    {
-                                        <span class="badge badge-gradient-danger">Cancelled</span>
-                                    }
-                                </td>
-                                <td>
-                                    <div class="d-flex gap-1">
-                                        <a asp-controller="Shipment" asp-action="Details" asp-route-id="@shipment.Id" class="btn btn-gradient-primary btn-sm me-1">
-                                            <i class="mdi mdi-eye me-1"></i> Details
-                                        </a>
-                                        <button type="button" class="btn btn-gradient-danger btn-sm delete-btn" data-id="@shipment.Id" data-bs-toggle="modal" data-bs-target="#deleteModal">
-                                            <i class="mdi mdi-delete me-1"></i> Cancel
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
+                            foreach (var item in Model.Shipments)
+                            {
+                                <tr>
+                                    <td class="ps-4"><a href="#" class="sf-tracking-link text-decoration-none fw-bold text-dark">@item.TrackingNumber</a></td>
+                                    <td>
+                                        <div class="fw-bold">@item.SenderName</div>
+                                    </td>
+                                    <td>
+                                        <div class="fw-bold">@item.ReceiverName</div>
+                                    </td>
+                                    <td>
+                                        <div class="text-muted small"><i class="fa-regular fa-calendar me-1"></i>@item.ShippingDate</div>
+                                    </td>
+                                    <td>@await Html.PartialAsync("_StatusBadge", item.Status)</td>
+                                    <td class="text-end pe-4">
+                                        <div class="d-flex justify-content-end gap-1">
+                                            <button class="btn btn-sm btn-light rounded-circle sf-action-btn"><i class="fa-regular fa-eye"></i></button>
+                                            <button class="btn btn-sm btn-light rounded-circle sf-action-btn"><i class="fa-solid fa-pencil"></i></button>
+                                            <button class="btn btn-sm btn-light rounded-circle sf-action-btn text-danger"><i class="fa-solid fa-trash"></i></button>
+                                            <button class="btn btn-sm btn-light border-0 rounded-circle ms-1"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
                         }
                     </tbody>
                 </table>
             </div>
         </div>
-    </div>
-</div>
-
-<!-- Delete Confirm Modal -->
-<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="deleteModalLabel">Confirm Cancellation</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body text-center py-4">
-                <i class="mdi mdi-alert-circle-outline text-danger display-3 mb-3"></i>
-                <p class="mb-0 font-weight-bold" style="font-size: 1.1rem;">Are you sure you want to cancel this shipment?</p>
-                <p class="text-muted small">This action cannot be undone.</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                <form id="deleteForm" method="post" action="">
-                    @Html.AntiForgeryToken()
-                    <button type="submit" class="btn btn-gradient-danger">Confirm Cancel</button>
-                </form>
-            </div>
+        <div class="card-footer bg-white border-0 py-3 px-4">
+            @if (Model.Pagination != null)
+            {
+                @await Html.PartialAsync("_Pagination", Model.Pagination)
+            }
         </div>
     </div>
 </div>
-
-@section Scripts {
-    <script src="~/Admin/vendors/datatables.net/jquery.dataTables.js"></script>
-    <script src="~/Admin/vendors/datatables.net-bs4/dataTables.bootstrap4.js"></script>
-    <script src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
-    <script>
-        $(document).ready(function () {
-            var table = $('#shipments-table').DataTable({
-                "aLengthMenu": [
-                    [5, 10, 15, -1],
-                    [5, 10, 15, "All"]
-                ],
-                "iDisplayLength": 5,
-                "language": {
-                    search: "",
-                    searchPlaceholder: "Search tracking..."
-                }
-            });
-
-            $('.dataTables_filter input').addClass('form-control form-control-sm d-inline-block w-auto ms-2');
-            $('.dataTables_length select').addClass('form-select form-select-sm d-inline-block w-auto me-2');
-
-            // Date Range Picker
-            $('input[name="daterange"]').daterangepicker({
-                opens: 'left',
-                autoUpdateInput: false,
-                locale: {
-                    cancelLabel: 'Clear'
-                }
-            });
-
-            $('input[name="daterange"]').on('apply.daterangepicker', function(ev, picker) {
-                $(this).val(picker.startDate.format('YYYY-MM-DD') + ' - ' + picker.endDate.format('YYYY-MM-DD'));
-                // In a real scenario, this would trigger an AJAX reload or form submit
-            });
-
-            $('input[name="daterange"]').on('cancel.daterangepicker', function(ev, picker) {
-                $(this).val('');
-            });
-
-            $('#btnReset').click(function() {
-                $('#daterange').val('');
-            });
-
-            $(document).on('click', '.delete-btn', function () {
-                var id = $(this).data('id');
-                var url = '@Url.Action("Delete", "Shipment", new { area = "Admin" })/' + id;
-                $('#deleteForm').attr('action', url);
-            });
-        });
-    </script>
-}

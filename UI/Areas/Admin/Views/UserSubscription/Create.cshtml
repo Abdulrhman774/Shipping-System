@@ -1,62 +1,50 @@
-@model BL.DTOs.UserSubscription.CreateUserSubscriptionDto
-@{
-    ViewData["Title"] = "Subscribe User";
-}
+@using UI.Areas.Admin.Models
+@model UserSubscriptionFormViewModel
+@{ ViewBag.Title = "Add New Subscription"; }
 
-<div class="content-wrapper">
-    <div class="page-header">
-        <h3 class="page-title"> Subscribe User </h3>
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a asp-controller="Dashboard" asp-action="Index">Dashboard</a></li>
-                <li class="breadcrumb-item"><a asp-controller="UserSubscription" asp-action="Index">User Subscriptions</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Subscribe</li>
-            </ol>
-        </nav>
+<div class="mb-4">
+    <a asp-action="Index" class="text-decoration-none text-muted">
+        <i class="fas fa-arrow-left me-1"></i> back to subscriptions
+    </a>
+</div>
+
+<div class="card shadow-sm mx-auto" style="max-width: 700px;">
+    <div class="card-header bg-white py-3">
+        <h4 class="mb-0">Add New Subscription</h4>
     </div>
-
-    <div class="row">
-        <div class="col-12 grid-margin stretch-card">
-            <div class="card">
-                <div class="card-body">
-                    <h4 class="card-title text-primary mb-4"><i class="mdi mdi-package-variant-closed me-2"></i>New Subscription</h4>
-                    
-                    <form class="forms-sample" asp-controller="UserSubscription" asp-action="Create" method="post">
-                        @Html.AntiForgeryToken()
-
-                        <div class="form-group mb-3">
-                            <label asp-for="UserId">Select User</label>
-                            <select asp-for="UserId" class="form-control form-select" asp-items="ViewBag.Users" required>
-                                <option value="">Select User</option>
-                            </select>
-                            <span asp-validation-for="UserId" class="text-danger"></span>
-                        </div>
-
-                        <div class="form-group mb-3">
-                            <label asp-for="PackageId">Select Subscription Package</label>
-                            <select asp-for="PackageId" class="form-control form-select" asp-items="ViewBag.Packages" required>
-                                <option value="">Select Package</option>
-                            </select>
-                            <span asp-validation-for="PackageId" class="text-danger"></span>
-                        </div>
-
-                        <div class="form-group mb-4">
-                            <label asp-for="SubscriptionDate">Subscription Date</label>
-                            <input asp-for="SubscriptionDate" type="date" class="form-control" required />
-                            <span asp-validation-for="SubscriptionDate" class="text-danger"></span>
-                        </div>
-
-                        <div class="mt-4">
-                            <button type="submit" class="btn btn-gradient-primary me-2">
-                                <i class="mdi mdi-check-circle me-1"></i> Subscribe
-                            </button>
-                            <a asp-controller="UserSubscription" asp-action="Index" class="btn btn-light">
-                                Cancel
-                            </a>
-                        </div>
-                    </form>
-                </div>
+    <div class="card-body">
+        <form asp-action="Create" method="post">
+            <div class="mb-3">
+                <label asp-for="UserId" class="form-label">User <span class="text-danger">*</span></label>
+                <select asp-for="UserId" asp-items="Model.Users" class="form-select">
+                    <option value="">Select User</option>
+                </select>
+                <span asp-validation-for="UserId" class="text-danger"></span>
             </div>
-        </div>
+            
+            <div class="mb-3">
+                <label asp-for="PackageId" class="form-label">Package <span class="text-danger">*</span></label>
+                <select asp-for="PackageId" asp-items="Model.Packages" class="form-select">
+                    <option value="">Select Package</option>
+                </select>
+                <span asp-validation-for="PackageId" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="SubscriptionDate" class="form-label">Subscription Date <span class="text-danger">*</span></label>
+                <input asp-for="SubscriptionDate" class="form-control" type="date" />
+                <span asp-validation-for="SubscriptionDate" class="text-danger"></span>
+            </div>
+
+            <div class="mb-4 form-check ps-4">
+                <input asp-for="IsActive" class="form-check-input" />
+                <label asp-for="IsActive" class="form-check-label">Active Status</label>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2">
+                <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+                <button type="submit" class="btn btn-sf-primary">Save</button>
+            </div>
+        </form>
     </div>
 </div>

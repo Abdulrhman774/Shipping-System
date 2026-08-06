@@ -1,101 +1,61 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
-using System;
-using System.Collections.Generic;
-using Domain.Entities;
-using BL.DTOs.Carrier;
-using BL.Contract.IServices;
+using UI.Areas.Admin.Models;
 
-namespace UI.Areas.Admin.Controllers
+namespace UI.Areas.Admin.Controllers;
+
+public class CarrierController : BaseAdminController
 {
-    [Area("Admin")]
-    [Authorize]
-    public class CarrierController : BaseController
+    public IActionResult Index()
     {
-        // Constructor inject ICarrierService (commented out as per instructions)
-        /*
-        private readonly ICarrierService _carrierService;
-        public CarrierController(ICarrierService carrierService)
+        var model = new ManagementPageViewModel<CarrierRowItem>
         {
-            _carrierService = carrierService;
-        }
-        */
-
-        // GET: Admin/Carrier
-        public IActionResult Index()
-        {
-            // Hardcoded list of 3 sample carriers for display
-            var carriers = new List<TbCarrier>
+            PageTitle = "Carrier Management",
+            PageDescription = "Manage carriers...",
+            AddButtonText = "Add New Carrier",
+            AddButtonController = "Carrier",
+            RecordLabel = "records",
+            RecordIcon = "fa-truck",
+            SortedBy = "Carrier Name",
+            Items = new List<CarrierRowItem>
             {
-                new TbCarrier
-                {
-                    Id = Guid.Parse("11111111-2222-3333-4444-555555555555"),
-                    CarrierName = "DHL Express",
-                    CurrentState = enEntityState.Active,
-                    CreatedDate = new DateTime(2026, 1, 5, 8, 0, 0)
-                },
-                new TbCarrier
-                {
-                    Id = Guid.Parse("22222222-3333-4444-5555-666666666666"),
-                    CarrierName = "Aramex",
-                    CurrentState = enEntityState.Active,
-                    CreatedDate = new DateTime(2026, 2, 12, 10, 30, 0)
-                },
-                new TbCarrier
-                {
-                    Id = Guid.Parse("33333333-4444-5555-6666-777777777777"),
-                    CarrierName = "FedEx",
-                    CurrentState = enEntityState.Inactive,
-                    CreatedDate = new DateTime(2026, 3, 20, 14, 15, 0)
-                }
-            };
+                new() { Id = Guid.NewGuid(), CarrierName = "Swift Logistics Group", Status = "Active", CreatedDate = "2023-11-15" },
+                new() { Id = Guid.NewGuid(), CarrierName = "Global Freight Systems", Status = "Active", CreatedDate = "2023-12-02" },
+                new() { Id = Guid.NewGuid(), CarrierName = "Oceanic Maritime Inc.", Status = "Inactive", CreatedDate = "2024-01-10" },
+                new() { Id = Guid.NewGuid(), CarrierName = "Atlas Distribution Network", Status = "Active", CreatedDate = "2024-01-28" },
+                new() { Id = Guid.NewGuid(), CarrierName = "Pinnacle Express Services", Status = "Active", CreatedDate = "2024-02-14" }
+            },
+            Pagination = new PaginationModel { CurrentPage = 1, TotalPages = 1, TotalItems = 5, PageSize = 10, ItemLabel = "records" }
+        };
+        return View(model);
+    }
 
-            return View(carriers);
-        }
+    [HttpGet]
+    public IActionResult Create()
+    {
+        return View(new CarrierFormViewModel());
+    }
 
-        // GET: Admin/Carrier/Create
-        public IActionResult Create()
-        {
-            return View(new CreateCarrierDto());
-        }
+    [HttpPost]
+    public IActionResult Create(CarrierFormViewModel model)
+    {
+        return RedirectToAction("Index");
+    }
 
-        // POST: Admin/Carrier/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Create(CreateCarrierDto dto)
-        {
-            // Redirect to Index (no actual business logic)
-            return RedirectToAction(nameof(Index));
-        }
+    [HttpGet]
+    public IActionResult Edit(Guid id)
+    {
+        return View(new CarrierFormViewModel { Id = id, CarrierName = "Swift Logistics Group", IsActive = true });
+    }
 
-        // GET: Admin/Carrier/Edit/{id}
-        public IActionResult Edit(Guid id)
-        {
-            ViewBag.Id = id;
-            // Hardcoded update model with pre-filled values
-            var dto = new UpdateCarrierDto
-            {
-                CarrierName = "DHL Express"
-            };
-            return View(dto);
-        }
+    [HttpPost]
+    public IActionResult Edit(CarrierFormViewModel model)
+    {
+        return RedirectToAction("Index");
+    }
 
-        // POST: Admin/Carrier/Edit/{id}
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Edit(Guid id, UpdateCarrierDto dto)
-        {
-            // Redirect to Index (no actual business logic)
-            return RedirectToAction(nameof(Index));
-        }
-
-        // POST: Admin/Carrier/Delete/{id}
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Delete(Guid id)
-        {
-            // Redirect to Index (no actual business logic)
-            return RedirectToAction(nameof(Index));
-        }
+    [HttpPost]
+    public IActionResult Delete(Guid id)
+    {
+        return RedirectToAction("Index");
     }
 }

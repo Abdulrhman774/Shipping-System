@@ -95,6 +95,54 @@ app.Use(async (context, next) =>
 // ✅ Routes
 // ============================================
 
+
+/*
+//app.MapControllerRoute(
+//    name: "areas",
+//    pattern: "{area:exists}/{controller=Dashboard}/{action=Index}/{id?}");
+
+//app.MapControllerRoute(
+//    name: "default",
+//    pattern: "{controller=Home}/{action=Index}/{id?}");
+
+//// Route مخصص للـ Account
+//app.MapControllerRoute(
+//    name: "account",
+//    pattern: "account/{action=Login}/{id?}",
+//    defaults: new { controller = "Account" });
+
+//// Route مخصص للـ Home
+//app.MapControllerRoute(
+//    name: "home",
+//    pattern: "home/{action=Index}/{id?}",
+//    defaults: new { controller = "Home" });
+
+//app.MapControllerRoute(
+//    name: "shipment_create",
+//    pattern: "Shipment/Create",
+//    defaults: new { controller = "Shipment", action = "Create" });
+
+//app.MapControllerRoute(
+//    name: "shipment_update",
+//    pattern: "Shipment/Update/{id}",
+//    defaults: new { controller = "Shipment", action = "Update" });
+
+//app.MapControllerRoute(
+//    name: "shipment_history",
+//    pattern: "Shipment/History",
+//    defaults: new { controller = "Shipment", action = "History" });
+
+//app.MapControllerRoute(
+//    name: "shipment_details",
+//    pattern: "Shipment/Details/{id}",
+//    defaults: new { controller = "Shipment", action = "Details" });
+
+//app.MapControllerRoute(
+//    name: "shipment_confirmation",
+//    pattern: "Shipment/Confirmation/{id}",
+//    defaults: new { controller = "Shipment", action = "Confirmation" });
+*/
+
 app.MapControllerRoute(
     name: "areas",
     pattern: "{area:exists}/{controller=Dashboard}/{action=Index}/{id?}");
@@ -102,42 +150,5 @@ app.MapControllerRoute(
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
-
-// Route مخصص للـ Account
-app.MapControllerRoute(
-    name: "account",
-    pattern: "account/{action=Login}/{id?}",
-    defaults: new { controller = "Account" });
-
-// Route مخصص للـ Home
-app.MapControllerRoute(
-    name: "home",
-    pattern: "home/{action=Index}/{id?}",
-    defaults: new { controller = "Home" });
-
-app.MapControllerRoute(
-    name: "shipment_create",
-    pattern: "Shipment/Create",
-    defaults: new { controller = "Shipment", action = "Create" });
-
-app.MapControllerRoute(
-    name: "shipment_update",
-    pattern: "Shipment/Update/{id}",
-    defaults: new { controller = "Shipment", action = "Update" });
-
-app.MapControllerRoute(
-    name: "shipment_history",
-    pattern: "Shipment/History",
-    defaults: new { controller = "Shipment", action = "History" });
-
-app.MapControllerRoute(
-    name: "shipment_details",
-    pattern: "Shipment/Details/{id}",
-    defaults: new { controller = "Shipment", action = "Details" });
-
-app.MapControllerRoute(
-    name: "shipment_confirmation",
-    pattern: "Shipment/Confirmation/{id}",
-    defaults: new { controller = "Shipment", action = "Confirmation" });
 
 app.Run();

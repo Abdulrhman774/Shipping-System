@@ -1,0 +1,24 @@
+@model string
+
+@{
+    var status = Model?.Trim();
+    var badgeClass = "badge-inactive";
+    if (!string.IsNullOrEmpty(status))
+    {
+        badgeClass = status.ToLower() switch
+        {
+            "active" => "badge-active",
+            "inactive" => "badge-inactive",
+            "processing" => "badge-processing",
+            "delivered" => "badge-delivered",
+            "confirmed" => "badge-confirmed",
+            "expired" => "badge-expired",
+            "deleted" => "badge-deleted",
+            "dispatched" => "badge-dispatched",
+            "quality check" => "badge-quality-check",
+            _ => "badge-inactive"
+        };
+    }
+}
+
+<span class="badge @badgeClass">@(status?.ToUpper())</span>

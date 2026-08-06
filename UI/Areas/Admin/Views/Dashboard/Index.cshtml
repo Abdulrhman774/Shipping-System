@@ -1,193 +1,265 @@
+@model UI.Areas.Admin.Models.DashboardViewModel
 @{
-    ViewData["Title"] = "Dashboard";
+    ViewBag.Title = "Dashboard";
 }
 
-<div class="content-wrapper">
-    <div class="page-header">
-        <h3 class="page-title">
-            <span class="page-title-icon bg-gradient-primary text-white me-2">
-                <i class="mdi mdi-home"></i>
-            </span> Dashboard
-        </h3>
-        <nav aria-label="breadcrumb">
-            <ul class="breadcrumb">
-                <li class="breadcrumb-item active" aria-current="page">
-                    <span></span>Overview
-                    <i class="mdi mdi-alert-circle-outline icon-sm text-primary align-middle"></i>
-                </li>
-            </ul>
-        </nav>
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="fw-bold mb-0 d-inline-block">Dashboard</h4>
+            <span class="badge bg-success ms-2 rounded-pill px-2 py-1 align-top" style="font-size: 0.7rem;">ADMIN</span>
+        </div>
     </div>
 
-    @* ---- Stats Cards Row ---- *@
-    <div class="row">
-        <!-- Total Shipments -->
-        <div class="col-md-3 stretch-card grid-margin">
-            <div class="card bg-gradient-primary card-img-holder text-white">
-                <div class="card-body">
-                    <img src="~/Admin/images/dashboard/circle.svg" class="card-img-absolute" alt="circle-image" />
-                    <h4 class="font-weight-normal mb-3">
-                        Total Shipments
-                        <i class="mdi mdi-package-variant-closed mdi-24px float-end"></i>
-                    </h4>
-                    <h2 class="mb-5">1,284</h2>
-                    <h6 class="card-text">Total registered shipments</h6>
+    <div class="row g-4 mb-4">
+        <div class="col-md">
+            <div class="sf-stat-card card border-0 shadow-sm rounded-4 p-4 h-100">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div class="text-uppercase text-muted small fw-bold">Total Shipments</div>
+                    <div class="bg-light rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                        <i class="fa-solid fa-box text-primary"></i>
+                    </div>
                 </div>
+                <h3 class="fw-bold mb-0">@Model.TotalShipments</h3>
             </div>
         </div>
-
-        <!-- Active Carriers -->
-        <div class="col-md-3 stretch-card grid-margin">
-            <div class="card bg-gradient-success card-img-holder text-white">
-                <div class="card-body">
-                    <img src="~/Admin/images/dashboard/circle.svg" class="card-img-absolute" alt="circle-image" />
-                    <h4 class="font-weight-normal mb-3">
-                        Active Carriers
-                        <i class="mdi mdi-truck mdi-24px float-end"></i>
-                    </h4>
-                    <h2 class="mb-5">8</h2>
-                    <h6 class="card-text">Active delivery providers</h6>
+        <div class="col-md">
+            <div class="sf-stat-card card border-0 shadow-sm rounded-4 p-4 h-100">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div class="text-uppercase text-muted small fw-bold">Active Deliveries</div>
+                    <div class="bg-light rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                        <i class="fa-solid fa-truck text-primary"></i>
+                    </div>
                 </div>
+                <h3 class="fw-bold mb-0">@Model.ActiveDeliveries</h3>
             </div>
         </div>
-
-        <!-- Countries -->
-        <div class="col-md-3 stretch-card grid-margin">
-            <div class="card bg-gradient-warning card-img-holder text-white">
-                <div class="card-body">
-                    <img src="~/Admin/images/dashboard/circle.svg" class="card-img-absolute" alt="circle-image" />
-                    <h4 class="font-weight-normal mb-3">
-                        Countries
-                        <i class="mdi mdi-earth mdi-24px float-end"></i>
-                    </h4>
-                    <h2 class="mb-5">24</h2>
-                    <h6 class="card-text">Operational countries</h6>
+        <div class="col-md">
+            <div class="sf-stat-card card border-0 shadow-sm rounded-4 p-4 h-100">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div class="text-uppercase text-muted small fw-bold">Pending Approvals</div>
+                    <div class="bg-light rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                        <i class="fa-solid fa-clipboard-check text-primary"></i>
+                    </div>
                 </div>
+                <h3 class="fw-bold mb-0">@Model.PendingApprovals</h3>
             </div>
         </div>
-
-        <!-- Subscription Packages -->
-        <div class="col-md-3 stretch-card grid-margin">
-            <div class="card bg-gradient-info card-img-holder text-white">
-                <div class="card-body">
-                    <img src="~/Admin/images/dashboard/circle.svg" class="card-img-absolute" alt="circle-image" />
-                    <h4 class="font-weight-normal mb-3">
-                        Subscription Packages
-                        <i class="mdi mdi-star mdi-24px float-end"></i>
-                    </h4>
-                    <h2 class="mb-5">5</h2>
-                    <h6 class="card-text">Configured packages</h6>
+        <div class="col-md">
+            <div class="sf-stat-card card border-0 shadow-sm rounded-4 p-4 h-100">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div class="text-uppercase text-muted small fw-bold">Efficiency Rate</div>
+                    <div class="bg-light rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                        <i class="fa-solid fa-chart-line text-primary"></i>
+                    </div>
                 </div>
+                <h3 class="fw-bold mb-0">@Model.EfficiencyRate</h3>
+            </div>
+        </div>
+        <div class="col-md">
+            <div class="sf-stat-card card border-0 shadow-sm rounded-4 p-4 h-100">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div class="text-uppercase text-muted small fw-bold">Delayed Shipments</div>
+                    <div class="bg-light rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                        <i class="fa-solid fa-clock text-primary"></i>
+                    </div>
+                </div>
+                <h3 class="fw-bold mb-0">@Model.DelayedShipments</h3>
             </div>
         </div>
     </div>
 
-    @* ---- Recent Shipments Table ---- *@
-    <div class="row">
-        <div class="col-12 grid-margin">
-            <div class="card">
-                <div class="card-body">
-                    <h4 class="card-title">Recent Shipments</h4>
+    <div class="row g-4 mb-4">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-header bg-white border-0 pt-4 pb-0 px-4 d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="fw-bold mb-1">Recent Shipments</h5>
+                        <div class="text-muted small">Overview of current logistical flow.</div>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <div class="input-group input-group-sm w-auto">
+                            <span class="input-group-text bg-light border-0"><i class="fa-solid fa-search text-muted"></i></span>
+                            <input type="text" class="form-control bg-light border-0" placeholder="Search...">
+                        </div>
+                        <button class="btn btn-sm btn-light border-0"><i class="fa-solid fa-filter"></i> Filters</button>
+                    </div>
+                </div>
+                <div class="card-body px-0 pb-2">
                     <div class="table-responsive">
-                        <table class="table">
-                            <thead>
+                        <table class="table sf-table table-hover align-middle mb-0">
+                            <thead class="text-muted small">
                                 <tr>
-                                    <th>Tracking#</th>
-                                    <th>Sender</th>
-                                    <th>Receiver</th>
-                                    <th>Type</th>
-                                    <th>Date</th>
-                                    <th>Status</th>
+                                    <th class="ps-4">ID</th>
+                                    <th>DESTINATION</th>
+                                    <th>STATUS</th>
+                                    <th>PRIORITY</th>
+                                    <th>LAST UPDATE</th>
+                                    <th class="text-end pe-4">ACTIONS</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>10001001</td>
-                                    <td>أحمد محمد</td>
-                                    <td>سارة أحمد</td>
-                                    <td>Express</td>
-                                    <td>Jun 1, 2026</td>
-                                    <td><label class="badge badge-gradient-success">Active</label></td>
-                                </tr>
-                                <tr>
-                                    <td>10001002</td>
-                                    <td>خالد عبدالله</td>
-                                    <td>علي حسن</td>
-                                    <td>Standard</td>
-                                    <td>Jun 3, 2026</td>
-                                    <td><label class="badge badge-gradient-success">Active</label></td>
-                                </tr>
-                                <tr>
-                                    <td>10001003</td>
-                                    <td>جون دو</td>
-                                    <td>فاطمة عمر</td>
-                                    <td>Same Day</td>
-                                    <td>Jun 5, 2026</td>
-                                    <td><label class="badge badge-gradient-warning">Inactive</label></td>
-                                </tr>
-                                <tr>
-                                    <td>10001004</td>
-                                    <td>سارة أحمد</td>
-                                    <td>أحمد محمد</td>
-                                    <td>Express</td>
-                                    <td>Jun 6, 2026</td>
-                                    <td><label class="badge badge-gradient-danger">Deleted</label></td>
-                                </tr>
-                                <tr>
-                                    <td>10001005</td>
-                                    <td>علي حسن</td>
-                                    <td>خالد عبدالله</td>
-                                    <td>Standard</td>
-                                    <td>Jun 7, 2026</td>
-                                    <td><label class="badge badge-gradient-success">Active</label></td>
-                                </tr>
+                                @foreach (var item in Model.RecentShipments)
+                                {
+                                    <tr>
+                                        <td class="ps-4"><a href="#" class="sf-tracking-link text-decoration-none fw-bold">@item.Id</a></td>
+                                        <td>@item.Destination</td>
+                                        <td>@await Html.PartialAsync("_StatusBadge", item.Status)</td>
+                                        <td>
+                                            @if(item.Priority == "High") {
+                                                <span class="text-danger"><i class="fa-solid fa-circle fa-2xs me-1"></i>High</span>
+                                            } else if(item.Priority == "Medium") {
+                                                <span class="text-warning"><i class="fa-solid fa-circle fa-2xs me-1"></i>Medium</span>
+                                            } else {
+                                                <span class="text-success"><i class="fa-solid fa-circle fa-2xs me-1"></i>Low</span>
+                                            }
+                                        </td>
+                                        <td class="text-muted small"><i class="fa-regular fa-clock me-1"></i>@item.LastUpdate</td>
+                                        <td class="text-end pe-4">
+                                            <button class="btn btn-sm btn-light rounded-circle sf-action-btn"><i class="fa-regular fa-file"></i></button>
+                                            <button class="btn btn-sm btn-light rounded-circle sf-action-btn ms-1"><i class="fa-solid fa-ellipsis"></i></button>
+                                        </td>
+                                    </tr>
+                                }
                             </tbody>
                         </table>
                     </div>
                 </div>
+                <div class="card-footer bg-white border-0 pt-0 pb-4 px-4">
+                    <a asp-action="Index" asp-controller="Shipment" asp-area="Admin" class="text-decoration-none fw-bold" style="color: var(--bs-primary);">View all shipments &rarr;</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="d-flex flex-column gap-4 h-100">
+                <div class="card border-0 shadow-sm rounded-4 p-4 sf-quick-action">
+                    <h6 class="fw-bold mb-3">Quick Actions</h6>
+                    <div class="d-flex flex-column gap-3">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center text-primary me-3 flex-shrink-0" style="width: 40px; height: 40px;">
+                                <i class="fa-solid fa-plus"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold small">Create Shipment</div>
+                                <div class="text-muted" style="font-size: 0.75rem;">Start a new logistics order</div>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <div class="bg-success bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center text-success me-3 flex-shrink-0" style="width: 40px; height: 40px;">
+                                <i class="fa-solid fa-circle-check"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold small">Approve Batch</div>
+                                <div class="text-muted" style="font-size: 0.75rem;">Verify 12 pending documents</div>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <div class="bg-info bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center text-info me-3 flex-shrink-0" style="width: 40px; height: 40px;">
+                                <i class="fa-solid fa-chart-bar"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold small">Generate Report</div>
+                                <div class="text-muted" style="font-size: 0.75rem;">Download monthly performance</div>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <div class="bg-secondary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center text-secondary me-3 flex-shrink-0" style="width: 40px; height: 40px;">
+                                <i class="fa-solid fa-users"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold small">Manage Team</div>
+                                <div class="text-muted" style="font-size: 0.75rem;">Adjust operator permissions</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm rounded-4 p-4">
+                    <h6 class="fw-bold mb-3">Logistics Health</h6>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1 small fw-bold">
+                            <span>On-Time Deliveries</span>
+                            <span class="text-success">88%</span>
+                        </div>
+                        <div class="progress" style="height: 4px;">
+                            <div class="progress-bar bg-success" role="progressbar" style="width: 88%" aria-valuenow="88" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1 small fw-bold">
+                            <span>Capacity Utilization</span>
+                            <span class="text-primary">72%</span>
+                        </div>
+                        <div class="progress" style="height: 4px;">
+                            <div class="progress-bar bg-primary" role="progressbar" style="width: 72%" aria-valuenow="72" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="d-flex justify-content-between mb-1 small fw-bold">
+                            <span>Pending Compliance</span>
+                            <span class="text-primary">14%</span>
+                        </div>
+                        <div class="progress" style="height: 4px;">
+                            <div class="progress-bar bg-primary" role="progressbar" style="width: 14%" aria-valuenow="14" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card border-0 rounded-4 p-4" style="background-color: var(--bs-primary); color: white;">
+                    <h5 class="fw-bold mb-2">Need Assistance?</h5>
+                    <p class="mb-3 small opacity-75">Our support team is available 24/7 to help you with any issues.</p>
+                    <button class="btn btn-outline-light btn-sm w-100 rounded-pill">Open Support Ticket</button>
+                </div>
             </div>
         </div>
     </div>
 
-    @* ---- Quick Links Row ---- *@
-    <div class="row">
-        <div class="col-md-3 stretch-card grid-margin">
-            <div class="card">
-                <div class="card-body text-center">
-                    <i class="mdi mdi-earth mdi-36px text-warning mb-3"></i>
-                    <h5 class="card-title">Countries</h5>
-                    <p class="card-text text-muted">Manage available countries.</p>
-                    <a asp-area="Admin" asp-controller="Country" asp-action="Index" class="btn btn-gradient-warning btn-sm w-100">Manage Countries</a>
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
+                <h5 class="fw-bold mb-1">Global Coverage</h5>
+                <div class="text-muted small mb-4">Active routes and hubs globally.</div>
+                <div class="bg-light rounded-3 d-flex flex-column align-items-center justify-content-center h-100" style="min-height: 200px;">
+                    <i class="fa-solid fa-map text-muted opacity-50 mb-2 fa-2x"></i>
+                    <span class="text-muted small">Map visualization data loading...</span>
                 </div>
             </div>
         </div>
-        <div class="col-md-3 stretch-card grid-margin">
-            <div class="card">
-                <div class="card-body text-center">
-                    <i class="mdi mdi-truck mdi-36px text-success mb-3"></i>
-                    <h5 class="card-title">Carriers</h5>
-                    <p class="card-text text-muted">Manage shipping carriers.</p>
-                    <a asp-area="Admin" asp-controller="Carrier" asp-action="Index" class="btn btn-gradient-success btn-sm w-100">Manage Carriers</a>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3 stretch-card grid-margin">
-            <div class="card">
-                <div class="card-body text-center">
-                    <i class="mdi mdi-package-variant-closed mdi-36px text-primary mb-3"></i>
-                    <h5 class="card-title">Shipments</h5>
-                    <p class="card-text text-muted">Manage all shipments.</p>
-                    <a asp-area="Admin" asp-controller="Shipment" asp-action="Index" class="btn btn-gradient-primary btn-sm w-100">Manage Shipments</a>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3 stretch-card grid-margin">
-            <div class="card">
-                <div class="card-body text-center">
-                    <i class="mdi mdi-settings mdi-36px text-info mb-3"></i>
-                    <h5 class="card-title">System Settings</h5>
-                    <p class="card-text text-muted">Adjust system rates.</p>
-                    <a asp-area="Admin" asp-controller="Setting" asp-action="Edit" class="btn btn-gradient-info btn-sm w-100">System Settings</a>
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
+                <h5 class="fw-bold mb-1">Team Performance</h5>
+                <div class="text-muted small mb-4">Weekly average processing times per operator.</div>
+                <div class="d-flex flex-column gap-3">
+                    <div class="border rounded-3 p-3 d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="fw-bold small mb-1">Route Optimization</div>
+                            <div class="text-muted" style="font-size: 0.75rem;">Avg. processing: 4.2h</div>
+                        </div>
+                        <div class="text-end">
+                            <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-2 py-1 mb-1">92%</span>
+                            <div class="text-muted" style="font-size: 0.75rem;">Target met</div>
+                        </div>
+                    </div>
+                    <div class="border rounded-3 p-3 d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="fw-bold small mb-1">Document Review</div>
+                            <div class="text-muted" style="font-size: 0.75rem;">Avg. processing: 1.8h</div>
+                        </div>
+                        <div class="text-end">
+                            <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-2 py-1 mb-1">98%</span>
+                            <div class="text-muted" style="font-size: 0.75rem;">Target met</div>
+                        </div>
+                    </div>
+                    <div class="border rounded-3 p-3 d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="fw-bold small mb-1">Inventory Check</div>
+                            <div class="text-muted" style="font-size: 0.75rem;">Avg. processing: 2.5h</div>
+                        </div>
+                        <div class="text-end">
+                            <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-2 py-1 mb-1">85%</span>
+                            <div class="text-muted" style="font-size: 0.75rem;">Target met</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

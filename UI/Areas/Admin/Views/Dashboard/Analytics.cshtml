@@ -1,0 +1,126 @@
+@model UI.Areas.Admin.Models.AnalyticsViewModel
+@{
+    ViewBag.Title = "Analytics";
+}
+
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-start mb-4">
+        <div>
+            <div class="small fw-bold text-uppercase mb-1" style="color: var(--bs-primary);"><i class="fa-solid fa-chart-pie me-1"></i> Operations Intelligence</div>
+            <h2 class="fw-bold mb-1">Analytics</h2>
+            <div class="text-muted">Performance metrics for all shipments across regional configurations.</div>
+        </div>
+        <div>
+            <button class="btn btn-outline-secondary"><i class="fa-solid fa-download me-1"></i> Export Report <i class="fa-solid fa-caret-down ms-1"></i></button>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4 p-3 mb-4 bg-white">
+        <div class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label small text-muted fw-bold text-uppercase mb-1">Reporting Period</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-light text-muted"><i class="fa-regular fa-calendar"></i></span>
+                    <select class="form-select bg-light border-light">
+                        <option>Last 6 Months</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small text-muted fw-bold text-uppercase mb-1">Shipment Status</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-light text-muted"><i class="fa-solid fa-filter"></i></span>
+                    <select class="form-select bg-light border-light">
+                        <option>All Statuses</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small text-muted fw-bold text-uppercase mb-1">Logistic Carrier</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-light text-muted"><i class="fa-solid fa-users"></i></span>
+                    <select class="form-select bg-light border-light">
+                        <option>All Registered Carriers</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-3 d-flex align-items-center">
+                <a href="#" class="text-muted text-decoration-none small"><i class="fa-solid fa-filter-circle-xmark me-1"></i> Reset Filters</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <h6 class="fw-bold mb-0"><i class="fa-solid fa-ship me-2 text-muted"></i> Shipments by Status</h6>
+                    <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-2 py-1">Real-time</span>
+                </div>
+                <div class="text-muted small mb-4">Current distribution of all active shipments.</div>
+                <canvas id="shipmentsByStatusChart" height="300"></canvas>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <h6 class="fw-bold mb-0"><i class="fa-solid fa-chart-simple me-2 text-muted"></i> Monthly Volume</h6>
+                    <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-2 py-1">+12.4%</span>
+                </div>
+                <div class="text-muted small mb-4">Shipment volume trend over the selected period.</div>
+                <canvas id="monthlyVolumeChart" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <h6 class="fw-bold mb-0"><i class="fa-solid fa-arrow-trend-up me-2 text-muted"></i> Revenue vs. Cost</h6>
+                    <button class="btn btn-sm btn-light border-0 rounded-circle"><i class="fa-solid fa-ellipsis"></i></button>
+                </div>
+                <div class="text-muted small mb-4">Financial overview of operations.</div>
+                <canvas id="revenueCostChart" height="300"></canvas>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <h6 class="fw-bold mb-0"><i class="fa-solid fa-users me-2 text-muted"></i> Top 5 Shippers</h6>
+                    <span class="text-muted small fw-bold text-uppercase">Current Month</span>
+                </div>
+                <div class="text-muted small mb-4">Clients with the highest volume this month.</div>
+                <canvas id="topShippersChart" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        @if (Model.BottomStats != null)
+        {
+            foreach (var stat in Model.BottomStats)
+            {
+                <div class="col-lg-3">
+                    <div class="card border-0 shadow-sm rounded-4 p-3 bg-white h-100">
+                        <div class="text-uppercase text-muted small fw-bold mb-2">@stat.Title</div>
+                        <h3 class="fw-bold mb-1">@stat.Value</h3>
+                        <div class="small @(stat.IsPositiveChange ? "text-success" : "text-danger")">
+                            <i class="fa-solid @(stat.IsPositiveChange ? "fa-arrow-up" : "fa-arrow-down") me-1"></i>
+                            @stat.ChangeValue <span class="text-muted ms-1">vs last period</span>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+
+    <div class="d-flex justify-content-between text-muted small">
+        <div>Reports generated on August 6, 2026 at 07:03 AM</div>
+        <div><a href="#" class="text-decoration-none text-muted">Privacy Policy</a> | <a href="#" class="text-decoration-none text-muted">Terms of Service</a></div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/admin/js/dashboard-charts.js"></script>
+}

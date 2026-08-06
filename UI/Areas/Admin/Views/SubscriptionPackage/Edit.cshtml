@@ -1,64 +1,67 @@
-@model BL.DTOs.SubscriptionPackage.UpdateSubscriptionPackageDto
-@{
-    ViewData["Title"] = "Edit Subscription Package";
-}
+@using UI.Areas.Admin.Models
+@model SubscriptionPackageFormViewModel
+@{ ViewBag.Title = "Edit Package"; }
 
-<div class="content-wrapper">
-    <div class="page-header">
-        <h3 class="page-title"> Edit Subscription Package </h3>
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a asp-controller="Dashboard" asp-action="Index">Dashboard</a></li>
-                <li class="breadcrumb-item"><a asp-controller="SubscriptionPackage" asp-action="Index">Subscription Packages</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Edit</li>
-            </ol>
-        </nav>
+<div class="mb-4">
+    <a asp-action="Index" class="text-decoration-none text-muted">
+        <i class="fas fa-arrow-left me-1"></i> back to packages
+    </a>
+</div>
+
+<div class="card shadow-sm mx-auto" style="max-width: 700px;">
+    <div class="card-header bg-white py-3">
+        <h4 class="mb-0">Edit Package</h4>
     </div>
-
-    <div class="row">
-        <div class="col-12 grid-margin stretch-card">
-            <div class="card">
-                <div class="card-body">
-                    <h4 class="card-title text-primary mb-4"><i class="mdi mdi-package-variant-closed me-2"></i>Edit Package Details</h4>
-                    
-                    <form class="forms-sample" asp-controller="SubscriptionPackage" asp-action="Edit" asp-route-id="@ViewBag.Id" method="post">
-                        @Html.AntiForgeryToken()
-                        
-                        <div class="form-group mb-3">
-                            <label asp-for="PackageName">Package Name</label>
-                            <input asp-for="PackageName" type="text" class="form-control" placeholder="Enter Package Name (e.g. Premium Package)" required />
-                            <span asp-validation-for="PackageName" class="text-danger"></span>
-                        </div>
-
-                        <div class="form-group mb-3">
-                            <label asp-for="ShipimentCount">Shipment Count Limit</label>
-                            <input asp-for="ShipimentCount" type="number" min="1" class="form-control" placeholder="Enter Maximum Shipments Allowed" required />
-                            <span asp-validation-for="ShipimentCount" class="text-danger"></span>
-                        </div>
-
-                        <div class="form-group mb-3">
-                            <label asp-for="NumberOfKiloMeters">Kilometers Limit (KM)</label>
-                            <input asp-for="NumberOfKiloMeters" type="number" step="0.1" min="0" class="form-control" placeholder="Enter Maximum Kilometers Allowed" required />
-                            <span asp-validation-for="NumberOfKiloMeters" class="text-danger"></span>
-                        </div>
-
-                        <div class="form-group mb-4">
-                            <label asp-for="TotalWeight">Total Weight Limit (kg)</label>
-                            <input asp-for="TotalWeight" type="number" step="0.1" min="0" class="form-control" placeholder="Enter Maximum Weight Allowed" required />
-                            <span asp-validation-for="TotalWeight" class="text-danger"></span>
-                        </div>
-
-                        <div class="mt-4">
-                            <button type="submit" class="btn btn-gradient-primary me-2">
-                                <i class="mdi mdi-content-save me-1"></i> Save
-                            </button>
-                            <a asp-controller="SubscriptionPackage" asp-action="Index" class="btn btn-light">
-                                Cancel
-                            </a>
-                        </div>
-                    </form>
+    <div class="card-body">
+        <form asp-action="Edit" method="post">
+            <input type="hidden" asp-for="Id" />
+            <div class="mb-3">
+                <label asp-for="PackageName" class="form-label">Package Name <span class="text-danger">*</span></label>
+                <input asp-for="PackageName" class="form-control" />
+                <span asp-validation-for="PackageName" class="text-danger"></span>
+            </div>
+            
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label asp-for="ShipmentCount" class="form-label">Shipment Count <span class="text-danger">*</span></label>
+                    <input asp-for="ShipmentCount" class="form-control" type="number" />
+                    <span asp-validation-for="ShipmentCount" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="NumberOfKiloMeters" class="form-label">Distance (KM) <span class="text-danger">*</span></label>
+                    <input asp-for="NumberOfKiloMeters" class="form-control" type="number" />
+                    <span asp-validation-for="NumberOfKiloMeters" class="text-danger"></span>
                 </div>
             </div>
-        </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label asp-for="TotalWeight" class="form-label">Total Weight (KG) <span class="text-danger">*</span></label>
+                    <input asp-for="TotalWeight" class="form-control" type="number" />
+                    <span asp-validation-for="TotalWeight" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Price" class="form-label">Price ($) <span class="text-danger">*</span></label>
+                    <input asp-for="Price" class="form-control" type="number" step="0.01" />
+                    <span asp-validation-for="Price" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="DurationDays" class="form-label">Duration (Days) <span class="text-danger">*</span></label>
+                <input asp-for="DurationDays" class="form-control" type="number" />
+                <span asp-validation-for="DurationDays" class="text-danger"></span>
+            </div>
+
+            <div class="mb-4 form-check">
+                <input asp-for="IsActive" class="form-check-input" />
+                <label asp-for="IsActive" class="form-check-label">Active Status</label>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2">
+                <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+                <button type="submit" class="btn btn-sf-primary">Update Package</button>
+            </div>
+        </form>
     </div>
 </div>

@@ -1,129 +1,59 @@
-using BL.Contract.IServices;
-using BL.DTOs.ShippingType;
-using BL.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
-using UI.Helpers;
+using UI.Areas.Admin.Models;
 
-namespace UI.Areas.Admin.Controllers
+namespace UI.Areas.Admin.Controllers;
+
+public class ShippingTypeController : BaseAdminController
 {
-    [Area("Admin")]
-    [Authorize]
-    public class ShippingTypeController : BaseController
+    public IActionResult Index()
     {
-        private readonly IShippingTypeService _service;
-        private readonly ILogger<ShippingTypeService> _logger;
-        public ShippingTypeController(IShippingTypeService service, ILogger<ShippingTypeService> logger)
+        var model = new ManagementPageViewModel<ShippingTypeRowItem>
         {
-            _service = service;
-            _logger = logger;     
-        }
-
-        // Constructor inject IShippingTypeService (commented out as per instructions)
-        /*
-        private readonly IShippingTypeService _shippingTypeService;
-        public ShippingTypeController(IShippingTypeService shippingTypeService)
-        { m
-            _shippingTypeService = shippingTypeService;
-        }
-        */
-
-        // GET: Admin/ShippingType
-        public async Task<IActionResult> Index()
-        {
-            var shippingTypes = await _service.GetAllAsync();
-            return View(shippingTypes);
-        }
-
-        // GET: Admin/ShippingType/Create
-        public IActionResult Create()
-        {
-            return View(new CreateShippingTypeDto());
-        }
-
-        // POST: Admin/ShippingType/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(CreateShippingTypeDto dto)
-        {
-            if (!ModelState.IsValid)
-                return View(dto);
-
-            var result = await _service.AddAsync(dto);
-
-            if (!result.IsSuccess)
+            PageTitle = "Shipping Type Management",
+            PageDescription = "Manage shipping types...",
+            AddButtonText = "Add Shipping Type",
+            AddButtonController = "ShippingType",
+            RecordLabel = "records",
+            RecordIcon = "fa-box",
+            SortedBy = "English Name",
+            Items = new List<ShippingTypeRowItem>
             {
-                ModelState.AddModelError("", "Failed to create shipping type");
-                return View(dto);
-            }
+                new() { Id = Guid.NewGuid(), EnglishName = "Standard", ArabicName = "عادي", ShippingFactor = "1.0x", Status = "Active" },
+                new() { Id = Guid.NewGuid(), EnglishName = "Express", ArabicName = "سريع", ShippingFactor = "1.5x", Status = "Active" },
+                new() { Id = Guid.NewGuid(), EnglishName = "Same Day", ArabicName = "نفس اليوم", ShippingFactor = "2.0x", Status = "Active" }
+            },
+            Pagination = new PaginationModel { CurrentPage = 1, TotalPages = 1, TotalItems = 3, PageSize = 10, ItemLabel = "records" }
+        };
+        return View(model);
+    }
 
-            return RedirectToAction(nameof(Index));
-        }
+    [HttpGet]
+    public IActionResult Create()
+    {
+        return View(new ShippingTypeFormViewModel());
+    }
 
+    [HttpPost]
+    public IActionResult Create(ShippingTypeFormViewModel model)
+    {
+        return RedirectToAction("Index");
+    }
 
-        [HttpGet]
-        public async Task<IActionResult> Edit(Guid id)
-        {
-            var shippingType = await _service.GetByIdAsync(id);
+    [HttpGet]
+    public IActionResult Edit(Guid id)
+    {
+        return View(new ShippingTypeFormViewModel { Id = id, EnglishName = "Standard", ArabicName = "عادي", ShippingFactor = 1.0, IsActive = true });
+    }
 
-            // Store the ID in ViewBag to use it in the view
-            ViewBag.Id = id;
+    [HttpPost]
+    public IActionResult Edit(ShippingTypeFormViewModel model)
+    {
+        return RedirectToAction("Index");
+    }
 
-            if (shippingType == null)
-                return NotFound();
-
-            var dto = new UpdateShippingTypeDto
-            {
-                ShippingTypeAname = shippingType.Value.ShippingTypeAname,
-                ShippingTypeEname = shippingType.Value.ShippingTypeEname,
-                ShippingFactor = shippingType.Value.ShippingFactor
-            };
-
-            return View(dto);
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Save(Guid id, UpdateShippingTypeDto dto)
-        {
-            if (!ModelState.IsValid)
-                return View("Edit", dto);
-
-            if (id == Guid.Empty)
-            {
-                ModelState.AddModelError("", "Invalid shipping type ID");
-                return View("Edit", dto);
-            }
-
-            try
-            {
-                var result = await _service.UpdateAsync(id, dto);
-
-                if (!result.IsSuccess)
-                {
-                    TempData["MessageType"] = enMessageType.SavedFailed;
-                    return View("Edit", dto);
-                }
-
-                TempData["MessageType"] = enMessageType.SavedSuccessfully;
-                return RedirectToAction(nameof(Index));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error updating shipping type {Id}", id);
-
-                TempData["MessageType"] = enMessageType.SavedFailed;
-                return View("Edit", dto);
-            }
-        }
-
-        // POST: Admin/ShippingType/Delete/{id}
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Delete(Guid id)
-        {
-            await _service.DeleteAsync(id);
-            return RedirectToAction(nameof(Index));
-        }
+    [HttpPost]
+    public IActionResult Delete(Guid id)
+    {
+        return RedirectToAction("Index");
     }
 }
