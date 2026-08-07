@@ -18,9 +18,9 @@ public class SubscriptionPackageController : BaseAdminController
             SortedBy = "Package Name",
             Items = new List<SubscriptionPackageRowItem>
             {
-                new() { Id = Guid.NewGuid(), PackageName = "Basic", Uid = "PKG-001", ShipmentCount = "100", DistanceKm = "1,000", WeightKg = "500", Price = "$99.99", DurationDays = "30", Status = "Active", Icon = "fa-star" },
-                new() { Id = Guid.NewGuid(), PackageName = "Pro", Uid = "PKG-002", ShipmentCount = "500", DistanceKm = "5,000", WeightKg = "2,000", Price = "$299.99", DurationDays = "90", Status = "Active", Icon = "fa-medal" },
-                new() { Id = Guid.NewGuid(), PackageName = "Enterprise", Uid = "PKG-003", ShipmentCount = "2,000", DistanceKm = "20,000", WeightKg = "10,000", Price = "$999.99", DurationDays = "365", Status = "Active", Icon = "fa-crown" }
+                new() { Id = Guid.NewGuid(), PackageName = "Basic", Uid = "PKG-001", ShipmentCount = "100", DistanceKm = "1,000", WeightKg = "500", Price = "$99.99", DurationDays = "30", Status = enShipmentStatus.Created, Icon = "fa-star" },
+                new() { Id = Guid.NewGuid(), PackageName = "Pro", Uid = "PKG-002", ShipmentCount = "500", DistanceKm = "5,000", WeightKg = "2,000", Price = "$299.99", DurationDays = "90", Status = enShipmentStatus.Created, Icon = "fa-medal" },
+                new() { Id = Guid.NewGuid(), PackageName = "Enterprise", Uid = "PKG-003", ShipmentCount = "2,000", DistanceKm = "20,000", WeightKg = "10,000", Price = "$999.99", DurationDays = "365", Status = enShipmentStatus.Created, Icon = "fa-crown" }
             },
             Pagination = new PaginationModel { CurrentPage = 1, TotalPages = 1, TotalItems = 3, PageSize = 10, ItemLabel = "records" }
         };

@@ -1,10 +1,12 @@
+using BL.Common;
 using BL.Common.Results;
 using BL.Contract;
 using BL.Contract.IServices;
 using BL.Mapping;
 using DAL.Contracts;
-using Domain.Shared;
 using Domain.Entities;
+using Domain.Shared;
+using System.Linq.Expressions;
 
 namespace BL.Services;
 public class BaseService<T, TDto, TCreateDto, TUpdateDto> : IBaseService<T, TDto, TCreateDto, TUpdateDto> where T : BaseEntity
@@ -62,7 +64,8 @@ public class BaseService<T, TDto, TCreateDto, TUpdateDto> : IBaseService<T, TDto
         var shouldSave = autoSave ?? AutoSave;
         var deleted = await _repository.DeleteAsync(
             id,
-            await _userService.GetLoggedInUserAsync());
+            await _userService.GetLoggedInUserAsync()
+            , AutoSave: shouldSave);
 
         if (!deleted)
             return Error.NotFound(
@@ -100,5 +103,61 @@ public class BaseService<T, TDto, TCreateDto, TUpdateDto> : IBaseService<T, TDto
         await _repository.CreateAsync(entity, shouldSave);
 
         return Result<T>.Success(entity);
+    }
+
+    public virtual async Task<Result<PagedResult<TDto>>> GetPagedAsync(int pageNumber, int pageSize)
+    {
+        if (pageNumber < 1)
+            return Error.Validation(
+                "Pagination.InvalidPageNumber",
+                "Page number must be greater than or equal to 1.");
+
+        if (pageSize < 1 || pageSize > 100)
+            return Error.Validation(
+                "Pagination.InvalidPageSize",
+                "Page size must be between 1 and 100.");
+
+        var (data, totalCount) = await _repository.GetPagedAsync(
+            pageNumber,
+            pageSize);
+
+        var mapped = _mapper.MapList<T, TDto>(data);
+
+        return Result<PagedResult<TDto>>.Success(new PagedResult<TDto>
+        {
+            Items = mapped,
+            TotalCount = totalCount,
+            PageNumber = pageNumber,
+            PageSize = pageSize
+        });
+    }
+
+    public virtual async Task<Result<PagedResult<TDto>>> GetPagedAsync(int pageNumber, int pageSize, Expression<Func<T, bool>>? filter)
+    {
+        if (pageNumber < 1)
+            return Error.Validation(
+                "Pagination.InvalidPageNumber",
+                "Page number must be greater than or equal to 1.");
+
+        if (pageSize < 1 || pageSize > 100)
+            return Error.Validation(
+                "Pagination.InvalidPageSize",
+                "Page size must be between 1 and 100.");
+
+
+        var (data, totalCount) = await _repository.GetPagedAsync(
+            pageNumber,
+            pageSize,
+            filter: filter);
+
+        var mapped = _mapper.MapList<T, TDto>(data);
+
+        return Result<PagedResult<TDto>>.Success(new PagedResult<TDto>
+        {
+            Items = mapped,
+            TotalCount = totalCount,
+            PageNumber = pageNumber,
+            PageSize = pageSize
+        });
     }
 }

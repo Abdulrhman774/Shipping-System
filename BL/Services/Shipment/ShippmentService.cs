@@ -192,13 +192,13 @@ public class ShipmentService
             shipment.Sender = sender;
             shipment.Receiver = receiver;
 
-            shipment.Status = enShipmentStatus.Confirmed;
+            shipment.Status = enShipmentStatus.Created;
             shipment.StatusLastUpdatedAt = DateTime.UtcNow;
 
             var history = new TbShipmentStatusHistory
             {
                 ShipmentId = shipment.Id,
-                Status = enShipmentStatus.Confirmed,
+                Status = enShipmentStatus.Created,
                 Note = "Shipment created"
             };
 
@@ -279,7 +279,7 @@ public class ShipmentService
             }
 
             // ✅ جديد: منع التعديل إذا كانت الحالة Dispatched أو Delivered
-            if (existingShipment.Status == enShipmentStatus.Dispatched || existingShipment.Status == enShipmentStatus.Delivered)
+            if (existingShipment.Status == enShipmentStatus.Shipped || existingShipment.Status == enShipmentStatus.Delivered)
             {
                 await _unitOfWork.RollbackTransactionAsync();
                 return Error.Validation("Shipment.CannotUpdate", "Cannot update shipment because it is already Dispatched or Delivered.");

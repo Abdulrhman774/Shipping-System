@@ -1,24 +1,29 @@
-@model string
+@model enShipmentStatus
 
 @{
-    var status = Model?.Trim();
-    var badgeClass = "badge-inactive";
-    if (!string.IsNullOrEmpty(status))
+    var badgeClass = Model switch
     {
-        badgeClass = status.ToLower() switch
-        {
-            "active" => "badge-active",
-            "inactive" => "badge-inactive",
-            "processing" => "badge-processing",
-            "delivered" => "badge-delivered",
-            "confirmed" => "badge-confirmed",
-            "expired" => "badge-expired",
-            "deleted" => "badge-deleted",
-            "dispatched" => "badge-dispatched",
-            "quality check" => "badge-quality-check",
-            _ => "badge-inactive"
-        };
-    }
+        enShipmentStatus.Created      => "badge-info text-dark bg-opacity-10",
+        enShipmentStatus.Approved     => "badge-warning text-dark bg-opacity-10",
+        enShipmentStatus.ReadyForShip => "badge-primary text-white",
+        enShipmentStatus.Shipped      => "badge-secondary text-white",
+        enShipmentStatus.Delivered    => "badge-success text-white",
+        enShipmentStatus.Returned     => "badge-danger text-white",
+        _ => "badge-secondary"
+    };
+    
+    var badgeText = Model switch
+    {
+        enShipmentStatus.Created      => "Created",
+        enShipmentStatus.Approved     => "Approved",
+        enShipmentStatus.ReadyForShip => "Ready",
+        enShipmentStatus.Shipped      => "Shipped",
+        enShipmentStatus.Delivered    => "Delivered",
+        enShipmentStatus.Returned     => "Returned",
+        _ => "Unknown"
+    };
 }
 
-<span class="badge @badgeClass">@(status?.ToUpper())</span>
+<span class="badge @badgeClass rounded-pill px-3 py-2">@badgeText</span>
+
+

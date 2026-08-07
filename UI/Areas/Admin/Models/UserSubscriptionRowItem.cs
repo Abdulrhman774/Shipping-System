@@ -11,5 +11,5 @@ public class UserSubscriptionRowItem
     public int UsedShipments { get; set; }
     public int TotalShipments { get; set; }
     public string ExpiryDate { get; set; } = string.Empty;
-    public string Status { get; set; } = string.Empty;
+    public enShipmentStatus Status { get; set; }
 }

@@ -105,5 +105,30 @@ namespace DAL.Repositories.View
 
             return (data, totalCount);
         }
+
+
+        public async Task<(int TotalShipments, int ActiveDeliveries, int PendingApprovals, int DelayedShipments, List<vw_ShipmentDetails> RecentShipments)> 
+            GetDashboardStatsAsync()
+        {
+            var query = _context.VwShipmentDetails.AsNoTracking();
+
+            var total = await query.CountAsync();
+
+            // تعريف الحالات حسب الـ enum الجديد (افترض أن Shipped = 4, Created = 1, Approved = 2)
+            var active = await query.CountAsync(x => x.Status == enShipmentStatus.Shipped);
+            var pending = await query.CountAsync(x => x.Status == enShipmentStatus.Created || x.Status == enShipmentStatus.Approved);
+
+            // يمكنك حساب المتأخرات إذا كان لديك حقل DeliveryDate أو ExpectedDate
+            // حالياً نضع 0
+            var delayed = 0;
+
+            var recent = await query
+                .OrderByDescending(x => x.CreatedDate)
+                .Take(5)
+                .ToListAsync();
+
+            return (total, active, pending, delayed, recent);
+        }
     }
+
 }

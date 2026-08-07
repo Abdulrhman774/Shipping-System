@@ -97,4 +97,26 @@ public class ShipmentViewService : IShipmentViewService
         };
         return Result<PagedResult<ShipmentDetailsDto>>.Success(result);
     }
+
+    public async Task<Result<AdminDashboardDto>> GetDashboardStatsAsync()
+    {
+        var (total, active, pending, delayed, recent) = await _repository.GetDashboardStatsAsync();
+
+        var recentDtos = _mapper.MapList<vw_ShipmentDetails, ShipmentDetailsDto>(recent);
+
+        // Calculate efficiency rate based on your business logic. For now, we will use a placeholder value.
+        double efficiency = 94.2;
+
+        var dto = new AdminDashboardDto
+        {
+            TotalShipments = total,
+            ActiveDeliveries = active,
+            PendingApprovals = pending,
+            EfficiencyRate = efficiency,
+            DelayedShipments = delayed,
+            RecentShipments = recentDtos
+        };
+
+        return Result<AdminDashboardDto>.Success(dto);
+    }
 }

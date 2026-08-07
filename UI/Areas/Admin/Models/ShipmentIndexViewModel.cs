@@ -13,5 +13,5 @@ public class ShipmentRowItem
     public string SenderName { get; set; } = string.Empty;
     public string ReceiverName { get; set; } = string.Empty;
     public string ShippingDate { get; set; } = string.Empty;
-    public string Status { get; set; } = string.Empty;
+    public enShipmentStatus Status { get; set; }
 }

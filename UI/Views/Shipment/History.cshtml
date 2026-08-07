@@ -69,21 +69,23 @@
                                                 @{
                                                     var statusText = item.Status switch
                                                     {
-                                                        enShipmentStatus.Confirmed => "Confirmed",
-                                                        enShipmentStatus.Processing => "Processing",
-                                                        enShipmentStatus.QualityCheck => "Quality Check",
-                                                        enShipmentStatus.Dispatched => "Dispatched",
-                                                        enShipmentStatus.Delivered => "Delivered",
+                                                        enShipmentStatus.Created       => "Created",
+                                                        enShipmentStatus.Approved      => "Approved",
+                                                        enShipmentStatus.ReadyForShip  => "Ready for Ship",
+                                                        enShipmentStatus.Shipped       => "Shipped",
+                                                        enShipmentStatus.Delivered     => "Delivered",
+                                                        enShipmentStatus.Returned      => "Returned",
                                                         _ => "Unknown"
                                                     };
-
+                                                    
                                                     var statusStyle = item.Status switch
                                                     {
-                                                        enShipmentStatus.Confirmed => "background-color: #d1ecf1; color: #0c5460;",
-                                                        enShipmentStatus.Processing => "background-color: #fff3cd; color: #856404;",
-                                                        enShipmentStatus.QualityCheck => "background-color: #cce5ff; color: #004085;",
-                                                        enShipmentStatus.Dispatched => "background-color: #ffe5b4; color: #804d00;",
-                                                        enShipmentStatus.Delivered => "background-color: #d4edda; color: #155724;",
+                                                        enShipmentStatus.Created       => "background-color: #d1ecf1; color: #0c5460;",
+                                                        enShipmentStatus.Approved      => "background-color: #fff3cd; color: #856404;",
+                                                        enShipmentStatus.ReadyForShip  => "background-color: #cce5ff; color: #004085;",
+                                                        enShipmentStatus.Shipped       => "background-color: #ffe5b4; color: #804d00;",
+                                                        enShipmentStatus.Delivered     => "background-color: #d4edda; color: #155724;",
+                                                        enShipmentStatus.Returned      => "background-color: #f8d7da; color: #721c24;",  // لون أحمر فاتح للإرجاع
                                                         _ => "background-color: #f8f9fa; color: #212529;"
                                                     };
                                                 }

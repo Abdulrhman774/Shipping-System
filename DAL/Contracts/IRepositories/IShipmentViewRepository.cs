@@ -24,5 +24,7 @@ namespace DAL.Contracts.IRepositories
         int pageSize,
         Guid userId,
         CancellationToken cancellationToken = default);
+
+        Task<(int TotalShipments, int ActiveDeliveries, int PendingApprovals, int DelayedShipments, List<vw_ShipmentDetails> RecentShipments)> GetDashboardStatsAsync();
     }
 }

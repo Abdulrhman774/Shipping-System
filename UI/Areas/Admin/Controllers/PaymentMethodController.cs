@@ -18,9 +18,9 @@ public class PaymentMethodController : BaseAdminController
             SortedBy = "English Name",
             Items = new List<PaymentMethodRowItem>
             {
-                new() { Id = Guid.NewGuid(), EnglishName = "Credit Card", ArabicName = "بطاقة ائتمان", Commission = "2.0%", Status = "Active", Icon = "fa-cc-visa" },
-                new() { Id = Guid.NewGuid(), EnglishName = "Cash on Delivery", ArabicName = "الدفع عند الاستلام", Commission = "5.0%", Status = "Active", Icon = "fa-money-bill" },
-                new() { Id = Guid.NewGuid(), EnglishName = "PayPal", ArabicName = "باي بال", Commission = "3.0%", Status = "Inactive", Icon = "fa-paypal" }
+                new() { Id = Guid.NewGuid(), EnglishName = "Credit Card", ArabicName = "بطاقة ائتمان", Commission = "2.0%", Status = enShipmentStatus.Created, Icon = "fa-cc-visa" },
+                new() { Id = Guid.NewGuid(), EnglishName = "Cash on Delivery", ArabicName = "الدفع عند الاستلام", Commission = "5.0%", Status = enShipmentStatus.Delivered, Icon = "fa-money-bill" },
+                new() { Id = Guid.NewGuid(), EnglishName = "PayPal", ArabicName = "باي بال", Commission = "3.0%", Status = enShipmentStatus.Returned, Icon = "fa-paypal" }
             },
             Pagination = new PaginationModel { CurrentPage = 1, TotalPages = 1, TotalItems = 3, PageSize = 10, ItemLabel = "records" }
         };

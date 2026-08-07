@@ -6,6 +6,6 @@ public class PaymentMethodRowItem
     public string EnglishName { get; set; } = string.Empty;
     public string ArabicName { get; set; } = string.Empty;
     public string Commission { get; set; } = string.Empty;
-    public string Status { get; set; } = string.Empty;
+    public enShipmentStatus Status { get; set; }
     public string Icon { get; set; } = "fa-credit-card";
 }

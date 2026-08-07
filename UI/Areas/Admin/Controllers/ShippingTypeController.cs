@@ -18,9 +18,9 @@ public class ShippingTypeController : BaseAdminController
             SortedBy = "English Name",
             Items = new List<ShippingTypeRowItem>
             {
-                new() { Id = Guid.NewGuid(), EnglishName = "Standard", ArabicName = "عادي", ShippingFactor = "1.0x", Status = "Active" },
-                new() { Id = Guid.NewGuid(), EnglishName = "Express", ArabicName = "سريع", ShippingFactor = "1.5x", Status = "Active" },
-                new() { Id = Guid.NewGuid(), EnglishName = "Same Day", ArabicName = "نفس اليوم", ShippingFactor = "2.0x", Status = "Active" }
+                new() { Id = Guid.NewGuid(), EnglishName = "Standard", ArabicName = "عادي", ShippingFactor = "1.0x", Status = enShipmentStatus.Created },
+                new() { Id = Guid.NewGuid(), EnglishName = "Express", ArabicName = "سريع", ShippingFactor = "1.5x", Status = enShipmentStatus.Created },
+                new() { Id = Guid.NewGuid(), EnglishName = "Same Day", ArabicName = "نفس اليوم", ShippingFactor = "2.0x", Status = enShipmentStatus.Created }
             },
             Pagination = new PaginationModel { CurrentPage = 1, TotalPages = 1, TotalItems = 3, PageSize = 10, ItemLabel = "records" }
         };

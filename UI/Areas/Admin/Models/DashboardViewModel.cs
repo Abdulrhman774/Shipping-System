@@ -14,7 +14,7 @@ public class RecentShipmentItem
 {
     public string Id { get; set; } = string.Empty;
     public string Destination { get; set; } = string.Empty;
-    public string Status { get; set; } = string.Empty;
+    public enShipmentStatus Status { get; set; }
     public string Priority { get; set; } = string.Empty;
     public string LastUpdate { get; set; } = string.Empty;
 }

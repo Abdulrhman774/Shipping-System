@@ -19,11 +19,11 @@ public class UserReceiverController : BaseAdminController
             SortedBy = "Name",
             Items = new List<UserReceiverRowItem>
             {
-                new() { Id = Guid.NewGuid(), Name = "Alice Brown", ReceiverId = "RCV-2001", Email = "alice@example.com", Phone = "1112223333", City = "Riyadh", IsDefault = true, Status = "Active" },
-                new() { Id = Guid.NewGuid(), Name = "Bob White", ReceiverId = "RCV-2002", Email = "bob@example.com", Phone = "4445556666", City = "Jeddah", IsDefault = false, Status = "Active" },
-                new() { Id = Guid.NewGuid(), Name = "Charlie Green", ReceiverId = "RCV-2003", Email = "charlie@example.com", Phone = "7778889999", City = "Dubai", IsDefault = true, Status = "Active" },
-                new() { Id = Guid.NewGuid(), Name = "David Black", ReceiverId = "RCV-2004", Email = "david@example.com", Phone = "0001112222", City = "Cairo", IsDefault = false, Status = "Inactive" },
-                new() { Id = Guid.NewGuid(), Name = "Eve Adams", ReceiverId = "RCV-2005", Email = "eve@example.com", Phone = "3334445555", City = "Kuwait City", IsDefault = true, Status = "Active" }
+                new() { Id = Guid.NewGuid(), Name = "Alice Brown", ReceiverId = "RCV-2001", Email = "alice@example.com", Phone = "1112223333", City = "Riyadh", IsDefault = true, Status = enShipmentStatus.Created },
+                new() { Id = Guid.NewGuid(), Name = "Bob White", ReceiverId = "RCV-2002", Email = "bob@example.com", Phone = "4445556666", City = "Jeddah", IsDefault = false, Status = enShipmentStatus.Created },
+                new() { Id = Guid.NewGuid(), Name = "Charlie Green", ReceiverId = "RCV-2003", Email = "charlie@example.com", Phone = "7778889999", City = "Dubai", IsDefault = true, Status = enShipmentStatus.Created },
+                new() { Id = Guid.NewGuid(), Name = "David Black", ReceiverId = "RCV-2004", Email = "david@example.com", Phone = "0001112222", City = "Cairo", IsDefault = false, Status = enShipmentStatus.Created },
+                new() { Id = Guid.NewGuid(), Name = "Eve Adams", ReceiverId = "RCV-2005", Email = "eve@example.com", Phone = "3334445555", City = "Kuwait City", IsDefault = true, Status = enShipmentStatus.Created }
             },
             Pagination = new PaginationModel { CurrentPage = 1, TotalPages = 1, TotalItems = 5, PageSize = 10, ItemLabel = "records" }
         };

@@ -101,11 +101,11 @@
                             </td>
                             <td>@item.ExpiryDate</td>
                             <td>
-                                @if (item.Status == "Active")
+                                @if (item.Status == enShipmentStatus.Created)
                                 {
                                     <span class="badge badge-active">Active</span>
                                 }
-                                else if (item.Status == "Expired")
+                                else if (item.Status == enShipmentStatus.Returned)
                                 {
                                     <span class="badge badge-expired">Expired</span>
                                 }

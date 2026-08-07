@@ -619,3 +619,138 @@ body {
   .sf-top-navbar { left: 0; }
   .sf-main-content { margin-left: 0; }
 }
+
+
+.sf-pagination {
+  gap: 6px;
+  padding: 1.5rem 2rem;
+  flex-wrap: wrap;
+}
+
+.sf-page-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 40px;
+  min-width: 40px;
+  padding: 0 14px;
+  border-radius: 8px;
+  border: 0.5px solid #d1d0c9;
+  background: #fff;
+  color: #333;
+  font-size: 14px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.sf-page-btn:hover:not(.disabled):not(.active) {
+  background: #f5f4f0;
+  border-color: #aaa;
+}
+
+.sf-page-btn.active {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: #fff;
+  font-weight: 500;
+}
+
+.sf-page-btn.disabled {
+  color: #bbb;
+  border-color: #e5e5e5;
+  background: #fafaf9;
+  pointer-events: none;
+}
+
+.sf-page-btn.nav {
+  padding: 0 18px;
+  color: #666;
+}
+
+.sf-page-btn.ellipsis {
+  border: none;
+  background: transparent;
+  cursor: default;
+  letter-spacing: 2px;
+  color: #bbb;
+  pointer-events: none;
+}
+
+.sf-pagination-info {
+  margin-left: auto;
+  font-size: 13px;
+  color: #888;
+  white-space: nowrap;
+}
+
+.sf-pagination {
+    gap: 6px;
+    padding: 1.5rem 2rem;
+    flex-wrap: wrap;
+}
+
+.sf-page-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    height: 40px;
+    min-width: 40px;
+    padding: 0 14px;
+    border-radius: 8px;
+    border: 0.5px solid #d1d0c9;
+    background: #fff;
+    color: #333;
+    font-size: 14px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+}
+
+.sf-page-btn:hover:not(.disabled):not(.active) 
+{
+    background: #f5f4f0;
+    border-color: #aaa;
+}
+
+.sf-page-btn.active 
+{
+    background: #2563eb;
+    border-color: #2563eb;
+    color: #fff;
+    font-weight: 500;
+}
+
+.sf-page-btn.disabled 
+{
+    color: #bbb;
+    border-color: #e5e5e5;
+    background: #fafaf9;
+    pointer-events: none;
+}
+
+.sf-page-btn.nav
+{
+    padding: 0 18px;
+    color: #666;
+}
+
+.sf-page-btn.ellipsis 
+{
+    border: none;
+    background: transparent;
+    cursor: default;
+    letter-spacing: 2px;
+    color: #bbb;
+    pointer-events: none;
+}
+
+.sf-pagination-info 
+{
+    margin-left: auto;
+    font-size: 13px;
+    color: #888;
+    white-space: nowrap;
+}

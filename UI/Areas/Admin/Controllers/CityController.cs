@@ -19,11 +19,11 @@ public class CityController : BaseAdminController
             SortedBy = "English Name",
             Items = new List<CityRowItem>
             {
-                new() { Id = Guid.NewGuid(), EnglishName = "Riyadh", ArabicName = "الرياض", CountryName = "Saudi Arabia", Status = "Active", CreatedDate = "2023-01-15" },
-                new() { Id = Guid.NewGuid(), EnglishName = "Jeddah", ArabicName = "جدة", CountryName = "Saudi Arabia", Status = "Active", CreatedDate = "2023-01-15" },
-                new() { Id = Guid.NewGuid(), EnglishName = "Dubai", ArabicName = "دبي", CountryName = "UAE", Status = "Active", CreatedDate = "2023-01-20" },
-                new() { Id = Guid.NewGuid(), EnglishName = "Cairo", ArabicName = "القاهرة", CountryName = "Egypt", Status = "Active", CreatedDate = "2023-02-10" },
-                new() { Id = Guid.NewGuid(), EnglishName = "Kuwait City", ArabicName = "مدينة الكويت", CountryName = "Kuwait", Status = "Active", CreatedDate = "2023-03-25" }
+                new() { Id = Guid.NewGuid(), EnglishName = "Riyadh", ArabicName = "الرياض", CountryName = "Saudi Arabia", Status = enShipmentStatus.Delivered, CreatedDate = "2023-01-15" },
+                new() { Id = Guid.NewGuid(), EnglishName = "Jeddah", ArabicName = "جدة", CountryName = "Saudi Arabia", Status = enShipmentStatus.Delivered, CreatedDate = "2023-01-15" },
+                new() { Id = Guid.NewGuid(), EnglishName = "Dubai", ArabicName = "دبي", CountryName = "UAE", Status = enShipmentStatus.Delivered, CreatedDate = "2023-01-20" },
+                new() { Id = Guid.NewGuid(), EnglishName = "Cairo", ArabicName = "القاهرة", CountryName = "Egypt", Status = enShipmentStatus.Approved, CreatedDate = "2023-02-10" },
+                new() { Id = Guid.NewGuid(), EnglishName = "Kuwait City", ArabicName = "مدينة الكويت", CountryName = "Kuwait", Status = enShipmentStatus.Returned, CreatedDate = "2023-03-25" }
             },
             Pagination = new PaginationModel { CurrentPage = 1, TotalPages = 1, TotalItems = 5, PageSize = 10, ItemLabel = "records" }
         };

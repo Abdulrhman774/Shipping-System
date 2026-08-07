@@ -56,7 +56,7 @@ public class TbShipmentConfiguration : BaseEntityConfiguration<TbShipment>
         builder.Property(e => e.Status)
                .HasConversion<byte>() 
                .IsRequired()
-               .HasDefaultValue(enShipmentStatus.Confirmed);
+               .HasDefaultValue(enShipmentStatus.Created);
 
 
         builder.HasMany(s => s.TbShipmentStatuses)

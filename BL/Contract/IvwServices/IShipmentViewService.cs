@@ -20,4 +20,6 @@ public interface IShipmentViewService
     Task<Result<IEnumerable<ShipmentsByTypeDto>>> GetShipmentsByTypeAsync();
     Task<Result<PagedResult<ShipmentDetailsDto>>> GetShipmentDetailsPagedAsync(int pageNumber, int pageSize);
     Task<Result<PagedResult<ShipmentDetailsDto>>> GetShipmentsByUserPagedAsync(int pageNumber, int pageSize, Guid userId);
+
+    Task<Result<AdminDashboardDto>> GetDashboardStatsAsync();
 }

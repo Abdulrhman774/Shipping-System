@@ -6,5 +6,5 @@ public class ShippingTypeRowItem
     public string EnglishName { get; set; } = string.Empty;
     public string ArabicName { get; set; } = string.Empty;
     public string ShippingFactor { get; set; } = string.Empty;
-    public string Status { get; set; } = string.Empty;
+    public enShipmentStatus Status { get; set; }
 }

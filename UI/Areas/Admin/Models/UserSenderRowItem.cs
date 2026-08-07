@@ -9,5 +9,5 @@ public class UserSenderRowItem
     public string Phone { get; set; } = string.Empty;
     public string City { get; set; } = string.Empty;
     public bool IsDefault { get; set; }
-    public string Status { get; set; } = string.Empty;
+    public enShipmentStatus Status { get; set; }
 }
