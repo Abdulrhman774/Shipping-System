@@ -1,0 +1,17 @@
+@model UI.Areas.Admin.Models.StatCardModel
+
+<div class="sf-stat-card">
+    <div class="sf-stat-icon">
+        <i class="fa-solid @Model.Icon"></i>
+    </div>
+    <div class="sf-stat-title">@Model.Title</div>
+    <div class="sf-stat-value">@Model.Value</div>
+    @if (!string.IsNullOrEmpty(Model.ChangeValue))
+    {
+        var isUp = Model.IsPositiveChange;
+        <div class="sf-stat-change @(isUp ? "up" : "down")">
+            <i class="fa-solid @(isUp ? "fa-arrow-up" : "fa-arrow-down")"></i>
+            @Model.ChangeValue <span class="text-muted">vs last period</span>
+        </div>
+    }
+</div>

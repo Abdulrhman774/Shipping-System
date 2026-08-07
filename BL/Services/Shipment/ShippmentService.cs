@@ -17,6 +17,7 @@ public class ShipmentService
     : BaseService<TbShipment, ShipmentDto, CreateShipmentDto, UpdateShipmentDto>, IShipmentService
 {
     #region Private Fields
+    private readonly IGenericRepository<TbCarrier> _carrierRepository;
     private readonly ITrackingNumberCalculator _trackingNumberCalculator;
     private readonly IRateCalculator _rateCalculator;
     private readonly IDistanceService _distanceService;
@@ -40,7 +41,8 @@ public class ShipmentService
         IUserReceiverService userReceiverService,
         IPaymentMethodService paymentMethodService,
         IUserSubscriptionService userSubscriptionService,
-        IShippingPackagingService shippingPackagingService)
+        IShippingPackagingService shippingPackagingService,
+        IGenericRepository<TbCarrier> carrierRepository)
         : base(unitOfWork, mapper, userService)
     {
         _trackingNumberCalculator = trackingNumberCalculator;
@@ -54,6 +56,7 @@ public class ShipmentService
 
         // ✅ Get repository from UnitOfWork
         _shippingTypeRepository = unitOfWork.Repository<TbShippingType>();
+        _carrierRepository = carrierRepository;
     }
 
 
@@ -192,13 +195,13 @@ public class ShipmentService
             shipment.Sender = sender;
             shipment.Receiver = receiver;
 
-            shipment.Status = enShipmentStatus.Confirmed;
+            shipment.Status = enShipmentStatus.Created;
             shipment.StatusLastUpdatedAt = DateTime.UtcNow;
 
             var history = new TbShipmentStatusHistory
             {
                 ShipmentId = shipment.Id,
-                Status = enShipmentStatus.Confirmed,
+                Status = enShipmentStatus.Created,
                 Note = "Shipment created"
             };
 
@@ -279,7 +282,7 @@ public class ShipmentService
             }
 
             // ✅ جديد: منع التعديل إذا كانت الحالة Dispatched أو Delivered
-            if (existingShipment.Status == enShipmentStatus.Dispatched || existingShipment.Status == enShipmentStatus.Delivered)
+            if (existingShipment.Status == enShipmentStatus.Shipped || existingShipment.Status == enShipmentStatus.Delivered)
             {
                 await _unitOfWork.RollbackTransactionAsync();
                 return Error.Validation("Shipment.CannotUpdate", "Cannot update shipment because it is already Dispatched or Delivered.");
@@ -393,6 +396,99 @@ public class ShipmentService
         }
     }
 
+
+
+
+
+
+    // ── Paste this region inside ShipmentService.cs ────────────────────────────
+    // Place it after the existing UpdateShipment method, before the closing brace
+    // of the class.
+    //
+    // Also add to the constructor field list (already injected via IUnitOfWork):
+    //   _carrierRepository = unitOfWork.Repository<TbCarrier>();
+    //
+    // And add the backing field anywhere in the #region Private Fields block:
+    //   private readonly IGenericRepository<TbCarrier> _carrierRepository;
+    // ───────────────────────────────────────────────────────────────────────────
+
+    #region Status Transitions
+
+    // ================================================================
+    // APPROVE SHIPMENT  (Created | Returned  →  Approved)
+    // ================================================================
+    public Task<Result> ApproveShipmentAsync(Guid shipmentId, string? note = null, CancellationToken ct = default)
+    {
+        return TransitionStatusAsync(
+                shipmentId,
+                allowedFromStates: [enShipmentStatus.Created, enShipmentStatus.Returned],
+                targetStatus: enShipmentStatus.Approved,
+                note: note ?? "Shipment approved.",
+                ct: ct);
+    }
+
+    // ================================================================
+    // READY FOR SHIP  (Approved | Created  →  ReadyForShip)
+    // ================================================================
+    public Task<Result> MarkReadyForShipAsync(Guid shipmentId, string? note = null, CancellationToken ct = default)
+    {
+        return TransitionStatusAsync(
+                shipmentId,
+                allowedFromStates: [enShipmentStatus.Approved, enShipmentStatus.Created],
+                targetStatus: enShipmentStatus.ReadyForShip,
+                note: note ?? "Shipment is ready for shipping.",
+                ct: ct);
+    }
+
+    // ================================================================
+    // SHIPPED  (ReadyForShip | Approved  →  Shipped)
+    // ================================================================
+    public async Task<Result> MarkShippedAsync(
+        Guid shipmentId,
+        ShipShipmentDto dto,
+        CancellationToken ct = default)
+    {
+        // 1. Validate carrier exists before opening a transaction
+        var carrierExists = await _carrierRepository
+            .ExistsAsync(dto.CarrierId, ct);
+
+        if (!carrierExists)
+            return Error.NotFound("Carrier.NotFound",
+                "The specified carrier does not exist.");
+
+        // 2. Delegate the status transition (will open its own transaction)
+        var transitionResult = await TransitionStatusAsync(
+            shipmentId,
+            allowedFromStates: [enShipmentStatus.ReadyForShip, enShipmentStatus.Approved],
+            targetStatus: enShipmentStatus.Shipped,
+            note: dto.Note ?? "Shipment dispatched.",
+            ct: ct,
+            // Extra work executed inside the same transaction, after validation
+            // but before commit — perfect for writing the TbShipmentStatus record.
+            extraWork: async shipment =>
+            {
+                var statusRecord = new TbShipmentStatus
+                {
+                    ShipmentId = shipment.Id,
+                    CarrierId = dto.CarrierId,
+                    Notes = dto.Note,
+                    CreatedBy = shipment.UpdatedBy ?? shipment.CreatedBy,
+                    CreatedDate = DateTime.UtcNow,
+                    CurrentState = enEntityState.Active,
+                };
+
+                await _unitOfWork
+                    .Repository<TbShipmentStatus>()
+                    .CreateAsync(statusRecord, AutoSave: false);
+            });
+
+        return transitionResult;
+    }
+
+    #endregion
+
+
+
     #region Private Methods
 
 
@@ -452,6 +548,109 @@ public class ShipmentService
     public Task<Result<IEnumerable<ShipmentDto>>> GetShipmentsForUserAsync(string userId)
     {
         throw new NotImplementedException();
+    }
+
+
+    /// <summary>
+    /// Core state-machine helper.
+    /// 
+    /// Flow:
+    ///   1. Begin transaction
+    ///   2. Load shipment (tracking ON so EF tracks the change)
+    ///   3. Verify current status is one of <paramref name="allowedFromStates"/>
+    ///   4. Update Status + StatusLastUpdatedAt + UpdatedBy + UpdatedDate
+    ///   5. Append a TbShipmentStatusHistory row
+    ///   6. Run optional <paramref name="extraWork"/> (e.g. write TbShipmentStatus)
+    ///   7. SaveChanges + Commit
+    /// </summary>
+    private async Task<Result> TransitionStatusAsync(
+        Guid shipmentId,
+        enShipmentStatus[] allowedFromStates,
+        enShipmentStatus targetStatus,
+        string note,
+        CancellationToken ct = default,
+        Func<TbShipment, Task>? extraWork = null)
+    {
+        await _unitOfWork.BeginTransactionAsync(ct);
+
+        try
+        {
+            // ── 1. Load ──────────────────────────────────────────────────────
+            var shipment = await _repository
+                .GetByIdAsync(shipmentId, tracking: true);   // tracking=true so EF detects changes
+
+            if (shipment is null)
+            {
+                await _unitOfWork.RollbackTransactionAsync(ct);
+                return Error.NotFound(
+                    "Shipment.NotFound",
+                    $"Shipment '{shipmentId}' was not found.");
+            }
+
+            // ── 2. Guard: soft-deleted shipments are unreachable ─────────────
+            //    (Global query filter already excludes Deleted rows, but be explicit)
+            if (shipment.CurrentState == enEntityState.Deleted)
+            {
+                await _unitOfWork.RollbackTransactionAsync(ct);
+                return Error.NotFound(
+                    "Shipment.NotFound",
+                    "Shipment was not found.");
+            }
+
+            // ── 3. Validate the state-machine transition ──────────────────────
+            if (!allowedFromStates.Contains(shipment.Status))
+            {
+                await _unitOfWork.RollbackTransactionAsync(ct);
+
+                var allowed = string.Join(" or ",
+                    allowedFromStates.Select(s => s.ToString()));
+
+                return Error.Validation(
+                    "Shipment.InvalidTransition",
+                    $"Cannot transition to '{targetStatus}' from '{shipment.Status}'. " +
+                    $"Shipment must be in '{allowed}' status.");
+            }
+
+            // ── 4. Identify the actor ─────────────────────────────────────────
+            var actorId = await _userService.GetLoggedInUserAsync();
+
+            // ── 5. Apply state change ─────────────────────────────────────────
+            shipment.Status = targetStatus;
+            shipment.StatusLastUpdatedAt = DateTime.UtcNow;
+            shipment.UpdatedBy = actorId;
+            shipment.UpdatedDate = DateTime.UtcNow;
+
+            // ── 6. History record ─────────────────────────────────────────────
+            var history = new TbShipmentStatusHistory
+            {
+                ShipmentId = shipment.Id,
+                Status = targetStatus,
+                Note = note,
+                CreatedBy = actorId,
+                CreatedDate = DateTime.UtcNow,
+                CurrentState = enEntityState.Active,
+            };
+
+            await _unitOfWork
+                .Repository<TbShipmentStatusHistory>()
+                .CreateAsync(history, AutoSave: false);
+
+            // ── 7. Extra work (e.g. TbShipmentStatus for carrier assignment) ──
+            if (extraWork is not null)
+                await extraWork(shipment);
+
+            // ── 8. Persist everything in one shot ────────────────────────────
+            await _unitOfWork.CommitTransactionAsync(ct);
+
+            return Result.Success();
+        }
+        catch (Exception ex)
+        {
+            await _unitOfWork.RollbackTransactionAsync(ct);
+            return Error.Unexpected(
+                "Shipment.TransitionFailed",
+                $"An unexpected error occurred during status transition: {ex.Message}");
+        }
     }
 
     #endregion

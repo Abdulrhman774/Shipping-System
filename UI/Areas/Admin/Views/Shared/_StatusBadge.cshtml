@@ -1,0 +1,29 @@
+@model enShipmentStatus
+
+@{
+    var badgeClass = Model switch
+    {
+        enShipmentStatus.Created      => "badge-info text-dark bg-opacity-10",
+        enShipmentStatus.Approved     => "badge-warning text-dark bg-opacity-10",
+        enShipmentStatus.ReadyForShip => "badge-primary text-white",
+        enShipmentStatus.Shipped      => "badge-secondary text-white",
+        enShipmentStatus.Delivered    => "badge-success text-white",
+        enShipmentStatus.Returned     => "badge-danger text-white",
+        _ => "badge-secondary"
+    };
+    
+    var badgeText = Model switch
+    {
+        enShipmentStatus.Created      => "Created",
+        enShipmentStatus.Approved     => "Approved",
+        enShipmentStatus.ReadyForShip => "Ready",
+        enShipmentStatus.Shipped      => "Shipped",
+        enShipmentStatus.Delivered    => "Delivered",
+        enShipmentStatus.Returned     => "Returned",
+        _ => "Unknown"
+    };
+}
+
+<span class="badge @badgeClass rounded-pill px-3 py-2">@badgeText</span>
+
+

@@ -17,6 +17,7 @@ public interface IGenericRepository<T> where T : BaseEntity
 
     Task<Guid> CreateAsync(T entity, bool AutoSave = false, CancellationToken cancellationToken = default);
     Task<bool> UpdateAsync(Guid id, T entity, bool AutoSave = false, CancellationToken cancellationToken = default);
+    Task<bool> UpdateAsync(Guid id, Action<T> updateAction, bool AutoSave = false, CancellationToken cancellationToken = default);
     Task<bool> DeleteAsync(Guid id, Guid deletedBy, bool AutoSave = false, CancellationToken cancellationToken = default);
     Task<bool> ChangeStatusAsync(Guid id, Guid updatedBy, enEntityState status = enEntityState.Active, bool AutoSave = false, CancellationToken cancellationToken = default);
 

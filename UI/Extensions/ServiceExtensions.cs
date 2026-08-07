@@ -14,11 +14,13 @@ using DAL.Repositories.View;
 using Domain.Entities;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Sinks.MSSqlServer;
 using System.Net.Http.Headers;
+using UI.Helpers;
 using UI.Services;
 using UI.Services.Contracts;
 using UI.Services.Token;
@@ -84,6 +86,7 @@ public static class ServiceExtensions
         services.AddScoped<IUserSenderRepository, UserSenderRepository>();
         services.AddScoped<IUserSubscriptionRepository, UserSubscriptionRepository>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+        services.AddScoped<IShipmentStatusHistoryRepository, ShipmentStatusHistoryRepository>();
 
         return services;
     }
@@ -128,6 +131,8 @@ public static class ServiceExtensions
         #endregion
 
         // Add service to can call api endpoint
+        services.AddScoped<IAuthorizationHandler, AdminPolicyHandler>();
+
         services.AddScoped<GenericApiClient>();
         services.AddScoped<MvcAuthService>();
 
@@ -172,7 +177,7 @@ public static class ServiceExtensions
         {
             options.LoginPath = "/Account/Login";
             options.LogoutPath = "/Account/Logout";
-            options.AccessDeniedPath = "/Account/AccessDenied";
+            options.AccessDeniedPath = "/Admin/Account/AccessDenied";
             options.Cookie.Name = "ShippingAuthCookie";
             options.Cookie.HttpOnly = true;
             options.Cookie.SameSite = SameSiteMode.Strict;
@@ -185,7 +190,7 @@ public static class ServiceExtensions
 
         services.AddAuthorization(options =>
         {
-            options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
+            options.AddPolicy("AdminPolicy", policy => policy.Requirements.Add(new AdminPolicyRequirement()));
             options.AddPolicy("UserOnly", policy => policy.RequireRole("User"));
         });
 

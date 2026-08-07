@@ -1,4 +1,5 @@
-﻿using Domain.Entities.Views.Shipment.Statistics_Views;
+﻿using Domain.Entities.Views.Dashboard;
+using Domain.Entities.Views.Shipment.Statistics_Views;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,5 +25,14 @@ namespace DAL.Contracts.IRepositories
         int pageSize,
         Guid userId,
         CancellationToken cancellationToken = default);
+
+        Task<(int TotalShipments, int ActiveDeliveries, int PendingApprovals, int DelayedShipments, List<vw_ShipmentDetails> RecentShipments)> GetDashboardStatsAsync();
+
+        Task<VwDashboardSummary?> GetDashboardSummaryAsync();
+        Task<List<VwRecentShipment>> GetRecentShipmentsAsync(int count = 20);
+        Task<List<VwShipmentStatusDistribution>> GetStatusDistributionAsync();
+        Task<List<VwMonthlyVolume>> GetMonthlyVolumeAsync();
+        Task<List<VwTopShipper>> GetTopShippersAsync(int top = 5);
+        Task<List<VwFinancial>> GetMonthlyFinancialsAsync();
     }
 }

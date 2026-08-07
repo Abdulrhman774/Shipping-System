@@ -1,46 +1,35 @@
-@model BL.DTOs.Carrier.CreateCarrierDto
-@{
-    ViewData["Title"] = "Add Carrier";
-}
+@using UI.Areas.Admin.Models
+@model CarrierFormViewModel
+@{ ViewBag.Title = "Add New Carrier"; }
 
-<div class="content-wrapper">
-    <div class="page-header">
-        <h3 class="page-title"> Add Carrier </h3>
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a asp-controller="Dashboard" asp-action="Index">Dashboard</a></li>
-                <li class="breadcrumb-item"><a asp-controller="Carrier" asp-action="Index">Carriers</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Add</li>
-            </ol>
-        </nav>
+<div class="mb-4">
+    <a asp-action="Index" class="text-decoration-none"><i class="fa-solid fa-arrow-left me-1"></i> back to carriers</a>
+</div>
+
+<div class="card shadow-sm mx-auto" style="max-width: 700px;">
+    <div class="card-header bg-white py-3 border-bottom">
+        <h4 class="mb-0"><i class="fa-solid fa-truck" style="color: #5e5ce6"></i> Add New Carrier</h4>
     </div>
-
-    <div class="row">
-        <div class="col-12 grid-margin stretch-card">
-            <div class="card">
-                <div class="card-body">
-                    <h4 class="card-title text-primary mb-4"><i class="mdi mdi-truck-delivery me-2"></i>Carrier Details</h4>
-                    
-                    <form class="forms-sample" asp-controller="Carrier" asp-action="Create" method="post">
-                        @Html.AntiForgeryToken()
-                        
-                        <div class="form-group mb-4">
-                            <label asp-for="CarrierName">Carrier Name</label>
-                            <input asp-for="CarrierName" type="text" class="form-control" placeholder="Enter Carrier Name (e.g. DHL Express)" required />
-                            <span asp-validation-for="CarrierName" class="text-danger"></span>
-                        </div>
-
-                        <div class="mt-4">
-                            <button type="submit" class="btn btn-gradient-primary me-2">
-                                <i class="mdi mdi-content-save me-1"></i> Save
-                            </button>
-                            <a asp-controller="Carrier" asp-action="Index" class="btn btn-light">
-                                Cancel
-                            </a>
-                        </div>
-                    </form>
-                </div>
+    <div class="card-body p-4">
+        <form asp-action="Create" method="post">
+            <div class="mb-3">
+                <label asp-for="CarrierName" class="form-label">Carrier Name *</label>
+                <input asp-for="CarrierName" class="form-control" />
+                <span asp-validation-for="CarrierName" class="text-danger"></span>
             </div>
-        </div>
+            
+            <div class="mb-4 form-check form-switch">
+                <input asp-for="IsActive" class="form-check-input" type="checkbox" role="switch">
+                <label asp-for="IsActive" class="form-check-label">Active</label>
+            </div>
+            
+            <div class="d-grid">
+                <button type="submit" class="btn btn-sf-primary btn-lg">Save Carrier</button>
+            </div>
+        </form>
     </div>
 </div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

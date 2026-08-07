@@ -44,35 +44,38 @@
                 {
                     var statusText = Model.Shipment.Status switch
                     {
-                        enShipmentStatus.Confirmed => "Confirmed",
-                        enShipmentStatus.Processing => "Processing",
-                        enShipmentStatus.QualityCheck => "Quality Check",
-                        enShipmentStatus.Dispatched => "Dispatched",
+                        enShipmentStatus.Created => "Created",
+                        enShipmentStatus.Approved => "Approved",
+                        enShipmentStatus.ReadyForShip => "Ready for Ship",
+                        enShipmentStatus.Shipped => "Shipped",
                         enShipmentStatus.Delivered => "Delivered",
+                        enShipmentStatus.Returned => "Returned",
                         _ => "Unknown"
                     };
 
                     var statusStyle = Model.Shipment.Status switch
                     {
-                        enShipmentStatus.Confirmed => "background-color: #d1ecf1; color: #0c5460;",
-                        enShipmentStatus.Processing => "background-color: #fff3cd; color: #856404;",
-                        enShipmentStatus.QualityCheck => "background-color: #cce5ff; color: #004085;",
-                        enShipmentStatus.Dispatched => "background-color: #ffe5b4; color: #804d00;",
+                        enShipmentStatus.Created => "background-color: #d1ecf1; color: #0c5460;",
+                        enShipmentStatus.Approved => "background-color: #fff3cd; color: #856404;",
+                        enShipmentStatus.ReadyForShip => "background-color: #cce5ff; color: #004085;",
+                        enShipmentStatus.Shipped => "background-color: #ffe5b4; color: #804d00;",
                         enShipmentStatus.Delivered => "background-color: #d4edda; color: #155724;",
+                        enShipmentStatus.Returned => "background-color: #f8d7da; color: #721c24;",  // لون أحمر فاتح للإرجاع
                         _ => "background-color: #f8f9fa; color: #212529;"
                     };
 
-                    var canEdit = Model.Shipment.Status == enShipmentStatus.Confirmed ||
-                                  Model.Shipment.Status == enShipmentStatus.Processing ||
-                                  Model.Shipment.Status == enShipmentStatus.QualityCheck;
+                    var canEdit = Model.Shipment.Status == enShipmentStatus.Created ||
+                                  Model.Shipment.Status == enShipmentStatus.Approved ||
+                                  Model.Shipment.Status == enShipmentStatus.ReadyForShip;
 
                     int statusLevel = Model.Shipment.Status switch
                     {
-                        enShipmentStatus.Confirmed => 1,
-                        enShipmentStatus.Processing => 2,
-                        enShipmentStatus.QualityCheck => 3,
-                        enShipmentStatus.Dispatched => 4,
+                        enShipmentStatus.Created => 1,
+                        enShipmentStatus.Approved => 2,
+                        enShipmentStatus.ReadyForShip => 3,
+                        enShipmentStatus.Shipped => 4,
                         enShipmentStatus.Delivered => 5,
+                        enShipmentStatus.Returned => 6,
                         _ => 0
                     };
 

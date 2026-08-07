@@ -261,7 +261,7 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
             entity.CurrentState = enEntityState.Active;
             entity.CreatedDate = DateTime.UtcNow;
 
-            await _dbSet.AddAsync(entity, cancellationToken);
+            _dbSet.Add(entity);
 
             if (AutoSave)
                 await _context.SaveChangesAsync(cancellationToken);
@@ -318,6 +318,62 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
         catch (ArgumentNullException)
         {
             throw;
+        }
+        catch (Exception ex)
+        {
+            HandleException(nameof(UpdateAsync), $"Error while updating {typeof(T).Name}.", ex);
+        }
+
+        return false;
+    }
+
+
+    /// <summary>
+    /// Updates specific fields of an existing entity using a custom action delegate,
+    /// without replacing the entire entity. Protected fields (CreatedDate, CreatedBy, CurrentState)
+    /// are always preserved regardless of what the action modifies.
+    /// </summary>
+    /// <param name="id">The unique identifier of the entity to update.</param>
+    /// <param name="updateAction">
+    /// A delegate that receives the tracked entity and applies targeted field modifications.
+    /// <example>
+    /// <code>
+    /// await _repository.UpdateAsync(id, entity =>
+    /// {
+    ///     entity.CarrierName = "New Name";
+    ///     entity.SomeField = newValue;
+    /// }, autoSave: true);
+    /// </code>
+    /// </example>
+    /// </param>
+    /// <param name="AutoSave">If true, persists changes to the database immediately.</param>
+    /// <param name="cancellationToken">Token to cancel the async operation.</param>
+    /// <returns>True if the entity was found and updated; false if not found.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if the entity resolved by id is null.</exception>
+    public virtual async Task<bool> UpdateAsync(
+        Guid id,
+        Action<T> updateAction,
+        bool AutoSave = false,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var existingEntity = await _dbSet.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+            if (existingEntity is null) return false;
+
+            updateAction(existingEntity);
+
+            // 🔒 Protected fields — always preserved regardless of updateAction
+            _context.Entry(existingEntity).Property(x => x.CreatedDate).IsModified = false;
+            _context.Entry(existingEntity).Property(x => x.CreatedBy).IsModified = false;
+            _context.Entry(existingEntity).Property(x => x.CurrentState).IsModified = false;
+
+            existingEntity.UpdatedDate = DateTime.UtcNow;
+
+            if (AutoSave)
+                await _context.SaveChangesAsync(cancellationToken);
+
+            return true;
         }
         catch (Exception ex)
         {

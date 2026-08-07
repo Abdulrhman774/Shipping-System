@@ -1,8 +1,9 @@
 ﻿public enum enShipmentStatus : byte
 {
-    Confirmed = 1,   
-    Processing = 2,  
-    QualityCheck = 3,
-    Dispatched = 4,  
-    Delivered = 5    
+    Created = 1,   
+    Approved = 2,  
+    ReadyForShip = 3,
+    Shipped = 4,  
+    Delivered = 5,
+    Returned = 6
 }

@@ -1,0 +1,13 @@
+namespace UI.Areas.Admin.Models;
+
+public class UserSenderRowItem
+{
+    public Guid Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string SenderId { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+    public string Phone { get; set; } = string.Empty;
+    public string City { get; set; } = string.Empty;
+    public bool IsDefault { get; set; }
+    public enShipmentStatus Status { get; set; }
+}

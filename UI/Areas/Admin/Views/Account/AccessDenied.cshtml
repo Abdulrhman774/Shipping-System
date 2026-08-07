@@ -1,0 +1,93 @@
+﻿@{
+    ViewData["Title"] = "Access Denied";
+
+    // 1. نحدد هل المستخدم الحالي هو أحد أدوار الـ Admin Area أم لا
+    bool isAdminAreaUser = User.IsInRole("Admin") ||
+                           User.IsInRole("OpManager") ||
+                           User.IsInRole("Op") ||
+                           User.IsInRole("Reviewer");
+}
+
+@if (isAdminAreaUser)
+{
+    // ================================================================
+    // ✅ التصميم الخاص بالـ Admin Area (مطابق لصورتك تماماً)
+    // ================================================================
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+
+    <div class="row justify-content-center py-5">
+        <div class="col-lg-8 col-xl-7">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
+
+                <!-- Graphic Header -->
+                <div class="bg-warning bg-opacity-25 text-center p-5 position-relative">
+                    <div class="position-relative d-inline-block">
+                        <i class="fa-solid fa-shield-halved text-secondary" style="font-size: 8rem; opacity: 0.2; position: absolute; top: -10px; left: -10px; z-index: 0;"></i>
+                        <i class="fa-solid fa-shield-halved text-secondary" style="font-size: 8rem; position: relative; z-index: 1;"></i>
+                        <div class="position-absolute top-50 start-50 translate-middle text-white fw-bold px-3 py-1 rounded-2" style="background-color: #4B49AC; z-index: 2; font-size: 1rem; letter-spacing: 1px; transform: translate(-50%, -50%) rotate(-5deg);">
+                            INSURANCE
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Content -->
+                <div class="card-body p-5 text-center">
+                    <span class="badge bg-danger bg-opacity-10 text-danger rounded-pill px-3 py-1 mb-3">
+                        <i class="fa-solid fa-circle-exclamation me-1"></i> AUTHORIZATION ERROR
+                    </span>
+                    <h2 class="fw-bold mb-3">Access Denied</h2>
+                    <p class="text-muted mb-4">
+                        You do not have the required permissions to view this section of the Shipping Management System. Please contact your system administrator if you believe this is an error.
+                    </p>
+
+                    <!-- Code Cards -->
+                    <div class="row g-3 mb-4 justify-content-center">
+                        <div class="col-md-5">
+                            <div class="card bg-light border-0 text-start p-3 h-100">
+                                <div class="d-flex align-items-center gap-2 mb-1">
+                                    <i class="fa-regular fa-circle text-primary small"></i>
+                                    <span class="text-muted small fw-bold text-uppercase">Error Code</span>
+                                </div>
+                                <div class="fw-bold text-dark">ERR_AUTH_403</div>
+                            </div>
+                        </div>
+                        <div class="col-md-5">
+                            <div class="card bg-light border-0 text-start p-3 h-100">
+                                <div class="d-flex align-items-center gap-2 mb-1">
+                                    <i class="fa-solid fa-shield-halved text-primary small"></i>
+                                    <span class="text-muted small fw-bold text-uppercase">Security Level</span>
+                                </div>
+                                <div class="fw-bold text-dark">Restricted</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="d-flex justify-content-center gap-3 flex-wrap">
+                        <a href="/Admin/Dashboard" class="btn btn-primary text-white px-4 rounded-2">
+                            <i class="fa-solid fa-house me-2"></i> Return to Dashboard
+                        </a>
+                        <button class="btn btn-outline-secondary px-4 rounded-2">
+                            <i class="fa-solid fa-headset me-2"></i> Contact Support
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    // ================================================================
+    // 🟢 التصميم الخاص بالمستخدم العادي (User)
+    // ================================================================
+    Layout = "_Layout"; // أو يمكنك حذف هذا السطر لاستخدام الافتراضي
+
+    <div class="container py-5 text-center">
+        <div class="card shadow-sm p-5">
+            <h1 class="display-4 text-danger">Access Denied</h1>
+            <p class="lead">You are not authorized to view this page.</p>
+            <a href="/Home/Index" class="btn btn-primary mt-3">Go to Home</a>
+        </div>
+    </div>
+}

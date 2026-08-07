@@ -1,168 +1,76 @@
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using System;
-using System.Collections.Generic;
-using Domain.Entities;
-using BL.DTOs.UserSender;
-using BL.Contract.IServices;
+using UI.Areas.Admin.Models;
+using UI.Helpers;
 
-namespace UI.Areas.Admin.Controllers
+namespace UI.Areas.Admin.Controllers;
+
+[Authorize(Roles = AppRoles.Admin + "," + AppRoles.OpManager + "," + AppRoles.Op)]
+public class UserSenderController : BaseAdminController
 {
-    [Area("Admin")]
-    [Authorize]
-    public class UserSenderController : BaseController
+    public IActionResult Index()
     {
-        // Constructor inject IUserSenderService (commented out as per instructions)
-        /*
-        private readonly IUserSenderService _userSenderService;
-        public UserSenderController(IUserSenderService userSenderService)
+        var model = new ManagementPageViewModel<UserSenderRowItem>
         {
-            _userSenderService = userSenderService;
-        }
-        */
-
-        // GET: Admin/UserSender
-        public IActionResult Index()
-        {
-            // Hardcoded list of 3 sample senders for display
-            var senders = new List<TbUserSender>
+            PageTitle = "Sender Management",
+            PageDescription = "Manage senders...",
+            AddButtonText = "Add Sender",
+            AddButtonController = "UserSender",
+            RecordLabel = "records",
+            RecordIcon = "fa-user",
+            SortedBy = "Name",
+            Items = new List<UserSenderRowItem>
             {
-                new TbUserSender
-                {
-                    Id = Guid.Parse("11111111-eeee-eeee-eeee-111111111111"),
-                    UserId = "aa11bb22-33cc-44dd-55ee-66ff77aa88bb",
-                    Name = "أحمد محمد (Ahmed Mohamed)",
-                    Email = "ahmed.mohamed@example.com",
-                    Phone = "+201001234567",
-                    CityId = Guid.Parse("f1a2b3c4-d5e6-7f8a-9b0c-1d2e3f4a5b6c"),
-                    City = new TbCity { CityAname = "القاهرة", CityEname = "Cairo" },
-                    Address = "شارع المعز، القاهرة القديمة",
-                    CurrentState = enEntityState.Active,
-                    CreatedDate = new DateTime(2026, 1, 10, 9, 0, 0)
-                },
-                new TbUserSender
-                {
-                    Id = Guid.Parse("22222222-ffff-ffff-ffff-222222222222"),
-                    UserId = "bb22cc33-44dd-55ee-66ff-77aa88bb99cc",
-                    Name = "خالد عبدالله (Khalid Abdullah)",
-                    Email = "khalid.a@example.com",
-                    Phone = "+966501234567",
-                    CityId = Guid.Parse("e2f3a4b5-c6d7-8e9f-0a1b-2c3d4e5f6a7b"),
-                    City = new TbCity { CityAname = "الرياض", CityEname = "Riyadh" },
-                    Address = "شارع العليا، الرياض",
-                    CurrentState = enEntityState.Active,
-                    CreatedDate = new DateTime(2026, 2, 5, 11, 30, 0)
-                },
-                new TbUserSender
-                {
-                    Id = Guid.Parse("33333333-0000-0000-0000-333333333333"),
-                    UserId = "cc33dd44-55ee-66ff-77aa-88bb99cc00dd",
-                    Name = "جون دو (John Doe)",
-                    Email = "john.doe@example.com",
-                    Phone = "+12025550143",
-                    CityId = Guid.Parse("d3e4f5a6-b7c8-9d0e-1f2a-3b4c5d6e7f8a"),
-                    City = new TbCity { CityAname = "نيويورك", CityEname = "New York" },
-                    Address = "5th Avenue, New York, NY",
-                    CurrentState = enEntityState.Inactive,
-                    CreatedDate = new DateTime(2026, 3, 15, 15, 45, 0)
-                }
-            };
+                new() { Id = Guid.NewGuid(), Name = "John Doe", SenderId = "SND-1001", Email = "john@example.com", Phone = "1234567890", City = "Riyadh", IsDefault = true, Status = enShipmentStatus.Created },
+                new() { Id = Guid.NewGuid(), Name = "Jane Smith", SenderId = "SND-1002", Email = "jane@example.com", Phone = "0987654321", City = "Jeddah", IsDefault = false, Status = enShipmentStatus.Created },
+                new() { Id = Guid.NewGuid(), Name = "Mike Johnson", SenderId = "SND-1003", Email = "mike@example.com", Phone = "5551234567", City = "Dubai", IsDefault = true, Status = enShipmentStatus.Created },
+                new() { Id = Guid.NewGuid(), Name = "Sarah Williams", SenderId = "SND-1004", Email = "sarah@example.com", Phone = "4449876543", City = "Cairo", IsDefault = false, Status = enShipmentStatus.Created },
+                new() { Id = Guid.NewGuid(), Name = "Tom Brown", SenderId = "SND-1005", Email = "tom@example.com", Phone = "2223334444", City = "Kuwait City", IsDefault = true, Status = enShipmentStatus.Created }
+            },
+            Pagination = new PaginationModel { CurrentPage = 1, TotalPages = 1, TotalItems = 5, PageSize = 10, ItemLabel = "records" }
+        };
+        return View(model);
+    }
 
-            return View(senders);
-        }
+    [HttpGet]
+    public IActionResult Create()
+    {
+        return View(new UserSenderFormViewModel 
+        { 
+            Cities = new List<SelectListItem> { new SelectListItem { Text = "Riyadh", Value = Guid.NewGuid().ToString() } } 
+        });
+    }
 
-        // GET: Admin/UserSender/Details/{id}
-        public IActionResult Details(Guid id)
-        {
-            // Hardcoded sender details for display
-            var sender = new TbUserSender
-            {
-                Id = id,
-                UserId = "aa11bb22-33cc-44dd-55ee-66ff77aa88bb",
-                Name = "أحمد محمد (Ahmed Mohamed)",
-                Email = "ahmed.mohamed@example.com",
-                Phone = "+201001234567",
-                CityId = Guid.Parse("f1a2b3c4-d5e6-7f8a-9b0c-1d2e3f4a5b6c"),
-                City = new TbCity { CityAname = "القاهرة", CityEname = "Cairo" },
-                Address = "شارع المعز، القاهرة القديمة",
-                CurrentState = enEntityState.Active,
-                CreatedDate = new DateTime(2026, 1, 10, 9, 0, 0)
-            };
+    [HttpPost]
+    public IActionResult Create(UserSenderFormViewModel model)
+    {
+        return RedirectToAction("Index");
+    }
 
-            // Hardcoded list of shipments sent by this sender
-            var shipments = new List<dynamic>
-            {
-                new { Code = "SHP-00109", Receiver = "سارة أحمد", Date = new DateTime(2026, 5, 2, 10, 15, 0), Type = "Express", Weight = 3.5, Status = "Delivered" },
-                new { Code = "SHP-00214", Receiver = "علي حسن", Date = new DateTime(2026, 5, 18, 14, 0, 0), Type = "Standard", Weight = 12.0, Status = "In Transit" },
-                new { Code = "SHP-00305", Receiver = "فاطمة عمر", Date = new DateTime(2026, 6, 1, 9, 30, 0), Type = "Standard", Weight = 1.2, Status = "Pending" }
-            };
+    [HttpGet]
+    public IActionResult Edit(Guid id)
+    {
+        return View(new UserSenderFormViewModel 
+        { 
+            Id = id, 
+            Name = "John Doe", 
+            Email = "john@example.com", 
+            Phone = "1234567890", 
+            IsActive = true,
+            Cities = new List<SelectListItem> { new SelectListItem { Text = "Riyadh", Value = Guid.NewGuid().ToString() } } 
+        });
+    }
 
-            ViewBag.Shipments = shipments;
-            return View(sender);
-        }
+    [HttpPost]
+    public IActionResult Edit(UserSenderFormViewModel model)
+    {
+        return RedirectToAction("Index");
+    }
 
-        // GET: Admin/UserSender/Create
-        public IActionResult Create()
-        {
-            LoadCities();
-            return View(new CreateUserSenderDto());
-        }
-
-        // POST: Admin/UserSender/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Create(CreateUserSenderDto dto)
-        {
-            // Redirect to Index (no actual business logic)
-            return RedirectToAction(nameof(Index));
-        }
-
-        // GET: Admin/UserSender/Edit/{id}
-        public IActionResult Edit(Guid id)
-        {
-            ViewBag.Id = id;
-            LoadCities();
-            // Hardcoded update model with pre-filled values
-            var dto = new UpdateUserSenderDto
-            {
-                UserId = "aa11bb22-33cc-44dd-55ee-66ff77aa88bb",
-                Name = "أحمد محمد (Ahmed Mohamed)",
-                Email = "ahmed.mohamed@example.com",
-                Phone = "+201001234567",
-                CityId = Guid.Parse("f1a2b3c4-d5e6-7f8a-9b0c-1d2e3f4a5b6c"),
-                Address = "شارع المعز، القاهرة القديمة"
-            };
-            return View(dto);
-        }
-
-        // POST: Admin/UserSender/Edit/{id}
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Edit(Guid id, UpdateUserSenderDto dto)
-        {
-            // Redirect to Index (no actual business logic)
-            return RedirectToAction(nameof(Index));
-        }
-
-        // POST: Admin/UserSender/Delete/{id}
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Delete(Guid id)
-        {
-            // Redirect to Index (no actual business logic)
-            return RedirectToAction(nameof(Index));
-        }
-
-        private void LoadCities()
-        {
-            var cities = new List<TbCity>
-            {
-                new TbCity { Id = Guid.Parse("f1a2b3c4-d5e6-7f8a-9b0c-1d2e3f4a5b6c"), CityAname = "القاهرة", CityEname = "Cairo" },
-                new TbCity { Id = Guid.Parse("e2f3a4b5-c6d7-8e9f-0a1b-2c3d4e5f6a7b"), CityAname = "الرياض", CityEname = "Riyadh" },
-                new TbCity { Id = Guid.Parse("d3e4f5a6-b7c8-9d0e-1f2a-3b4c5d6e7f8a"), CityAname = "نيويورك", CityEname = "New York" }
-            };
-            ViewBag.Cities = new SelectList(cities, "Id", "CityEname");
-        }
+    [HttpPost]
+    public IActionResult Delete(Guid id)
+    {
+        return RedirectToAction("Index");
     }
 }

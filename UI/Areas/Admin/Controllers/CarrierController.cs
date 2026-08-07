@@ -1,101 +1,183 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
-using System;
-using System.Collections.Generic;
-using Domain.Entities;
-using BL.DTOs.Carrier;
 using BL.Contract.IServices;
+using BL.DTOs.Carrier;
+using Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.Linq.Expressions;
+using UI.Areas.Admin.Models;
+using UI.Helpers;
 
-namespace UI.Areas.Admin.Controllers
+namespace UI.Areas.Admin.Controllers;
+
+public class CarrierController : BaseAdminController
 {
-    [Area("Admin")]
-    [Authorize]
-    public class CarrierController : BaseController
+    private readonly ICarrierService _carrierService;
+
+    public CarrierController(ICarrierService carrierService)
     {
-        // Constructor inject ICarrierService (commented out as per instructions)
-        /*
-        private readonly ICarrierService _carrierService;
-        public CarrierController(ICarrierService carrierService)
-        {
-            _carrierService = carrierService;
-        }
-        */
+        _carrierService = carrierService;
+    }
 
-        // GET: Admin/Carrier
-        public IActionResult Index()
+    public async Task<IActionResult> Index(string? search = null, string? status = null, int page = 1, int pageSize = 8)
+    {
+        // 1. تحديد الحالة المطبقة (appliedStatus) بشكل صحيح
+        string? appliedStatus = null;
+
+        if (status == null)           // أول تحميل → Active افتراضي
+            appliedStatus = "Active";
+        else if (status == "All")     // اختار All Statuses → بدون فلتر
+            appliedStatus = null;
+        else                          // Active أو Inactive صراحةً
+            appliedStatus = status;
+
+        // 2. بناء Expression<Func<TbCarrier, bool>> للفلتر
+        Expression<Func<TbCarrier, bool>>? filter = null;
+
+        if (!string.IsNullOrEmpty(search) && !string.IsNullOrEmpty(appliedStatus))
         {
-            // Hardcoded list of 3 sample carriers for display
-            var carriers = new List<TbCarrier>
+            var statusEnum = appliedStatus == "Active" ? enEntityState.Active : enEntityState.Inactive;
+            filter = c => c.CarrierName.Contains(search) && c.CurrentState == statusEnum;
+        }
+        else if (!string.IsNullOrEmpty(search))
+        {
+            filter = c => c.CarrierName.Contains(search);
+        }
+        else if (!string.IsNullOrEmpty(appliedStatus))
+        {
+            var statusEnum = appliedStatus == "Active" ? enEntityState.Active : enEntityState.Inactive;
+            filter = c => c.CurrentState == statusEnum;
+        }
+        else
+        {
+            filter = null;
+        }
+
+        // 3. استدعاء الخدمة مع الفلتر
+        var result = await _carrierService.GetPagedAsync(page, pageSize, filter);
+
+        if (result.IsFailure || result.Value == null)
+            return View(new ManagementPageViewModel<CarrierRowItem>());
+
+        var pagedResult = result.Value;
+
+        // 4. تحويل البيانات إلى ViewModel
+        var items = pagedResult.Items.Select(c => new CarrierRowItem
+        {
+            Id = c.Id,
+            CarrierName = c.CarrierName,
+            Status = c.CurrentState,
+            CreatedDate = c.CreatedDate.ToString("dd MMM yyyy")
+        }).ToList();
+
+        var model = new ManagementPageViewModel<CarrierRowItem>
+        {
+            PageTitle = "Carrier Management",
+            PageDescription = "Manage global destinations and operational status for regional logistics routing.",
+            AddButtonText = "Add New Carrier",
+            AddButtonController = "Carrier",
+            RecordLabel = "records",
+            RecordIcon = "fa-truck",
+            SortedBy = "Carrier Name",
+            Items = items,
+            Pagination = new PaginationModel
             {
-                new TbCarrier
-                {
-                    Id = Guid.Parse("11111111-2222-3333-4444-555555555555"),
-                    CarrierName = "DHL Express",
-                    CurrentState = enEntityState.Active,
-                    CreatedDate = new DateTime(2026, 1, 5, 8, 0, 0)
-                },
-                new TbCarrier
-                {
-                    Id = Guid.Parse("22222222-3333-4444-5555-666666666666"),
-                    CarrierName = "Aramex",
-                    CurrentState = enEntityState.Active,
-                    CreatedDate = new DateTime(2026, 2, 12, 10, 30, 0)
-                },
-                new TbCarrier
-                {
-                    Id = Guid.Parse("33333333-4444-5555-6666-777777777777"),
-                    CarrierName = "FedEx",
-                    CurrentState = enEntityState.Inactive,
-                    CreatedDate = new DateTime(2026, 3, 20, 14, 15, 0)
-                }
-            };
+                CurrentPage = pagedResult.PageNumber,
+                TotalPages = pagedResult.TotalPages,
+                TotalItems = pagedResult.TotalCount,
+                PageSize = pagedResult.PageSize,
+                ItemLabel = "records"
+            }
+        };
 
-            return View(carriers);
-        }
+        ViewBag.Search = search;
+        ViewBag.Status = appliedStatus ?? "All"; // نمرر "" إذا كان null لكي يظهر "All Statuses" في القائمة
 
-        // GET: Admin/Carrier/Create
-        public IActionResult Create()
+        return View(model);
+    }
+    [HttpGet]
+    public IActionResult Create() => View(new CarrierFormViewModel());
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Create(CarrierFormViewModel model)
+    {
+        if (!ModelState.IsValid) return View(model);
+
+        var dto = new CreateCarrierDto
         {
-            return View(new CreateCarrierDto());
+            CarrierName = model.CarrierName
+        };
+
+        var result = await _carrierService.AddAsync(dto, autoSave: true);
+
+        if (result.IsFailure)
+        {
+            ModelState.AddModelError("", "Failed to create carrier.");
+            return View(model);
         }
 
-        // POST: Admin/Carrier/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Create(CreateCarrierDto dto)
+        // ✅ تحديث الحالة بعد الإنشاء (لأن الـ CreateCarrierDto لا يحتوي على الحالة)
+        var createdId = result.Value.Id;
+        await _carrierService.ChangeStatusAsync(createdId, model.IsActive ? enEntityState.Active : enEntityState.Inactive);
+
+        TempData["SuccessMessage"] = "Carrier created successfully.";
+        return RedirectToAction("Index");
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Edit(Guid id)
+    {
+        var result = await _carrierService.GetByIdAsync(id);
+        if (result.IsFailure || result.Value == null)
         {
-            // Redirect to Index (no actual business logic)
-            return RedirectToAction(nameof(Index));
+            TempData["ErrorMessage"] = "Carrier not found.";
+            return RedirectToAction("Index");
         }
 
-        // GET: Admin/Carrier/Edit/{id}
-        public IActionResult Edit(Guid id)
+        var dto = result.Value;
+        var model = new CarrierFormViewModel
         {
-            ViewBag.Id = id;
-            // Hardcoded update model with pre-filled values
-            var dto = new UpdateCarrierDto
-            {
-                CarrierName = "DHL Express"
-            };
-            return View(dto);
+            Id = dto.Id,
+            CarrierName = dto.CarrierName,
+            IsActive = dto.CurrentState == enEntityState.Active
+        };
+
+        return View(model);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(CarrierFormViewModel model)
+    {
+        if (!ModelState.IsValid) return View(model);
+
+        var dto = new UpdateCarrierDto
+        {
+            CarrierName = model.CarrierName
+        };
+
+        var updateResult = await _carrierService.UpdateAsync(model.Id, dto, autoSave: true);
+        if (updateResult.IsFailure)
+        {
+            ModelState.AddModelError("", "Failed to update carrier.");
+            return View(model);
         }
 
-        // POST: Admin/Carrier/Edit/{id}
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Edit(Guid id, UpdateCarrierDto dto)
-        {
-            // Redirect to Index (no actual business logic)
-            return RedirectToAction(nameof(Index));
-        }
+        // ✅ تحديث الحالة
+        var newState = model.IsActive ? enEntityState.Active : enEntityState.Inactive;
+        await _carrierService.ChangeStatusAsync(model.Id, newState);
 
-        // POST: Admin/Carrier/Delete/{id}
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Delete(Guid id)
-        {
-            // Redirect to Index (no actual business logic)
-            return RedirectToAction(nameof(Index));
-        }
+        TempData["SuccessMessage"] = "Carrier updated successfully.";
+        return RedirectToAction("Index");
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        var result = await _carrierService.DeleteAsync(id, autoSave: true);
+        TempData[result.IsSuccess ? "SuccessMessage" : "ErrorMessage"] =
+            result.IsSuccess ? "Carrier deleted successfully." : "Failed to delete carrier.";
+        return RedirectToAction("Index");
     }
 }

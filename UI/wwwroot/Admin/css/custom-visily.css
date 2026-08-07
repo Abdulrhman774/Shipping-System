@@ -1,0 +1,17 @@
+﻿/* Access Denied Page specific */
+.sf-shield-container i {
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+}
+
+.sf-error-card {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+
+    .sf-error-card:hover {
+        background: #fff;
+        border-color: var(--bs-primary);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
