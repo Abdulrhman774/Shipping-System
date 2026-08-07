@@ -1,11 +1,14 @@
-using System;
-using System.Collections.Generic;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System;
+using System.Collections.Generic;
 using UI.Areas.Admin.Models;
+using UI.Helpers;
 
 namespace UI.Areas.Admin.Controllers;
 
+[Authorize(Roles = AppRoles.Admin + "," + AppRoles.OpManager + "," + AppRoles.Op)]
 public class UserSubscriptionController : BaseAdminController
 {
     public IActionResult Index()

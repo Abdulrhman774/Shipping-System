@@ -1,6 +1,10 @@
-@model UI.Areas.Admin.Models.ShipmentIndexViewModel
+@using UI.Areas.Admin.Models
+@using UI.Helpers
+@model ShipmentIndexViewModel
 @{
     ViewBag.Title = "Shipments";
+    var currentSearch = Context.Request.Query["search"].ToString();
+    var currentStatus = Context.Request.Query["status"].ToString();
 }
 
 <div class="container-fluid py-4">
@@ -10,17 +14,34 @@
             <div class="text-muted">Monitor and control global logistics operations.</div>
         </div>
         <div>
-            <div class="btn-group shadow-sm bg-white p-1 rounded-pill" role="group">
-                <span class="px-3 py-1 text-muted small fw-bold d-flex align-items-center">PREVIEW ROLE</span>
-                <button type="button" class="btn btn-sm btn-primary rounded-pill px-3">Admin</button>
-                <button type="button" class="btn btn-sm btn-light text-muted border-0 rounded-pill px-3">Manager</button>
-                <button type="button" class="btn btn-sm btn-light text-muted border-0 rounded-pill px-3">Operator</button>
-                <button type="button" class="btn btn-sm btn-light text-muted border-0 rounded-pill px-3">Reviewer</button>
-            </div>
-        </div>
+            <div class="btn-group shadow-sm bg-white p-1 rounded-pill" role="group" id="roleSwitcher">
+                <span class="px-3 py-1 text-muted small fw-bold d-flex align-items-center border-end pe-3 me-2">PREVIEW ROLE</span>
+                
+                @{
+                    // قائمة الأدوار المتاحة للعرض في الـ Switcher
+                    var rolesList = new[] { "Admin", "Manager", "Operator", "Reviewer" };
+                }
+                
+                @foreach (var role in rolesList)
+                {
+                    // تحقق من أن المستخدم الحالي يمتلك هذا الدور
+                    var isActive = User.IsInRole(role);
+                    // إذا كان يمتلكه، نضيف له btn-primary، وإلا نضيف له btn-light
+                    var btnClass = isActive ? "btn-primary" : "btn-light text-muted border-0";
+                    
+                    <button type="button" class="btn btn-sm rounded-pill px-3 @btnClass" data-role="@role">
+                        @role
+                    </button>
+                }
+            </div>        </div>
         <div class="d-flex gap-2">
             <button class="btn btn-outline-secondary"><i class="fa-solid fa-download me-1"></i> Export Report</button>
-            <a asp-action="Create" asp-controller="Shipment" asp-area="Admin" class="btn btn-sf-primary text-white" style="background-color: var(--bs-primary); border-color: var(--bs-primary);"><i class="fa-solid fa-plus me-1"></i> Create New Shipment</a>
+            @if (User.IsInRole(AppRoles.Admin) || User.IsInRole(AppRoles.Op))
+            {
+                <a asp-action="Create" class="btn btn-sf-primary text-white" style="background-color: var(--bs-primary); border-color: var(--bs-primary);">
+                    <i class="fa-solid fa-plus me-1"></i> Create New Shipment
+                </a>
+            }
         </div>
     </div>
 
@@ -35,29 +56,36 @@
     </div>
 
     <div class="sf-filter-bar card border-0 shadow-sm rounded-4 p-3 mb-4 bg-white">
-        <div class="row g-3">
+        <form asp-action="Index" method="get" class="row g-3 align-items-end">
+            <input type="hidden" name="page" value="1" />
             <div class="col-md-3">
                 <label class="form-label small text-muted fw-bold mb-1">Status</label>
-                <select class="form-select bg-light border-light">
-                    <option>All Statuses</option>
+                <select name="status" class="form-select bg-light border-light">
+                    <option value="">All Statuses</option>
+                    @foreach (var status in Enum.GetValues<enShipmentStatus>())
+                    {
+                        <option value="@status" selected="@(status.ToString() == currentStatus)">@status</option>
+                    }
                 </select>
             </div>
             <div class="col-md-3">
                 <label class="form-label small text-muted fw-bold mb-1">Date Range</label>
                 <div class="input-group">
                     <span class="input-group-text bg-light border-light text-muted"><i class="fa-regular fa-calendar"></i></span>
-                    <input type="text" class="form-control bg-light border-light" placeholder="Select dates...">
+                    <input type="date" class="form-control bg-light border-light" name="startDate" placeholder="Start">
+                    <span class="input-group-text bg-light border-light text-muted">-</span>
+                    <input type="date" class="form-control bg-light border-light" name="endDate" placeholder="End">
                 </div>
             </div>
             <div class="col-md-3">
                 <label class="form-label small text-muted fw-bold mb-1">Sender</label>
-                <input type="text" class="form-control bg-light border-light" placeholder="Filter by sender...">
+                <input type="text" name="search" class="form-control bg-light border-light" placeholder="Filter by sender..." value="@currentSearch" />
             </div>
             <div class="col-md-3">
                 <label class="form-label small text-muted fw-bold mb-1">Receiver</label>
                 <input type="text" class="form-control bg-light border-light" placeholder="Filter by receiver...">
             </div>
-        </div>
+        </form>
     </div>
 
     <div class="card border-0 shadow-sm rounded-4 mt-4 bg-white">
@@ -82,12 +110,12 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @if (Model.Shipments != null)
+                        @if (Model.Shipments != null && Model.Shipments.Any())
                         {
-                            foreach (var item in Model.Shipments)
+                            @foreach (var item in Model.Shipments)
                             {
                                 <tr>
-                                    <td class="ps-4"><a href="#" class="sf-tracking-link text-decoration-none fw-bold text-dark">@item.TrackingNumber</a></td>
+                                    <td class="ps-4"><a asp-action="Details" asp-route-id="@item.ShipmentId" class="sf-tracking-link text-decoration-none fw-bold text-dark">@item.TrackingNumber</a></td>
                                     <td>
                                         <div class="fw-bold">@item.SenderName</div>
                                     </td>
@@ -99,25 +127,121 @@
                                     </td>
                                     <td>@await Html.PartialAsync("_StatusBadge", item.Status)</td>
                                     <td class="text-end pe-4">
-                                        <div class="d-flex justify-content-end gap-1">
-                                            <button class="btn btn-sm btn-light rounded-circle sf-action-btn"><i class="fa-regular fa-eye"></i></button>
-                                            <button class="btn btn-sm btn-light rounded-circle sf-action-btn"><i class="fa-solid fa-pencil"></i></button>
-                                            <button class="btn btn-sm btn-light rounded-circle sf-action-btn text-danger"><i class="fa-solid fa-trash"></i></button>
-                                            <button class="btn btn-sm btn-light border-0 rounded-circle ms-1"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+                                        <div class="d-flex justify-content-end gap-2 flex-wrap">
+                                            
+                                            @* 1. View Details (الكل يرى) *@
+                                            <a asp-action="Details" asp-route-id="@item.ShipmentId" class="btn btn-sm btn-light rounded-circle sf-action-btn" title="View Details">
+                                                <i class="fa-regular fa-eye"></i>
+                                            </a>
+
+                                            @* 2. Edit (Admin, Op) *@
+                                            @if (User.IsInRole(AppRoles.Admin) || User.IsInRole(AppRoles.Op))
+                                            {
+                                                <a asp-action="Edit" asp-route-id="@item.ShipmentId" class="btn btn-sm btn-light rounded-circle sf-action-btn" title="Edit">
+                                                    <i class="fa-solid fa-pencil"></i>
+                                                </a>
+                                            }
+
+                                            @* 3. Approve (Admin, OpManager, Reviewer) – فقط إذا كانت الشحنة Created أو Returned *@
+                                            @if ((item.Status == enShipmentStatus.Created || item.Status == enShipmentStatus.Returned) &&
+                                                (User.IsInRole(AppRoles.Admin) || User.IsInRole(AppRoles.OpManager) || User.IsInRole(AppRoles.Reviewer)))
+                                            {
+                                                <form asp-action="Approve" asp-route-id="@item.ShipmentId" method="post" class="d-inline">
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="submit" class="btn btn-sm btn-success rounded-circle" title="Approve">
+                                                        <i class="fa-solid fa-check"></i>
+                                                    </button>
+                                                </form>
+                                            }
+
+                                            @* 4. MarkReadyForShip (Admin, OpManager, Op) – فقط إذا كانت الشحنة Approved أو Created *@
+                                            @if ((item.Status == enShipmentStatus.Approved || item.Status == enShipmentStatus.Created) &&
+                                                (User.IsInRole(AppRoles.Admin) || User.IsInRole(AppRoles.OpManager) || User.IsInRole(AppRoles.Op)))
+                                            {
+                                                <form asp-action="MarkReadyForShip" asp-route-id="@item.ShipmentId" method="post" class="d-inline">
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="submit" class="btn btn-sm btn-warning rounded-circle" title="Mark as Ready">
+                                                        <i class="fa-solid fa-box-open"></i>
+                                                    </button>
+                                                </form>
+                                            }
+
+                                            @* 5. MarkShipped (Admin, OpManager) – فقط إذا كانت الشحنة ReadyForShip أو Approved *@
+                                            @if ((item.Status == enShipmentStatus.ReadyForShip || item.Status == enShipmentStatus.Approved) &&
+                                                (User.IsInRole(AppRoles.Admin) || User.IsInRole(AppRoles.OpManager)))
+                                            {
+                                                <form asp-action="MarkShipped" asp-route-id="@item.ShipmentId" method="post" class="d-inline position-relative" style="min-width: 150px;">
+                                                    @Html.AntiForgeryToken()
+                                                    <div class="input-group input-group-sm">
+                                                        <select name="carrierId" class="form-select border-0 shadow-sm" style="font-size: 0.75rem; height: 32px; width: 100px;">
+                                                            <option value="">Carrier</option>
+                                                            @if (ViewBag.Carriers != null)
+                                                            {
+                                                                foreach (var carrier in ViewBag.Carriers as List<SelectListItem>)
+                                                                {
+                                                                    <option value="@carrier.Value">@carrier.Text</option>
+                                                                }
+                                                            }
+                                                        </select>
+                                                        <button type="submit" class="btn btn-sm btn-info text-white" title="Ship" style="height: 32px;">
+                                                            <i class="fa-solid fa-truck-fast"></i>
+                                                        </button>
+                                                    </div>
+                                                </form>
+                                            }
+
+                                            @* 6. Delete (Admin only) *@
+                                            @if (User.IsInRole(AppRoles.Admin))
+                                            {
+                                                <form asp-action="Delete" asp-route-id="@item.ShipmentId" method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this shipment?');">
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="submit" class="btn btn-sm btn-light rounded-circle sf-action-btn text-danger" title="Delete">
+                                                        <i class="fa-solid fa-trash"></i>
+                                                    </button>
+                                                </form>
+                                            }
                                         </div>
                                     </td>
                                 </tr>
                             }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="6" class="text-center py-4 text-muted">No shipments found.</td>
+                            </tr>
                         }
                     </tbody>
                 </table>
             </div>
         </div>
         <div class="card-footer bg-white border-0 py-3 px-4">
-            @if (Model.Pagination != null)
-            {
-                @await Html.PartialAsync("_Pagination", Model.Pagination)
-            }
+            @await Html.PartialAsync("_Pagination", Model.Pagination)
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const roleButtons = document.querySelectorAll('#roleSwitcher .btn');
+        const body = document.body;
+
+        roleButtons.forEach(btn => {
+            btn.addEventListener('click', function () {
+                // إزالة الـ active من كل الأزرار
+                roleButtons.forEach(b => {
+                    b.classList.remove('btn-primary');
+                    b.classList.add('btn-light', 'text-muted', 'border-0');
+                });
+
+                // إضافة active للزر المضغوط
+                this.classList.remove('btn-light', 'text-muted', 'border-0');
+                this.classList.add('btn-primary');
+
+                // وضع الـ role كـ attribute في الـ body
+                const role = this.getAttribute('data-role');
+                body.setAttribute('data-preview-role', role);
+            });
+        });
+    });
+</script>

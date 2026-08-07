@@ -1,9 +1,12 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using UI.Areas.Admin.Models;
+using UI.Helpers;
 
 namespace UI.Areas.Admin.Controllers;
 
+[Authorize(Roles = AppRoles.Admin + "," + AppRoles.OpManager + "," + AppRoles.Op)]
 public class UserReceiverController : BaseAdminController
 {
     public IActionResult Index()

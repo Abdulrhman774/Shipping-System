@@ -1,0 +1,268 @@
+﻿@model UI.Areas.Admin.Models.ShipmentFormViewModel
+@{
+    ViewBag.Title = "Edit Shipment";
+}
+
+<div class="container-fluid py-4" style="max-width: 1000px;">
+    <div class="d-flex justify-content-between align-items-start mb-4">
+        <div>
+            <h4 class="fw-bold mb-1">Edit Shipment</h4>
+            <div class="d-flex align-items-center gap-2">
+                <span class="text-muted small">Update logistical record</span>
+                <span class="badge bg-info bg-opacity-10 text-info rounded-pill px-2 py-1 small">EDITING AS OPERATOR</span>
+            </div>
+        </div>
+        <div>
+            <div class="btn-group shadow-sm bg-white p-1 rounded-pill" role="group">
+                <span class="px-3 py-1 text-muted small fw-bold d-flex align-items-center">PREVIEW ROLE</span>
+                <button type="button" class="btn btn-sm btn-light text-muted border-0 rounded-pill px-3">Admin</button>
+                <button type="button" class="btn btn-sm btn-light text-muted border-0 rounded-pill px-3">Manager</button>
+                <button type="button" class="btn btn-sm btn-primary rounded-pill px-3">Operator</button>
+                <button type="button" class="btn btn-sm btn-light text-muted border-0 rounded-pill px-3">Reviewer</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white">
+        <div class="mb-4">
+            <h5 class="fw-bold mb-1"><i class="fa-solid fa-pen-to-square me-2" style="color: var(--bs-primary);"></i> Edit Shipment</h5>
+            <div class="text-muted small ms-4 ps-1">Modify sender, receiver, or package details</div>
+        </div>
+
+        <form asp-action="Edit" asp-controller="Shipment" asp-area="Admin" method="post">
+            <!-- Hidden fields for IDs -->
+            <input type="hidden" asp-for="ShipmentId" />
+            <input type="hidden" asp-for="SenderId" />
+            <input type="hidden" asp-for="ReceiverId" />
+
+            <!-- ===== SENDER SECTION ===== -->
+            <h6 class="fw-bold text-primary mt-3 mb-3"><i class="fa-solid fa-user me-2"></i> Sender Information</h6>
+            <div class="row g-4 mb-4">
+                <div class="col-md-6">
+                    <label asp-for="SenderName" class="form-label fw-bold small">Full Name / Company <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-light text-muted"><i class="fa-regular fa-user"></i></span>
+                        <input asp-for="SenderName" class="form-control bg-light border-light" placeholder="Enter name">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="SenderEmail" class="form-label fw-bold small">Email Address <span class="text-danger">*</span></label>
+                    <input asp-for="SenderEmail" class="form-control bg-light border-light" placeholder="name@example.com">
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="SenderPhone" class="form-label fw-bold small">Phone Number <span class="text-danger">*</span></label>
+                    <input asp-for="SenderPhone" class="form-control bg-light border-light" placeholder="+1 (555) 000-0000">
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="SenderCityId" class="form-label fw-bold small">City <span class="text-danger">*</span></label>
+                    <select asp-for="SenderCityId" class="form-select bg-light border-light" asp-items="Model.Cities">
+                        <option value="">Select a city</option>
+                    </select>
+                </div>
+
+                <div class="col-12">
+                    <label asp-for="SenderAddress" class="form-label fw-bold small">Full Address <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-light text-muted"><i class="fa-solid fa-location-dot"></i></span>
+                        <input asp-for="SenderAddress" class="form-control bg-light border-light" placeholder="Street name, building, apartment...">
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="SenderPostalCode" class="form-label fw-bold small">Postal Code <span class="text-danger">*</span></label>
+                    <input asp-for="SenderPostalCode" class="form-control bg-light border-light" placeholder="00000">
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="SenderContact" class="form-label fw-bold small">Point of Contact</label>
+                    <input asp-for="SenderContact" class="form-control bg-light border-light" placeholder="Name of person in charge">
+                </div>
+
+                <div class="col-12">
+                    <label asp-for="SenderOtherAddress" class="form-label fw-bold small">Other Address Details</label>
+                    <input asp-for="SenderOtherAddress" class="form-control bg-light border-light" placeholder="Floor, suite, landmarks...">
+                </div>
+
+                <div class="col-12 mt-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" asp-for="SenderIsDefault">
+                        <label class="form-check-label text-muted" asp-for="SenderIsDefault">
+                            Set as default sender address
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="text-muted opacity-25 mb-4">
+
+            <!-- ===== RECEIVER SECTION ===== -->
+            <h6 class="fw-bold text-success mt-3 mb-3"><i class="fa-solid fa-user me-2"></i> Receiver Information</h6>
+            <div class="row g-4 mb-4">
+                <div class="col-md-6">
+                    <label asp-for="ReceiverName" class="form-label fw-bold small">Full Name / Company <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-light text-muted"><i class="fa-regular fa-user"></i></span>
+                        <input asp-for="ReceiverName" class="form-control bg-light border-light" placeholder="Enter name">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="ReceiverEmail" class="form-label fw-bold small">Email Address <span class="text-danger">*</span></label>
+                    <input asp-for="ReceiverEmail" class="form-control bg-light border-light" placeholder="name@example.com">
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="ReceiverPhone" class="form-label fw-bold small">Phone Number <span class="text-danger">*</span></label>
+                    <input asp-for="ReceiverPhone" class="form-control bg-light border-light" placeholder="+1 (555) 000-0000">
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="ReceiverCityId" class="form-label fw-bold small">City <span class="text-danger">*</span></label>
+                    <select asp-for="ReceiverCityId" class="form-select bg-light border-light" asp-items="Model.Cities">
+                        <option value="">Select a city</option>
+                    </select>
+                </div>
+
+                <div class="col-12">
+                    <label asp-for="ReceiverAddress" class="form-label fw-bold small">Full Address <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-light text-muted"><i class="fa-solid fa-location-dot"></i></span>
+                        <input asp-for="ReceiverAddress" class="form-control bg-light border-light" placeholder="Street name, building, apartment...">
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="ReceiverPostalCode" class="form-label fw-bold small">Postal Code <span class="text-danger">*</span></label>
+                    <input asp-for="ReceiverPostalCode" class="form-control bg-light border-light" placeholder="00000">
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="ReceiverContact" class="form-label fw-bold small">Point of Contact</label>
+                    <input asp-for="ReceiverContact" class="form-control bg-light border-light" placeholder="Name of person in charge">
+                </div>
+
+                <div class="col-12">
+                    <label asp-for="ReceiverOtherAddress" class="form-label fw-bold small">Other Address Details</label>
+                    <input asp-for="ReceiverOtherAddress" class="form-control bg-light border-light" placeholder="Floor, suite, landmarks...">
+                </div>
+
+                <div class="col-12 mt-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" asp-for="ReceiverIsDefault">
+                        <label class="form-check-label text-muted" asp-for="ReceiverIsDefault">
+                            Set as default receiver address
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="text-muted opacity-25 mb-4">
+
+            <!-- ===== SHIPMENT DETAILS SECTION ===== -->
+            <h6 class="fw-bold mt-3 mb-3"><i class="fa-solid fa-box me-2"></i> Shipment Details</h6>
+            <div class="row g-4 mb-4">
+                <div class="col-md-6">
+                    <label asp-for="ShippingDate" class="form-label fw-bold small">Shipping Date <span class="text-danger">*</span></label>
+                    <input asp-for="ShippingDate" class="form-control bg-light border-light" type="date">
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="DeliveryDate" class="form-label fw-bold small">Delivery Date</label>
+                    <input asp-for="DeliveryDate" class="form-control bg-light border-light" type="date">
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="ShippingTypeId" class="form-label fw-bold small">Shipping Type <span class="text-danger">*</span></label>
+                    <select asp-for="ShippingTypeId" class="form-select bg-light border-light" asp-items="Model.ShippingTypes">
+                        <option value="">Select shipping type</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="ShippingPackagingId" class="form-label fw-bold small">Packaging Type</label>
+                    <select asp-for="ShippingPackagingId" class="form-select bg-light border-light" asp-items="Model.PackagingTypes">
+                        <option value="">Select packaging</option>
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <label asp-for="Weight" class="form-label fw-bold small">Weight (kg) <span class="text-danger">*</span></label>
+                    <input asp-for="Weight" class="form-control bg-light border-light" placeholder="0.00">
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="Length" class="form-label fw-bold small">Length (cm)</label>
+                    <input asp-for="Length" class="form-control bg-light border-light" placeholder="0">
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="Width" class="form-label fw-bold small">Width (cm)</label>
+                    <input asp-for="Width" class="form-control bg-light border-light" placeholder="0">
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="Height" class="form-label fw-bold small">Height (cm)</label>
+                    <input asp-for="Height" class="form-control bg-light border-light" placeholder="0">
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="PackageValue" class="form-label fw-bold small">Declared Value (USD) <span class="text-danger">*</span></label>
+                    <input asp-for="PackageValue" class="form-control bg-light border-light" placeholder="0.00">
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="PaymentMethodId" class="form-label fw-bold small">Payment Method</label>
+                    <select asp-for="PaymentMethodId" class="form-select bg-light border-light" asp-items="Model.PaymentMethods">
+                        <option value="">Select payment method</option>
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="UserSubscriptionId" class="form-label fw-bold small">Subscription</label>
+                    <input asp-for="UserSubscriptionId" class="form-control bg-light border-light" placeholder="Subscription ID (optional)">
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="ReferenceId" class="form-label fw-bold small">Reference ID</label>
+                    <input asp-for="ReferenceId" class="form-control bg-light border-light" placeholder="Optional reference">
+                </div>
+            </div>
+
+            <hr class="text-muted opacity-25 mb-4">
+
+            <div class="d-flex justify-content-end gap-2">
+                <a asp-action="Index" class="btn btn-outline-secondary px-4">Cancel</a>
+                <button type="submit" class="btn btn-sf-primary text-white px-4" style="background-color: var(--bs-primary); border-color: var(--bs-primary);">
+                    <i class="fa-solid fa-floppy-disk me-2"></i> Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Optional info cards (like in Create view) -->
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="d-flex align-items-start gap-3 bg-white p-3 rounded-4 shadow-sm h-100">
+                <div class="bg-success bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center text-success flex-shrink-0" style="width: 40px; height: 40px;">
+                    <i class="fa-solid fa-floppy-disk"></i>
+                </div>
+                <div>
+                    <div class="fw-bold small mb-1">Save as Draft</div>
+                    <div class="text-muted" style="font-size: 0.8rem;">Your progress is automatically saved to your drafts folder.</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="d-flex align-items-start gap-3 bg-white p-3 rounded-4 shadow-sm h-100">
+                <div class="bg-warning bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center text-warning flex-shrink-0" style="width: 40px; height: 40px;">
+                    <i class="fa-solid fa-bolt"></i>
+                </div>
+                <div>
+                    <div class="fw-bold small mb-1">Real-time Rates</div>
+                    <div class="text-muted" style="font-size: 0.8rem;">Rate estimates are fetched from global carrier APIs.</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="d-flex align-items-start gap-3 bg-white p-3 rounded-4 shadow-sm h-100">
+                <div class="bg-danger bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center text-danger flex-shrink-0" style="width: 40px; height: 40px;">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <div>
+                    <div class="fw-bold small mb-1">Review Requirements</div>
+                    <div class="text-muted" style="font-size: 0.8rem;">Certain roles require second-level supervisor approval.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

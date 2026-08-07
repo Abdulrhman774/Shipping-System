@@ -8,6 +8,7 @@ public class ShipmentIndexViewModel
 
 public class ShipmentRowItem
 {
+    public Guid ShipmentId { get; set; }
     public int RowNumber { get; set; }
     public string TrackingNumber { get; set; } = string.Empty;
     public string SenderName { get; set; } = string.Empty;

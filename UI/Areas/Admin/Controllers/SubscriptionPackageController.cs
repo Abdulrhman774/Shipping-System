@@ -1,12 +1,15 @@
 using BL.Contract.IServices;
 using BL.DTOs.SubscriptionPackage;
-using Microsoft.AspNetCore.Mvc;
-using UI.Areas.Admin.Models;
-using System.Linq.Expressions;
 using Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.Linq.Expressions;
+using UI.Areas.Admin.Models;
+using UI.Helpers;
 
 namespace UI.Areas.Admin.Controllers;
 
+[Authorize(Roles = AppRoles.Admin + "," + AppRoles.OpManager + "," + AppRoles.Op)]
 public class SubscriptionPackageController : BaseAdminController
 {
     private readonly ISubscriptionPackageService _subscriptionPackageService;

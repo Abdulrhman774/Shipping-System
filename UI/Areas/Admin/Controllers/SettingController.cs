@@ -1,8 +1,11 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using UI.Areas.Admin.Models;
+using UI.Helpers;
 
 namespace UI.Areas.Admin.Controllers;
 
+[Authorize(Roles = AppRoles.Admin)]
 public class SettingController : BaseAdminController
 {
     [HttpGet]

@@ -1,4 +1,4 @@
-@model UI.Areas.Admin.Models.ShipmentWizardViewModel
+@model UI.Areas.Admin.Models.ShipmentFormViewModel
 @{
     ViewBag.Title = "Create Shipment";
 }
@@ -60,52 +60,54 @@
         <form asp-action="Create" asp-controller="Shipment" asp-area="Admin" method="post">
             <div class="row g-4 mb-4">
                 <div class="col-md-6">
-                    <label asp-for="FullName" class="form-label fw-bold small">Full Name / Company <span class="text-danger">*</span></label>
+                    <label asp-for="SenderName" class="form-label fw-bold small">Full Name / Company <span class="text-danger">*</span></label>
                     <div class="input-group">
                         <span class="input-group-text bg-light border-light text-muted"><i class="fa-regular fa-user"></i></span>
-                        <input asp-for="FullName" class="form-control bg-light border-light" placeholder="Enter name">
+                        <input asp-for="SenderName" class="form-control bg-light border-light" placeholder="Enter name">
                     </div>
                 </div>
                 <div class="col-md-6">
-                    <label asp-for="Email" class="form-label fw-bold small">Email Address <span class="text-danger">*</span></label>
-                    <input asp-for="Email" class="form-control bg-light border-light" placeholder="name@example.com">
+                    <label asp-for="SenderEmail" class="form-label fw-bold small">Email Address <span class="text-danger">*</span></label>
+                    <input asp-for="SenderEmail" class="form-control bg-light border-light" placeholder="name@example.com">
                 </div>
                 
                 <div class="col-md-6">
-                    <label asp-for="PhoneNumber" class="form-label fw-bold small">Phone Number <span class="text-danger">*</span></label>
-                    <input asp-for="PhoneNumber" class="form-control bg-light border-light" placeholder="+1 (555) 000-0000">
+                    <label asp-for="SenderPhone" class="form-label fw-bold small">Phone Number <span class="text-danger">*</span></label>
+                    <input asp-for="SenderPhone" class="form-control bg-light border-light" placeholder="+1 (555) 000-0000">
                 </div>
                 <div class="col-md-6">
-                    <label asp-for="City" class="form-label fw-bold small">City <span class="text-danger">*</span></label>
-                    <input asp-for="City" class="form-control bg-light border-light" placeholder="Enter city">
+                    <label asp-for="SenderCityId" class="form-label fw-bold small">City <span class="text-danger">*</span></label>
+                    <select asp-for="SenderCityId" class="form-select bg-light border-light" asp-items="Model.Cities">
+                        <option value="">Select a city</option>
+                    </select>
                 </div>
                 
                 <div class="col-12">
-                    <label asp-for="FullAddress" class="form-label fw-bold small">Full Address <span class="text-danger">*</span></label>
+                    <label asp-for="SenderAddress" class="form-label fw-bold small">Full Address <span class="text-danger">*</span></label>
                     <div class="input-group">
                         <span class="input-group-text bg-light border-light text-muted"><i class="fa-solid fa-location-dot"></i></span>
-                        <input asp-for="FullAddress" class="form-control bg-light border-light" placeholder="Street name, building, apartment...">
+                        <input asp-for="SenderAddress" class="form-control bg-light border-light" placeholder="Street name, building, apartment...">
                     </div>
                 </div>
                 
                 <div class="col-md-6">
-                    <label asp-for="PostalCode" class="form-label fw-bold small">Postal Code <span class="text-danger">*</span></label>
-                    <input asp-for="PostalCode" class="form-control bg-light border-light" placeholder="00000">
+                    <label asp-for="SenderPostalCode" class="form-label fw-bold small">Postal Code <span class="text-danger">*</span></label>
+                    <input asp-for="SenderPostalCode" class="form-control bg-light border-light" placeholder="00000">
                 </div>
                 <div class="col-md-6">
-                    <label asp-for="PointOfContact" class="form-label fw-bold small">Point of Contact</label>
-                    <input asp-for="PointOfContact" class="form-control bg-light border-light" placeholder="Name of person in charge">
+                    <label asp-for="SenderContact" class="form-label fw-bold small">Point of Contact</label>
+                    <input asp-for="SenderContact" class="form-control bg-light border-light" placeholder="Name of person in charge">
                 </div>
                 
                 <div class="col-12">
-                    <label asp-for="OtherAddressDetails" class="form-label fw-bold small">Other Address Details</label>
-                    <input asp-for="OtherAddressDetails" class="form-control bg-light border-light" placeholder="Floor, suite, landmarks...">
+                    <label asp-for="SenderOtherAddress" class="form-label fw-bold small">Other Address Details</label>
+                    <input asp-for="SenderOtherAddress" class="form-control bg-light border-light" placeholder="Floor, suite, landmarks...">
                 </div>
                 
                 <div class="col-12 mt-3">
                     <div class="form-check">
-                        <input class="form-check-input" type="checkbox" asp-for="IsDefaultSender">
-                        <label class="form-check-label text-muted" asp-for="IsDefaultSender">
+                        <input class="form-check-input" type="checkbox" asp-for="SenderIsDefault">
+                        <label class="form-check-label text-muted" asp-for="SenderIsDefault">
                             Set as default sender address
                         </label>
                     </div>

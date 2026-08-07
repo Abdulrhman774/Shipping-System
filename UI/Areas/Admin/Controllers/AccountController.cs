@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using UI.Areas.Admin.Models;
 
@@ -36,4 +37,12 @@ public class AccountController : BaseAdminController
         TempData["SuccessMessage"] = "Password changed successfully!";
         return RedirectToAction("Profile");
     }
+
+    [AllowAnonymous] // لازم نسمح للجميع بالوصول لصفحة الخطأ
+    public IActionResult AccessDenied()
+    {
+        return View();
+    }
+
+
 }

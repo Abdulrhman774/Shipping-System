@@ -1,8 +1,10 @@
 using BL.Contract.IvwServices;
 using BL.DTOs.Views;
 using Domain.Entities.Views.Dashboard;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using UI.Areas.Admin.Models;
+using UI.Helpers;
 
 namespace UI.Areas.Admin.Controllers;
 
@@ -67,6 +69,8 @@ public class DashboardController : BaseAdminController
         return View(model);
     }
 
+
+    [Authorize(Roles = AppRoles.Admin + "," + AppRoles.OpManager)]
     public async Task<IActionResult> Analytics()
     {
         // Fire all 4 service calls in parallel

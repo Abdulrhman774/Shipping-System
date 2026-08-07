@@ -59,6 +59,19 @@ public class BaseService<T, TDto, TCreateDto, TUpdateDto> : IBaseService<T, TDto
         return Result.Success();
     }
 
+    public virtual async Task<Result> UpdateAsync(Guid id, Action<T> updateAction, bool? autoSave = null)
+    {
+        var shouldSave = autoSave ?? AutoSave;
+        var updated = await _repository.UpdateAsync(id, updateAction, shouldSave);
+
+        if (!updated)
+            return Error.NotFound(
+                $"{typeof(T).Name}.NotFound",
+                $"{typeof(T).Name} was not found.");
+
+        return Result.Success();
+    }
+
     public virtual async Task<Result> DeleteAsync(Guid id, bool? autoSave = null)
     {
         var shouldSave = autoSave ?? AutoSave;

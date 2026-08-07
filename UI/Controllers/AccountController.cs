@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using UI.Helpers;
 using UI.Models;
 using UI.Models.ResponsesModels;
 using UI.Services;
@@ -94,9 +95,12 @@ namespace UI.Controllers
                 {
                     return Redirect(returnUrl);
                 }
-               
+
                 // No returnUrl → redirect based on role
-                if (principal.IsInRole("Admin"))
+                if (principal.IsInRole(AppRoles.Admin) ||
+                    principal.IsInRole(AppRoles.OpManager) ||
+                    principal.IsInRole(AppRoles.Reviewer) ||
+                    principal.IsInRole(AppRoles.Op))
                 {
                     return RedirectToAction("Index", "Dashboard", new { area = "Admin" });
                 }

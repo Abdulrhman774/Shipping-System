@@ -2,6 +2,7 @@ using DAL.Context;
 using DAL.Seeding;
 using Domain.Entities;
 using Microsoft.AspNetCore.Identity;
+using UI.Helpers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -71,12 +72,12 @@ app.Use(async (context, next) =>
     if (context.User.Identity?.IsAuthenticated == true)
     {
         var path = context.Request.Path.Value?.ToLower();
-
-        // إذا كان في صفحة Login أو الصفحة الرئيسية
         if (path == "/" || path == "/account/login" || string.IsNullOrEmpty(path))
         {
-            // التحقق من الـ Role قبل التوجيه
-            if (context.User.IsInRole("Admin"))
+            if (context.User.IsInRole(AppRoles.Admin) ||
+                context.User.IsInRole(AppRoles.OpManager) ||
+                context.User.IsInRole(AppRoles.Reviewer) ||
+                context.User.IsInRole(AppRoles.Op))
             {
                 context.Response.Redirect("/Admin/Dashboard");
             }
@@ -87,7 +88,6 @@ app.Use(async (context, next) =>
             return;
         }
     }
-
     await next();
 });
 
@@ -142,6 +142,8 @@ app.Use(async (context, next) =>
 //    pattern: "Shipment/Confirmation/{id}",
 //    defaults: new { controller = "Shipment", action = "Confirmation" });
 */
+
+
 
 app.MapControllerRoute(
     name: "areas",
