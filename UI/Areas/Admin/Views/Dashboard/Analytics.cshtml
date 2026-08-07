@@ -1,101 +1,125 @@
+@using System.Text.Json
+@using Microsoft.AspNetCore.Html
 @model UI.Areas.Admin.Models.AnalyticsViewModel
 @{
     ViewBag.Title = "Analytics";
+
+    var statusDistribution = ViewBag.StatusDistribution as List<object> ?? new List<object>();
+    var monthlyVolume = ViewBag.MonthlyVolume as List<object> ?? new List<object>();
+    var topShippers = ViewBag.TopShippers as List<object> ?? new List<object>();
+    var financials = ViewBag.Financials as List<object> ?? new List<object>();
 }
 
 <div class="container-fluid py-4">
+    <!-- Page Header -->
     <div class="d-flex justify-content-between align-items-start mb-4">
         <div>
-            <div class="small fw-bold text-uppercase mb-1" style="color: var(--bs-primary);"><i class="fa-solid fa-chart-pie me-1"></i> Operations Intelligence</div>
+            <div class="small fw-bold text-uppercase mb-1" style="color: #5e5ce6;"><i class="fa-solid fa-chart-pie me-1"></i> Operations Intelligence</div>
             <h2 class="fw-bold mb-1">Analytics</h2>
-            <div class="text-muted">Performance metrics for all shipments across regional configurations.</div>
+            <div style="color: #6b7280;">Performance metrics for all shipments across regional configurations.</div>
         </div>
         <div>
             <button class="btn btn-outline-secondary"><i class="fa-solid fa-download me-1"></i> Export Report <i class="fa-solid fa-caret-down ms-1"></i></button>
         </div>
     </div>
 
+    <!-- Filter Bar -->
     <div class="card border-0 shadow-sm rounded-4 p-3 mb-4 bg-white">
         <div class="row g-3 align-items-end">
             <div class="col-md-3">
-                <label class="form-label small text-muted fw-bold text-uppercase mb-1">Reporting Period</label>
+                <label class="form-label small fw-bold text-uppercase mb-1" style="color: #6b7280;">Reporting Period</label>
                 <div class="input-group">
-                    <span class="input-group-text bg-light border-light text-muted"><i class="fa-regular fa-calendar"></i></span>
+                    <span class="input-group-text bg-light border-light" style="color: #6b7280;"><i class="fa-regular fa-calendar"></i></span>
                     <select class="form-select bg-light border-light">
                         <option>Last 6 Months</option>
                     </select>
                 </div>
             </div>
             <div class="col-md-3">
-                <label class="form-label small text-muted fw-bold text-uppercase mb-1">Shipment Status</label>
+                <label class="form-label small fw-bold text-uppercase mb-1" style="color: #6b7280;">Shipment Status</label>
                 <div class="input-group">
-                    <span class="input-group-text bg-light border-light text-muted"><i class="fa-solid fa-filter"></i></span>
+                    <span class="input-group-text bg-light border-light" style="color: #6b7280;"><i class="fa-solid fa-filter"></i></span>
                     <select class="form-select bg-light border-light">
                         <option>All Statuses</option>
                     </select>
                 </div>
             </div>
             <div class="col-md-3">
-                <label class="form-label small text-muted fw-bold text-uppercase mb-1">Logistic Carrier</label>
+                <label class="form-label small fw-bold text-uppercase mb-1" style="color: #6b7280;">Logistic Carrier</label>
                 <div class="input-group">
-                    <span class="input-group-text bg-light border-light text-muted"><i class="fa-solid fa-users"></i></span>
+                    <span class="input-group-text bg-light border-light" style="color: #6b7280;"><i class="fa-solid fa-users"></i></span>
                     <select class="form-select bg-light border-light">
                         <option>All Registered Carriers</option>
                     </select>
                 </div>
             </div>
             <div class="col-md-3 d-flex align-items-center">
-                <a href="#" class="text-muted text-decoration-none small"><i class="fa-solid fa-filter-circle-xmark me-1"></i> Reset Filters</a>
+                <a href="#" class="text-decoration-none small" style="color: #6b7280;"><i class="fa-solid fa-filter-circle-xmark me-1"></i> Reset Filters</a>
             </div>
         </div>
     </div>
 
+    <!-- Charts Row 1 -->
     <div class="row g-4 mb-4">
+        <!-- Shipments by Status (Doughnut) -->
         <div class="col-lg-6">
             <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white">
                 <div class="d-flex justify-content-between align-items-center mb-1">
-                    <h6 class="fw-bold mb-0"><i class="fa-solid fa-ship me-2 text-muted"></i> Shipments by Status</h6>
-                    <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-2 py-1">Real-time</span>
+                    <h6 class="fw-bold mb-0"><i class="fa-solid fa-ship me-2" style="color: #6b7280;"></i> Shipments by Status</h6>
+                    <span class="badge rounded-pill px-2 py-1" style="background-color: rgba(94,92,230,0.1); color: #5e5ce6;">Real-time</span>
                 </div>
-                <div class="text-muted small mb-4">Current distribution of all active shipments.</div>
-                <canvas id="shipmentsByStatusChart" height="300"></canvas>
+                <div class="small mb-4" style="color: #6b7280;">Current distribution of all active shipments.</div>
+                <div style="min-height: 280px;">
+                    <canvas id="shipmentsByStatusChart"></canvas>
+                </div>
             </div>
         </div>
+        <!-- Monthly Volume (Bar) -->
         <div class="col-lg-6">
             <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white">
                 <div class="d-flex justify-content-between align-items-center mb-1">
-                    <h6 class="fw-bold mb-0"><i class="fa-solid fa-chart-simple me-2 text-muted"></i> Monthly Volume</h6>
-                    <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-2 py-1">+12.4%</span>
+                    <h6 class="fw-bold mb-0"><i class="fa-solid fa-chart-simple me-2" style="color: #6b7280;"></i> Monthly Volume</h6>
+                    <span class="badge rounded-pill px-2 py-1" style="background-color: rgba(34,197,94,0.1); color: #22c55e;">+12.4%</span>
                 </div>
-                <div class="text-muted small mb-4">Shipment volume trend over the selected period.</div>
-                <canvas id="monthlyVolumeChart" height="300"></canvas>
+                <div class="small mb-4" style="color: #6b7280;">Shipment volume trend over the selected period.</div>
+                <div style="min-height: 280px;">
+                    <canvas id="monthlyVolumeChart"></canvas>
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- Charts Row 2 -->
     <div class="row g-4 mb-4">
+        <!-- Revenue vs Cost (Line) -->
         <div class="col-lg-6">
             <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white">
                 <div class="d-flex justify-content-between align-items-center mb-1">
-                    <h6 class="fw-bold mb-0"><i class="fa-solid fa-arrow-trend-up me-2 text-muted"></i> Revenue vs. Cost</h6>
-                    <button class="btn btn-sm btn-light border-0 rounded-circle"><i class="fa-solid fa-ellipsis"></i></button>
+                    <h6 class="fw-bold mb-0"><i class="fa-solid fa-arrow-trend-up me-2" style="color: #6b7280;"></i> Revenue vs. Cost</h6>
+                    <button class="btn btn-sm btn-light border-0 rounded-circle" style="width: 32px; height: 32px; padding: 0;"><i class="fa-solid fa-ellipsis"></i></button>
                 </div>
-                <div class="text-muted small mb-4">Financial overview of operations.</div>
-                <canvas id="revenueCostChart" height="300"></canvas>
+                <div class="small mb-4" style="color: #6b7280;">Financial overview of operations.</div>
+                <div style="min-height: 280px;">
+                    <canvas id="revenueCostChart"></canvas>
+                </div>
             </div>
         </div>
+        <!-- Top 5 Shippers (Horizontal Bar) -->
         <div class="col-lg-6">
             <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white">
                 <div class="d-flex justify-content-between align-items-center mb-1">
-                    <h6 class="fw-bold mb-0"><i class="fa-solid fa-users me-2 text-muted"></i> Top 5 Shippers</h6>
-                    <span class="text-muted small fw-bold text-uppercase">Current Month</span>
+                    <h6 class="fw-bold mb-0"><i class="fa-solid fa-users me-2" style="color: #6b7280;"></i> Top 5 Shippers</h6>
+                    <span class="small fw-bold text-uppercase" style="color: #6b7280;">Current Month</span>
                 </div>
-                <div class="text-muted small mb-4">Clients with the highest volume this month.</div>
-                <canvas id="topShippersChart" height="300"></canvas>
+                <div class="small mb-4" style="color: #6b7280;">Clients with the highest volume this month.</div>
+                <div style="min-height: 280px;">
+                    <canvas id="topShippersChart"></canvas>
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- Bottom Stats -->
     <div class="row g-4 mb-4">
         @if (Model.BottomStats != null)
         {
@@ -103,11 +127,11 @@
             {
                 <div class="col-lg-3">
                     <div class="card border-0 shadow-sm rounded-4 p-3 bg-white h-100">
-                        <div class="text-uppercase text-muted small fw-bold mb-2">@stat.Title</div>
+                        <div class="text-uppercase small fw-bold mb-2" style="color: #6b7280;">@stat.Title</div>
                         <h3 class="fw-bold mb-1">@stat.Value</h3>
                         <div class="small @(stat.IsPositiveChange ? "text-success" : "text-danger")">
                             <i class="fa-solid @(stat.IsPositiveChange ? "fa-arrow-up" : "fa-arrow-down") me-1"></i>
-                            @stat.ChangeValue <span class="text-muted ms-1">vs last period</span>
+                            @stat.ChangeValue <span class="ms-1" style="color: #6b7280;">vs last period</span>
                         </div>
                     </div>
                 </div>
@@ -115,12 +139,167 @@
         }
     </div>
 
-    <div class="d-flex justify-content-between text-muted small">
-        <div>Reports generated on August 6, 2026 at 07:03 AM</div>
-        <div><a href="#" class="text-decoration-none text-muted">Privacy Policy</a> | <a href="#" class="text-decoration-none text-muted">Terms of Service</a></div>
+    <!-- Footer -->
+    <div class="d-flex justify-content-between small" style="color: #6b7280;">
+        <div>Reports generated on @DateTime.Now.ToString("MMMM d, yyyy 'at' hh:mm tt")</div>
+        <div><a href="#" class="text-decoration-none" style="color: #6b7280;">Privacy Policy</a> | <a href="#" class="text-decoration-none" style="color: #6b7280;">Terms of Service</a></div>
     </div>
 </div>
 
 @section Scripts {
-    <script src="~/admin/js/dashboard-charts.js"></script>
+    <script>
+        // Serialize ViewBag data to JS
+        var statusData = @(new HtmlString(JsonSerializer.Serialize(statusDistribution)));
+        var volumeData = @(new HtmlString(JsonSerializer.Serialize(monthlyVolume)));
+        var shippersData = @(new HtmlString(JsonSerializer.Serialize(topShippers)));
+        var financialsData = @(new HtmlString(JsonSerializer.Serialize(financials)));
+
+        // Chart.js global defaults
+        Chart.defaults.font.family = "'Inter', sans-serif";
+        Chart.defaults.font.size = 12;
+        Chart.defaults.color = '#6b7280';
+        Chart.defaults.plugins.legend.position = 'bottom';
+
+        var chartColors = ["#5e5ce6", "#22c55e", "#f59e0b", "#ef4444", "#3b82f6", "#8b5cf6"];
+        var tooltipConfig = { backgroundColor: '#1f2937', padding: 12, cornerRadius: 8 };
+        var legendConfig = { position: 'bottom', labels: { padding: 20, usePointStyle: true } };
+
+        // 1. Shipments by Status — Doughnut
+        (function () {
+            var labels = statusData.map(function (d) { return d.Label; });
+            var counts = statusData.map(function (d) { return d.Count; });
+            var colors = chartColors.slice(0, labels.length);
+            new Chart(document.getElementById('shipmentsByStatusChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: counts,
+                        backgroundColor: colors,
+                        borderWidth: 0,
+                        hoverOffset: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '65%',
+                    plugins: {
+                        legend: legendConfig,
+                        tooltip: tooltipConfig
+                    }
+                }
+            });
+        })();
+
+        // 2. Monthly Volume — Bar
+        (function () {
+            var labels = volumeData.map(function (d) { return d.Month; });
+            var counts = volumeData.map(function (d) { return d.Count; });
+            new Chart(document.getElementById('monthlyVolumeChart'), {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Shipments',
+                        data: counts,
+                        backgroundColor: '#5e5ce6',
+                        borderRadius: 6,
+                        barThickness: 28
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: legendConfig,
+                        tooltip: tooltipConfig
+                    },
+                    scales: {
+                        x: { grid: { display: false }, border: { display: false } },
+                        y: { grid: { color: '#f3f4f6' }, border: { display: false }, beginAtZero: true }
+                    }
+                }
+            });
+        })();
+
+        // 3. Revenue vs Cost — Line
+        (function () {
+            var labels = financialsData.map(function (d) { return d.Month; });
+            var revenue = financialsData.map(function (d) { return d.Revenue; });
+            var cost = financialsData.map(function (d) { return d.Cost; });
+            new Chart(document.getElementById('revenueCostChart'), {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Revenue',
+                            data: revenue,
+                            borderColor: '#22c55e',
+                            backgroundColor: 'rgba(34,197,94,0.1)',
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 4,
+                            pointHoverRadius: 6
+                        },
+                        {
+                            label: 'Cost',
+                            data: cost,
+                            borderColor: '#ef4444',
+                            backgroundColor: 'rgba(239,68,68,0.1)',
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 4,
+                            pointHoverRadius: 6
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: legendConfig,
+                        tooltip: tooltipConfig
+                    },
+                    scales: {
+                        x: { grid: { display: false }, border: { display: false } },
+                        y: { grid: { color: '#f3f4f6' }, border: { display: false }, beginAtZero: true }
+                    }
+                }
+            });
+        })();
+
+        // 4. Top Shippers — Horizontal Bar
+        (function () {
+            var labels = shippersData.map(function (d) { return d.Name; });
+            var counts = shippersData.map(function (d) { return d.Count; });
+            new Chart(document.getElementById('topShippersChart'), {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Shipments',
+                        data: counts,
+                        backgroundColor: chartColors.slice(0, labels.length),
+                        borderRadius: 6,
+                        barThickness: 22
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: legendConfig,
+                        tooltip: tooltipConfig
+                    },
+                    scales: {
+                        x: { grid: { color: '#f3f4f6' }, border: { display: false }, beginAtZero: true },
+                        y: { grid: { display: false }, border: { display: false } }
+                    }
+                }
+            });
+        })();
+    </script>
 }

@@ -1,79 +1,238 @@
+using BL.Contract.IServices;
+using BL.DTOs.City;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using UI.Areas.Admin.Models;
+using System.Linq.Expressions;
+using Domain.Entities;
+using Domain.Shared;
 
 namespace UI.Areas.Admin.Controllers;
 
 public class CityController : BaseAdminController
 {
-    public IActionResult Index()
+    private readonly ICityService _cityService;
+    private readonly ICountryService _countryService;
+
+    public CityController(ICityService cityService, ICountryService countryService)
     {
+        _cityService = cityService;
+        _countryService = countryService;
+    }
+
+    public async Task<IActionResult> Index(string? search = null, string? status = null, int page = 1, int pageSize = 8)
+    {
+        string? appliedStatus = null;
+
+        if (status == null)
+            appliedStatus = "Active";
+        else if (status == "All")
+            appliedStatus = null;
+        else
+            appliedStatus = status;
+
+        Expression<Func<TbCity, bool>>? filter = null;
+
+        if (!string.IsNullOrEmpty(search) && !string.IsNullOrEmpty(appliedStatus))
+        {
+            var statusEnum = appliedStatus == "Active" ? enEntityState.Active : enEntityState.Inactive;
+            filter = c => (c.CityEname.Contains(search) || c.CityAname.Contains(search)) && c.CurrentState == statusEnum;
+        }
+        else if (!string.IsNullOrEmpty(search))
+        {
+            filter = c => c.CityEname.Contains(search) || c.CityAname.Contains(search);
+        }
+        else if (!string.IsNullOrEmpty(appliedStatus))
+        {
+            var statusEnum = appliedStatus == "Active" ? enEntityState.Active : enEntityState.Inactive;
+            filter = c => c.CurrentState == statusEnum;
+        }
+
+        var result = await _cityService.GetPagedAsync(page, pageSize, filter);
+
+        if (result.IsFailure || result.Value == null)
+            return View(new ManagementPageViewModel<CityRowItem>());
+
+        var pagedResult = result.Value;
+
+        var countriesResult = await _countryService.GetAllAsync();
+        var countries = countriesResult.IsSuccess && countriesResult.Value != null ? countriesResult.Value.ToList() : new();
+
+        var items = pagedResult.Items.Select(c => {
+            var country = countries.FirstOrDefault(x => x.Id == c.CountryId);
+            var countryName = country != null ? (!string.IsNullOrEmpty(country.CountryEname) ? country.CountryEname : country.CountryAname) : string.Empty;
+            return new CityRowItem
+            {
+                Id = c.Id,
+                CityAname = c.CityAname ?? string.Empty,
+                CityEname = c.CityEname ?? string.Empty,
+                CountryName = countryName,
+                Status = c.CurrentState,
+                CreatedDate = c.CreatedDate.ToString("dd MMM yyyy")
+            };
+        }).ToList();
+
         var model = new ManagementPageViewModel<CityRowItem>
         {
             PageTitle = "City Management",
-            PageDescription = "Manage cities...",
+            PageDescription = "Manage cities across countries.",
             AddButtonText = "Add New City",
             AddButtonController = "City",
             RecordLabel = "records",
             RecordIcon = "fa-city",
-            SortedBy = "English Name",
-            Items = new List<CityRowItem>
+            SortedBy = "City Name",
+            Items = items,
+            Pagination = new PaginationModel
             {
-                new() { Id = Guid.NewGuid(), EnglishName = "Riyadh", ArabicName = "الرياض", CountryName = "Saudi Arabia", Status = enShipmentStatus.Delivered, CreatedDate = "2023-01-15" },
-                new() { Id = Guid.NewGuid(), EnglishName = "Jeddah", ArabicName = "جدة", CountryName = "Saudi Arabia", Status = enShipmentStatus.Delivered, CreatedDate = "2023-01-15" },
-                new() { Id = Guid.NewGuid(), EnglishName = "Dubai", ArabicName = "دبي", CountryName = "UAE", Status = enShipmentStatus.Delivered, CreatedDate = "2023-01-20" },
-                new() { Id = Guid.NewGuid(), EnglishName = "Cairo", ArabicName = "القاهرة", CountryName = "Egypt", Status = enShipmentStatus.Approved, CreatedDate = "2023-02-10" },
-                new() { Id = Guid.NewGuid(), EnglishName = "Kuwait City", ArabicName = "مدينة الكويت", CountryName = "Kuwait", Status = enShipmentStatus.Returned, CreatedDate = "2023-03-25" }
-            },
-            Pagination = new PaginationModel { CurrentPage = 1, TotalPages = 1, TotalItems = 5, PageSize = 10, ItemLabel = "records" }
+                CurrentPage = pagedResult.PageNumber,
+                TotalPages = pagedResult.TotalPages,
+                TotalItems = pagedResult.TotalCount,
+                PageSize = pagedResult.PageSize,
+                ItemLabel = "records"
+            }
         };
+
+        ViewBag.Search = search;
+        ViewBag.Status = appliedStatus ?? "All";
+
         return View(model);
     }
 
     [HttpGet]
-    public IActionResult Create()
+    public async Task<IActionResult> Create()
     {
-        return View(new CityFormViewModel 
-        { 
-            Countries = new List<SelectListItem> 
-            { 
-                new SelectListItem { Text = "Saudi Arabia", Value = Guid.NewGuid().ToString() },
-                new SelectListItem { Text = "UAE", Value = Guid.NewGuid().ToString() }
-            } 
-        });
+        var model = new CityFormViewModel();
+        var countriesResult = await _countryService.GetAllAsync();
+        if (countriesResult.IsSuccess && countriesResult.Value != null)
+        {
+            model.Countries = countriesResult.Value.Select(c => new SelectListItem
+            {
+                Value = c.Id.ToString(),
+                Text = !string.IsNullOrEmpty(c.CountryEname) ? c.CountryEname : c.CountryAname
+            }).ToList();
+        }
+        return View(model);
     }
 
     [HttpPost]
-    public IActionResult Create(CityFormViewModel model)
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Create(CityFormViewModel model)
     {
+        if (!ModelState.IsValid)
+        {
+            var countriesResult = await _countryService.GetAllAsync();
+            if (countriesResult.IsSuccess && countriesResult.Value != null)
+            {
+                model.Countries = countriesResult.Value.Select(c => new SelectListItem
+                {
+                    Value = c.Id.ToString(),
+                    Text = !string.IsNullOrEmpty(c.CountryEname) ? c.CountryEname : c.CountryAname
+                }).ToList();
+            }
+            return View(model);
+        }
+
+        var dto = new CreateCityDto
+        {
+            CityAname = model.CityAname,
+            CityEname = model.CityEname,
+            CountryId = model.CountryId
+        };
+
+        var result = await _cityService.AddAsync(dto, autoSave: true);
+
+        if (result.IsFailure)
+        {
+            ModelState.AddModelError("", "Failed to create city.");
+            return View(model);
+        }
+
+        var createdId = result.Value.Id;
+        await _cityService.ChangeStatusAsync(createdId, model.IsActive ? enEntityState.Active : enEntityState.Inactive);
+
+        TempData["SuccessMessage"] = "City created successfully.";
         return RedirectToAction("Index");
     }
 
     [HttpGet]
-    public IActionResult Edit(Guid id)
+    public async Task<IActionResult> Edit(Guid id)
     {
-        return View(new CityFormViewModel 
-        { 
-            Id = id, 
-            EnglishName = "Riyadh", 
-            ArabicName = "الرياض", 
-            IsActive = true,
-            Countries = new List<SelectListItem> 
-            { 
-                new SelectListItem { Text = "Saudi Arabia", Value = Guid.NewGuid().ToString() }
-            } 
-        });
+        var result = await _cityService.GetByIdAsync(id);
+        if (result.IsFailure || result.Value == null)
+        {
+            TempData["ErrorMessage"] = "City not found.";
+            return RedirectToAction("Index");
+        }
+
+        var dto = result.Value;
+        var model = new CityFormViewModel
+        {
+            Id = dto.Id,
+            CityAname = dto.CityAname ?? string.Empty,
+            CityEname = dto.CityEname ?? string.Empty,
+            CountryId = dto.CountryId,
+            IsActive = dto.CurrentState == enEntityState.Active
+        };
+
+        var countriesResult = await _countryService.GetAllAsync();
+        if (countriesResult.IsSuccess && countriesResult.Value != null)
+        {
+            model.Countries = countriesResult.Value.Select(c => new SelectListItem
+            {
+                Value = c.Id.ToString(),
+                Text = !string.IsNullOrEmpty(c.CountryEname) ? c.CountryEname : c.CountryAname
+            }).ToList();
+        }
+
+        return View(model);
     }
 
     [HttpPost]
-    public IActionResult Edit(CityFormViewModel model)
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(CityFormViewModel model)
     {
+        if (!ModelState.IsValid)
+        {
+            var countriesResult = await _countryService.GetAllAsync();
+            if (countriesResult.IsSuccess && countriesResult.Value != null)
+            {
+                model.Countries = countriesResult.Value.Select(c => new SelectListItem
+                {
+                    Value = c.Id.ToString(),
+                    Text = !string.IsNullOrEmpty(c.CountryEname) ? c.CountryEname : c.CountryAname
+                }).ToList();
+            }
+            return View(model);
+        }
+
+        var dto = new UpdateCityDto
+        {
+            CityAname = model.CityAname,
+            CityEname = model.CityEname,
+            CountryId = model.CountryId
+        };
+
+        var updateResult = await _cityService.UpdateAsync(model.Id, dto, autoSave: true);
+        if (updateResult.IsFailure)
+        {
+            ModelState.AddModelError("", "Failed to update city.");
+            return View(model);
+        }
+
+        var newState = model.IsActive ? enEntityState.Active : enEntityState.Inactive;
+        await _cityService.ChangeStatusAsync(model.Id, newState);
+
+        TempData["SuccessMessage"] = "City updated successfully.";
         return RedirectToAction("Index");
     }
 
     [HttpPost]
-    public IActionResult Delete(Guid id)
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Delete(Guid id)
     {
+        var result = await _cityService.DeleteAsync(id, autoSave: true);
+        TempData[result.IsSuccess ? "SuccessMessage" : "ErrorMessage"] =
+            result.IsSuccess ? "City deleted successfully." : "Failed to delete city.";
         return RedirectToAction("Index");
     }
 }

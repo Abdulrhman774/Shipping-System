@@ -5,71 +5,82 @@
 }
 
 <div class="container-fluid py-4">
+    <!-- Page Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h4 class="fw-bold mb-0 d-inline-block">Dashboard</h4>
             <span class="badge bg-success ms-2 rounded-pill px-2 py-1 align-top" style="font-size: 0.7rem;">ADMIN</span>
         </div>
+        <div class="text-muted small">
+            <i class="fa-regular fa-calendar me-1"></i> @DateTime.Now.ToString("dddd, MMMM d, yyyy")
+        </div>
     </div>
 
+    <!-- Stat Cards -->
     <div class="row g-4 mb-4">
+        <!-- Total Shipments -->
         <div class="col-md">
-            <div class="sf-stat-card card border-0 shadow-sm rounded-4 p-4 h-100">
+            <div class="card border-0 shadow-sm rounded-4 p-4 h-100" style="border-left: 4px solid #5e5ce6 !important;">
                 <div class="d-flex justify-content-between align-items-start mb-2">
-                    <div class="text-uppercase text-muted small fw-bold">Total Shipments</div>
-                    <div class="bg-light rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-                        <i class="fa-solid fa-box text-primary"></i>
+                    <div class="text-uppercase small fw-bold" style="color: #6b7280;">Total Shipments</div>
+                    <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 42px; height: 42px; background-color: rgba(94,92,230,0.1);">
+                        <i class="fa-solid fa-box" style="color: #5e5ce6;"></i>
                     </div>
                 </div>
-                <h3 class="fw-bold mb-0">@Model.TotalShipments</h3>
+                <h3 class="fw-bold mb-0">@Model.TotalShipments.ToString("N0")</h3>
             </div>
         </div>
+        <!-- Active Deliveries -->
         <div class="col-md">
-            <div class="sf-stat-card card border-0 shadow-sm rounded-4 p-4 h-100">
+            <div class="card border-0 shadow-sm rounded-4 p-4 h-100" style="border-left: 4px solid #22c55e !important;">
                 <div class="d-flex justify-content-between align-items-start mb-2">
-                    <div class="text-uppercase text-muted small fw-bold">Active Deliveries</div>
-                    <div class="bg-light rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-                        <i class="fa-solid fa-truck text-primary"></i>
+                    <div class="text-uppercase small fw-bold" style="color: #6b7280;">Active Deliveries</div>
+                    <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 42px; height: 42px; background-color: rgba(34,197,94,0.1);">
+                        <i class="fa-solid fa-truck" style="color: #22c55e;"></i>
                     </div>
                 </div>
-                <h3 class="fw-bold mb-0">@Model.ActiveDeliveries</h3>
+                <h3 class="fw-bold mb-0">@Model.ActiveDeliveries.ToString("N0")</h3>
             </div>
         </div>
+        <!-- Pending Approvals -->
         <div class="col-md">
-            <div class="sf-stat-card card border-0 shadow-sm rounded-4 p-4 h-100">
+            <div class="card border-0 shadow-sm rounded-4 p-4 h-100" style="border-left: 4px solid #f59e0b !important;">
                 <div class="d-flex justify-content-between align-items-start mb-2">
-                    <div class="text-uppercase text-muted small fw-bold">Pending Approvals</div>
-                    <div class="bg-light rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-                        <i class="fa-solid fa-clipboard-check text-primary"></i>
+                    <div class="text-uppercase small fw-bold" style="color: #6b7280;">Pending Approvals</div>
+                    <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 42px; height: 42px; background-color: rgba(245,158,11,0.1);">
+                        <i class="fa-solid fa-clipboard-check" style="color: #f59e0b;"></i>
                     </div>
                 </div>
-                <h3 class="fw-bold mb-0">@Model.PendingApprovals</h3>
+                <h3 class="fw-bold mb-0">@Model.PendingApprovals.ToString("N0")</h3>
             </div>
         </div>
+        <!-- Efficiency Rate -->
         <div class="col-md">
-            <div class="sf-stat-card card border-0 shadow-sm rounded-4 p-4 h-100">
+            <div class="card border-0 shadow-sm rounded-4 p-4 h-100" style="border-left: 4px solid #3b82f6 !important;">
                 <div class="d-flex justify-content-between align-items-start mb-2">
-                    <div class="text-uppercase text-muted small fw-bold">Efficiency Rate</div>
-                    <div class="bg-light rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-                        <i class="fa-solid fa-chart-line text-primary"></i>
+                    <div class="text-uppercase small fw-bold" style="color: #6b7280;">Efficiency Rate</div>
+                    <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 42px; height: 42px; background-color: rgba(59,130,246,0.1);">
+                        <i class="fa-solid fa-chart-line" style="color: #3b82f6;"></i>
                     </div>
                 </div>
                 <h3 class="fw-bold mb-0">@Model.EfficiencyRate</h3>
             </div>
         </div>
+        <!-- Delayed Shipments -->
         <div class="col-md">
-            <div class="sf-stat-card card border-0 shadow-sm rounded-4 p-4 h-100">
+            <div class="card border-0 shadow-sm rounded-4 p-4 h-100" style="border-left: 4px solid #ef4444 !important;">
                 <div class="d-flex justify-content-between align-items-start mb-2">
-                    <div class="text-uppercase text-muted small fw-bold">Delayed Shipments</div>
-                    <div class="bg-light rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-                        <i class="fa-solid fa-clock text-primary"></i>
+                    <div class="text-uppercase small fw-bold" style="color: #6b7280;">Delayed Shipments</div>
+                    <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 42px; height: 42px; background-color: rgba(239,68,68,0.1);">
+                        <i class="fa-solid fa-clock" style="color: #ef4444;"></i>
                     </div>
                 </div>
-                <h3 class="fw-bold mb-0">@Model.DelayedShipments</h3>
+                <h3 class="fw-bold mb-0">@Model.DelayedShipments.ToString("N0")</h3>
             </div>
         </div>
     </div>
 
+    <!-- Recent Shipments + Sidebar -->
     <div class="row g-4 mb-4">
         <div class="col-lg-8">
             <div class="card border-0 shadow-sm rounded-4 h-100">
@@ -91,7 +102,7 @@
                         <table class="table sf-table table-hover align-middle mb-0">
                             <thead class="text-muted small">
                                 <tr>
-                                    <th class="ps-4">ID</th>
+                                    <th class="ps-4">TRACKING ID</th>
                                     <th>DESTINATION</th>
                                     <th>STATUS</th>
                                     <th>PRIORITY</th>
@@ -102,23 +113,30 @@
                             <tbody>
                                 @foreach (var item in Model.RecentShipments)
                                 {
-                                    <tr>
-                                        <td class="ps-4"><a href="#" class="sf-tracking-link text-decoration-none fw-bold">@item.Id</a></td>
+                                    <tr style="transition: background-color 0.15s ease;" onmouseover="this.style.backgroundColor='#f5f3ff'" onmouseout="this.style.backgroundColor=''">
+                                        <td class="ps-4">
+                                            <span style="font-family: 'Courier New', monospace; background-color: #f3f4f6; padding: 3px 8px; border-radius: 6px; font-size: 0.85rem; font-weight: 600;">@item.Id</span>
+                                        </td>
                                         <td>@item.Destination</td>
                                         <td>@await Html.PartialAsync("_StatusBadge", item.Status)</td>
                                         <td>
-                                            @if(item.Priority == "High") {
-                                                <span class="text-danger"><i class="fa-solid fa-circle fa-2xs me-1"></i>High</span>
-                                            } else if(item.Priority == "Medium") {
-                                                <span class="text-warning"><i class="fa-solid fa-circle fa-2xs me-1"></i>Medium</span>
-                                            } else {
-                                                <span class="text-success"><i class="fa-solid fa-circle fa-2xs me-1"></i>Low</span>
+                                            @if (item.Priority == "High")
+                                            {
+                                                <span style="color: #ef4444;"><i class="fa-solid fa-circle fa-2xs me-1"></i>High</span>
+                                            }
+                                            else if (item.Priority == "Medium")
+                                            {
+                                                <span style="color: #f59e0b;"><i class="fa-solid fa-circle fa-2xs me-1"></i>Medium</span>
+                                            }
+                                            else
+                                            {
+                                                <span style="color: #22c55e;"><i class="fa-solid fa-circle fa-2xs me-1"></i>@item.Priority</span>
                                             }
                                         </td>
-                                        <td class="text-muted small"><i class="fa-regular fa-clock me-1"></i>@item.LastUpdate</td>
+                                        <td class="small" style="color: #6b7280;"><i class="fa-regular fa-clock me-1"></i>@item.LastUpdate</td>
                                         <td class="text-end pe-4">
-                                            <button class="btn btn-sm btn-light rounded-circle sf-action-btn"><i class="fa-regular fa-file"></i></button>
-                                            <button class="btn btn-sm btn-light rounded-circle sf-action-btn ms-1"><i class="fa-solid fa-ellipsis"></i></button>
+                                            <button class="btn btn-sm rounded-circle" style="width: 32px; height: 32px; background-color: #f3f4f6; border: none; padding: 0;"><i class="fa-regular fa-file" style="font-size: 0.75rem;"></i></button>
+                                            <button class="btn btn-sm rounded-circle ms-1" style="width: 32px; height: 32px; background-color: #f3f4f6; border: none; padding: 0;"><i class="fa-solid fa-ellipsis" style="font-size: 0.75rem;"></i></button>
                                         </td>
                                     </tr>
                                 }
@@ -127,86 +145,89 @@
                     </div>
                 </div>
                 <div class="card-footer bg-white border-0 pt-0 pb-4 px-4">
-                    <a asp-action="Index" asp-controller="Shipment" asp-area="Admin" class="text-decoration-none fw-bold" style="color: var(--bs-primary);">View all shipments &rarr;</a>
+                    <a asp-action="Index" asp-controller="Shipment" asp-area="Admin" class="text-decoration-none fw-bold" style="color: #5e5ce6;">View all shipments &rarr;</a>
                 </div>
             </div>
         </div>
         <div class="col-lg-4">
             <div class="d-flex flex-column gap-4 h-100">
-                <div class="card border-0 shadow-sm rounded-4 p-4 sf-quick-action">
+                <!-- Quick Actions -->
+                <div class="card border-0 shadow-sm rounded-4 p-4">
                     <h6 class="fw-bold mb-3">Quick Actions</h6>
                     <div class="d-flex flex-column gap-3">
                         <div class="d-flex align-items-center">
-                            <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center text-primary me-3 flex-shrink-0" style="width: 40px; height: 40px;">
-                                <i class="fa-solid fa-plus"></i>
+                            <div class="rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 40px; height: 40px; background-color: rgba(94,92,230,0.1);">
+                                <i class="fa-solid fa-plus" style="color: #5e5ce6;"></i>
                             </div>
                             <div>
                                 <div class="fw-bold small">Create Shipment</div>
-                                <div class="text-muted" style="font-size: 0.75rem;">Start a new logistics order</div>
+                                <div style="font-size: 0.75rem; color: #6b7280;">Start a new logistics order</div>
                             </div>
                         </div>
                         <div class="d-flex align-items-center">
-                            <div class="bg-success bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center text-success me-3 flex-shrink-0" style="width: 40px; height: 40px;">
-                                <i class="fa-solid fa-circle-check"></i>
+                            <div class="rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 40px; height: 40px; background-color: rgba(34,197,94,0.1);">
+                                <i class="fa-solid fa-circle-check" style="color: #22c55e;"></i>
                             </div>
                             <div>
                                 <div class="fw-bold small">Approve Batch</div>
-                                <div class="text-muted" style="font-size: 0.75rem;">Verify 12 pending documents</div>
+                                <div style="font-size: 0.75rem; color: #6b7280;">Verify @Model.PendingApprovals pending documents</div>
                             </div>
                         </div>
                         <div class="d-flex align-items-center">
-                            <div class="bg-info bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center text-info me-3 flex-shrink-0" style="width: 40px; height: 40px;">
-                                <i class="fa-solid fa-chart-bar"></i>
+                            <div class="rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 40px; height: 40px; background-color: rgba(59,130,246,0.1);">
+                                <i class="fa-solid fa-chart-bar" style="color: #3b82f6;"></i>
                             </div>
                             <div>
                                 <div class="fw-bold small">Generate Report</div>
-                                <div class="text-muted" style="font-size: 0.75rem;">Download monthly performance</div>
+                                <div style="font-size: 0.75rem; color: #6b7280;">Download monthly performance</div>
                             </div>
                         </div>
                         <div class="d-flex align-items-center">
-                            <div class="bg-secondary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center text-secondary me-3 flex-shrink-0" style="width: 40px; height: 40px;">
-                                <i class="fa-solid fa-users"></i>
+                            <div class="rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 40px; height: 40px; background-color: rgba(107,114,128,0.1);">
+                                <i class="fa-solid fa-users" style="color: #6b7280;"></i>
                             </div>
                             <div>
                                 <div class="fw-bold small">Manage Team</div>
-                                <div class="text-muted" style="font-size: 0.75rem;">Adjust operator permissions</div>
+                                <div style="font-size: 0.75rem; color: #6b7280;">Adjust operator permissions</div>
                             </div>
                         </div>
                     </div>
                 </div>
 
+                <!-- Logistics Health -->
                 <div class="card border-0 shadow-sm rounded-4 p-4">
                     <h6 class="fw-bold mb-3">Logistics Health</h6>
                     <div class="mb-3">
                         <div class="d-flex justify-content-between mb-1 small fw-bold">
                             <span>On-Time Deliveries</span>
-                            <span class="text-success">88%</span>
+                            <span style="color: #22c55e;">88%</span>
                         </div>
                         <div class="progress" style="height: 4px;">
-                            <div class="progress-bar bg-success" role="progressbar" style="width: 88%" aria-valuenow="88" aria-valuemin="0" aria-valuemax="100"></div>
+                            <div class="progress-bar" role="progressbar" style="width: 88%; background-color: #22c55e;" aria-valuenow="88" aria-valuemin="0" aria-valuemax="100"></div>
                         </div>
                     </div>
                     <div class="mb-3">
                         <div class="d-flex justify-content-between mb-1 small fw-bold">
                             <span>Capacity Utilization</span>
-                            <span class="text-primary">72%</span>
+                            <span style="color: #5e5ce6;">72%</span>
                         </div>
                         <div class="progress" style="height: 4px;">
-                            <div class="progress-bar bg-primary" role="progressbar" style="width: 72%" aria-valuenow="72" aria-valuemin="0" aria-valuemax="100"></div>
+                            <div class="progress-bar" role="progressbar" style="width: 72%; background-color: #5e5ce6;" aria-valuenow="72" aria-valuemin="0" aria-valuemax="100"></div>
                         </div>
                     </div>
                     <div>
                         <div class="d-flex justify-content-between mb-1 small fw-bold">
                             <span>Pending Compliance</span>
-                            <span class="text-primary">14%</span>
+                            <span style="color: #f59e0b;">14%</span>
                         </div>
                         <div class="progress" style="height: 4px;">
-                            <div class="progress-bar bg-primary" role="progressbar" style="width: 14%" aria-valuenow="14" aria-valuemin="0" aria-valuemax="100"></div>
+                            <div class="progress-bar" role="progressbar" style="width: 14%; background-color: #f59e0b;" aria-valuenow="14" aria-valuemin="0" aria-valuemax="100"></div>
                         </div>
                     </div>
                 </div>
 
-                <div class="card border-0 rounded-4 p-4" style="background-color: var(--bs-primary); color: white;">
+                <!-- Support Card -->
+                <div class="card border-0 rounded-4 p-4" style="background-color: #5e5ce6; color: white;">
                     <h5 class="fw-bold mb-2">Need Assistance?</h5>
                     <p class="mb-3 small opacity-75">Our support team is available 24/7 to help you with any issues.</p>
                     <button class="btn btn-outline-light btn-sm w-100 rounded-pill">Open Support Ticket</button>
@@ -215,50 +236,51 @@
         </div>
     </div>
 
+    <!-- Bottom Row -->
     <div class="row g-4">
         <div class="col-lg-6">
             <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
                 <h5 class="fw-bold mb-1">Global Coverage</h5>
-                <div class="text-muted small mb-4">Active routes and hubs globally.</div>
-                <div class="bg-light rounded-3 d-flex flex-column align-items-center justify-content-center h-100" style="min-height: 200px;">
-                    <i class="fa-solid fa-map text-muted opacity-50 mb-2 fa-2x"></i>
-                    <span class="text-muted small">Map visualization data loading...</span>
+                <div class="small mb-4" style="color: #6b7280;">Active routes and hubs globally.</div>
+                <div class="rounded-3 d-flex flex-column align-items-center justify-content-center h-100" style="min-height: 200px; background-color: #f8f9fa;">
+                    <i class="fa-solid fa-map fa-2x mb-2" style="color: #6b7280; opacity: 0.5;"></i>
+                    <span class="small" style="color: #6b7280;">Map visualization data loading...</span>
                 </div>
             </div>
         </div>
         <div class="col-lg-6">
             <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
                 <h5 class="fw-bold mb-1">Team Performance</h5>
-                <div class="text-muted small mb-4">Weekly average processing times per operator.</div>
+                <div class="small mb-4" style="color: #6b7280;">Weekly average processing times per operator.</div>
                 <div class="d-flex flex-column gap-3">
                     <div class="border rounded-3 p-3 d-flex justify-content-between align-items-center">
                         <div>
                             <div class="fw-bold small mb-1">Route Optimization</div>
-                            <div class="text-muted" style="font-size: 0.75rem;">Avg. processing: 4.2h</div>
+                            <div style="font-size: 0.75rem; color: #6b7280;">Avg. processing: 4.2h</div>
                         </div>
                         <div class="text-end">
-                            <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-2 py-1 mb-1">92%</span>
-                            <div class="text-muted" style="font-size: 0.75rem;">Target met</div>
+                            <span class="badge rounded-pill px-2 py-1 mb-1" style="background-color: rgba(34,197,94,0.1); color: #22c55e;">92%</span>
+                            <div style="font-size: 0.75rem; color: #6b7280;">Target met</div>
                         </div>
                     </div>
                     <div class="border rounded-3 p-3 d-flex justify-content-between align-items-center">
                         <div>
                             <div class="fw-bold small mb-1">Document Review</div>
-                            <div class="text-muted" style="font-size: 0.75rem;">Avg. processing: 1.8h</div>
+                            <div style="font-size: 0.75rem; color: #6b7280;">Avg. processing: 1.8h</div>
                         </div>
                         <div class="text-end">
-                            <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-2 py-1 mb-1">98%</span>
-                            <div class="text-muted" style="font-size: 0.75rem;">Target met</div>
+                            <span class="badge rounded-pill px-2 py-1 mb-1" style="background-color: rgba(34,197,94,0.1); color: #22c55e;">98%</span>
+                            <div style="font-size: 0.75rem; color: #6b7280;">Target met</div>
                         </div>
                     </div>
                     <div class="border rounded-3 p-3 d-flex justify-content-between align-items-center">
                         <div>
                             <div class="fw-bold small mb-1">Inventory Check</div>
-                            <div class="text-muted" style="font-size: 0.75rem;">Avg. processing: 2.5h</div>
+                            <div style="font-size: 0.75rem; color: #6b7280;">Avg. processing: 2.5h</div>
                         </div>
                         <div class="text-end">
-                            <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-2 py-1 mb-1">85%</span>
-                            <div class="text-muted" style="font-size: 0.75rem;">Target met</div>
+                            <span class="badge rounded-pill px-2 py-1 mb-1" style="background-color: rgba(34,197,94,0.1); color: #22c55e;">85%</span>
+                            <div style="font-size: 0.75rem; color: #6b7280;">Target met</div>
                         </div>
                     </div>
                 </div>

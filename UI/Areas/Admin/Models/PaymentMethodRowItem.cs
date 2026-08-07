@@ -3,9 +3,9 @@ namespace UI.Areas.Admin.Models;
 public class PaymentMethodRowItem
 {
     public Guid Id { get; set; }
-    public string EnglishName { get; set; } = string.Empty;
-    public string ArabicName { get; set; } = string.Empty;
-    public string Commission { get; set; } = string.Empty;
-    public enShipmentStatus Status { get; set; }
-    public string Icon { get; set; } = "fa-credit-card";
+    public string MethodEname { get; set; } = string.Empty;
+    public string MethdAname { get; set; } = string.Empty;
+    public double? Commission { get; set; }
+    public enEntityState Status { get; set; }
+    public string CreatedDate { get; set; } = string.Empty;
 }

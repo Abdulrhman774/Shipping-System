@@ -4,6 +4,7 @@ using BL.Contract.IvwServices;
 using BL.DTOs.Views;
 using BL.Mapping;
 using DAL.Contracts.IRepositories;
+using Domain.Entities.Views.Dashboard;
 using Domain.Entities.Views.Shipment.Statistics_Views;
 using System;
 using System.Collections.Generic;
@@ -118,5 +119,85 @@ public class ShipmentViewService : IShipmentViewService
         };
 
         return Result<AdminDashboardDto>.Success(dto);
+    }
+
+    public async Task<Result<VwDashboardSummary>> GetDashboardSummaryAsync()
+    {
+        try
+        {
+            var data = await _repository.GetDashboardSummaryAsync();
+            if (data is null)
+                return Error.NotFound("Dashboard.NotFound", "No dashboard summary available.");
+            return Result<VwDashboardSummary>.Success(data);
+        }
+        catch (Exception ex)
+        {
+            return Error.Unexpected("Dashboard.Error", $"Failed to load dashboard summary: {ex.Message}");
+        }
+    }
+
+    public async Task<Result<IEnumerable<VwRecentShipment>>> GetRecentShipmentsAsync(int count = 20)
+    {
+        try
+        {
+            var data = await _repository.GetRecentShipmentsAsync(count);
+            return Result<IEnumerable<VwRecentShipment>>.Success(data);
+        }
+        catch (Exception ex)
+        {
+            return Error.Unexpected("RecentShipments.Error", $"Failed to load recent shipments: {ex.Message}");
+        }
+    }
+
+    public async Task<Result<IEnumerable<VwShipmentStatusDistribution>>> GetStatusDistributionAsync()
+    {
+        try
+        {
+            var data = await _repository.GetStatusDistributionAsync();
+            return Result<IEnumerable<VwShipmentStatusDistribution>>.Success(data);
+        }
+        catch (Exception ex)
+        {
+            return Error.Unexpected("StatusDistribution.Error", $"Failed to load status distribution: {ex.Message}");
+        }
+    }
+
+    public async Task<Result<IEnumerable<VwMonthlyVolume>>> GetMonthlyVolumeAsync()
+    {
+        try
+        {
+            var data = await _repository.GetMonthlyVolumeAsync();
+            return Result<IEnumerable<VwMonthlyVolume>>.Success(data);
+        }
+        catch (Exception ex)
+        {
+            return Error.Unexpected("MonthlyVolume.Error", $"Failed to load monthly volume: {ex.Message}");
+        }
+    }
+
+    public async Task<Result<IEnumerable<VwTopShipper>>> GetTopShippersAsync(int top = 5)
+    {
+        try
+        {
+            var data = await _repository.GetTopShippersAsync(top);
+            return Result<IEnumerable<VwTopShipper>>.Success(data);
+        }
+        catch (Exception ex)
+        {
+            return Error.Unexpected("TopShippers.Error", $"Failed to load top shippers: {ex.Message}");
+        }
+    }
+
+    public async Task<Result<IEnumerable<VwFinancial>>> GetMonthlyFinancialsAsync()
+    {
+        try
+        {
+            var data = await _repository.GetMonthlyFinancialsAsync();
+            return Result<IEnumerable<VwFinancial>>.Success(data);
+        }
+        catch (Exception ex)
+        {
+            return Error.Unexpected("Financials.Error", $"Failed to load financial data: {ex.Message}");
+        }
     }
 }
