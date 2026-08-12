@@ -1,33 +1,33 @@
 # 🚚 Shipping Management System
 
-> ⚠️ **Work in Progress** — This project is under active development. Some features may be incomplete or subject to change.
-
 A comprehensive **Shipping Management System** built with **.NET 8**, following **N-Tier Architecture with Clean Architecture Principles**.
 
 The system is designed to manage **shipments, users, carriers, payments, subscriptions, addresses, shipping rates, and logistics operations** through a scalable, secure, and maintainable architecture.
 
-The project focuses not only on CRUD operations, but also on implementing real-world software engineering practices such as **Result Pattern, Repository & Unit of Work, JWT Authentication, Refresh Token Rotation, Dynamic Authorization, Soft Delete, Audit Trail, SQL Views, and centralized business rules**.
+The project goes beyond basic CRUD operations by implementing real-world software engineering practices such as **Result Pattern, Repository & Unit of Work, JWT Authentication, Refresh Token Rotation, Dynamic Authorization, Soft Delete, Audit Trail, SQL Views, and centralized business rules**.
 
 ---
 
 ## 📋 Project Status
 
-| Feature                    | Status      | Notes                                 |
-| -------------------------- | ----------- | ------------------------------------- |
-| ✅ Authentication           | Complete    | JWT + Refresh Token Rotation          |
-| ✅ User Management          | Complete    | CRUD + Roles + Permissions            |
-| ✅ Shipment Creation        | Complete    | Rate calculation + subscription usage |
-| 🔄 Shipment Tracking       | In Progress | Tracking number + status history      |
-| 🔄 Distance Calculation    | In Progress | Fallback values currently supported   |
-| ✅ Subscription System      | Complete    | Shipment, weight & distance quotas    |
-| ✅ Payment Methods          | Complete    | CRUD + commission support             |
-| ✅ Carrier Management       | Complete    | Carrier CRUD                          |
-| ✅ Address Management       | Complete    | Sender/Receiver + default addresses   |
-| ✅ Shipping Rate Calculator | Complete    | Volumetric weight + distance factors  |
-| 🔄 Reporting               | Planned     | PDF / Excel export                    |
-| 🔄 Notifications           | Planned     | Email / SMS alerts                    |
-| 🔄 Real-Time Tracking      | Planned     | SignalR integration                   |
+This project is **completed and fully functional**, with the core shipping, authentication, subscription, billing, and logistics management features implemented.
 
+| Feature | Status |
+|---|---|
+| ✅ Authentication & Authorization | Complete |
+| ✅ User Management | Complete |
+| ✅ Shipment Management | Complete |
+| ✅ Shipment Tracking | Complete |
+| ✅ Distance Calculation | Complete |
+| ✅ Shipping Rate Calculator | Complete |
+| ✅ Subscription System | Complete |
+| ✅ Payment Methods | Complete |
+| ✅ Carrier Management | Complete |
+| ✅ Address Management | Complete |
+| ✅ Audit Trail | Complete |
+| ✅ Role & Permission Management | Complete |
+| ✅ Analytics & Dashboard Views | Complete |
+| ✅ API Documentation | Complete |
 ---
 
 # 🌟 Architectural Highlights
@@ -632,39 +632,17 @@ WebApi/test.http
 
 ---
 
-# 📈 Roadmap
+# 🚀 Future Enhancements
 
-## Phase 1 — Core Features
+Although the current system is complete and fully functional, the following features can be added in future versions:
 
-* [x] Authentication & Authorization
-* [x] User Management
-* [x] Shipment CRUD
-* [x] Shipment Rate Calculator
-* [x] Subscription System
-* [x] Payment Methods
-* [x] Carrier Management
-* [x] Address Management
-* [x] Refresh Token Rotation
-* [x] Role & Permission Management
-
-## Phase 2 — Enhancements
-
-* [ ] Real-time distance calculation
-* [ ] Advanced shipment tracking
-* [ ] Email notifications
-* [ ] SMS notifications
-* [ ] PDF report generation
-* [ ] Excel report generation
-
-## Phase 3 — Advanced Features
-
-* [ ] Mobile application — React Native / Flutter
-* [ ] Payment gateway integration
-* [ ] Real-time tracking with SignalR
-* [ ] Multi-language support
-* [ ] Advanced analytics dashboard
-* [ ] Advanced reporting system
-
+- [ ] Payment gateway integration
+- [ ] Email / SMS notification system
+- [ ] PDF / Excel advanced reporting
+- [ ] Real-time tracking with SignalR
+- [ ] Mobile application (React Native / Flutter)
+- [ ] Multi-language support
+- [ ] Advanced analytics and reporting
 ---
 
 # 🤝 Contributing
