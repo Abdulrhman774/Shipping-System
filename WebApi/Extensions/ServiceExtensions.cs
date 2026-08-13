@@ -268,7 +268,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
-                    options.TokenValidationParameters = new TokenValidationParameters
+                    options.TokenValidationParameters = new ()
                     {
                         ValidateIssuer = true,
                         ValidateAudience = true,
